@@ -152,6 +152,20 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
+  app.get('/api/articles/:id', async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const article = await storage.getArticle(id);
+      if (!article) {
+        return res.status(404).json({ message: "Article not found" });
+      }
+      res.json(article);
+    } catch (error) {
+      console.error("Error fetching article:", error);
+      res.status(500).json({ message: "Failed to fetch article" });
+    }
+  });
+
   app.post('/api/articles', requireAuth, async (req, res) => {
     try {
       const validatedData = insertArticleSchema.parse(req.body);
@@ -160,6 +174,29 @@ export function registerRoutes(app: Express): Server {
     } catch (error) {
       console.error("Error creating article:", error);
       res.status(500).json({ message: "Failed to create article" });
+    }
+  });
+
+  app.put('/api/articles/:id', requireAuth, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const validatedData = insertArticleSchema.partial().parse(req.body);
+      const article = await storage.updateArticle(id, validatedData);
+      res.json(article);
+    } catch (error) {
+      console.error("Error updating article:", error);
+      res.status(500).json({ message: "Failed to update article" });
+    }
+  });
+
+  app.delete('/api/articles/:id', requireAuth, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      await storage.deleteArticle(id);
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting article:", error);
+      res.status(500).json({ message: "Failed to delete article" });
     }
   });
 

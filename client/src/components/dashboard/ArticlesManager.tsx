@@ -21,6 +21,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+import { insertArticleSchema } from "@shared/schema";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 const ArticlesManager = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -28,8 +33,10 @@ const ArticlesManager = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [currentArticle, setCurrentArticle] = useState(null);
+  const { toast } = useToast();
 
   const form = useForm({
+    resolver: zodResolver(insertArticleSchema),
     defaultValues: {
       title: "",
       excerpt: "",
@@ -40,63 +47,102 @@ const ArticlesManager = () => {
     },
   });
 
-  const articles = [
-    {
-      id: 1,
-      title: "كيفية تحسين ترتيب موقعك في جوجل خلال 30 يوم",
-      excerpt: "دليل شامل لتحسين محركات البحث وزيادة ظهور موقعك في النتائج الأولى",
-      author: "أحمد محمد",
-      category: "SEO",
-      status: "published",
-      views: 1250,
-      date: "2024-01-15",
-      featured: true,
-      tags: ["SEO", "تحسين محركات البحث", "جوجل"]
-    },
-    {
-      id: 2,
-      title: "استراتيجيات التسويق عبر السوشيال ميديا لعام 2024",
-      excerpt: "أحدث اتجاهات التسويق على منصات التواصل الاجتماعي",
-      author: "سارة أحمد",
-      category: "Social Media",
-      status: "draft",
-      views: 0,
-      date: "2024-01-12",
-      featured: false,
-      tags: ["السوشيال ميديا", "التسويق", "2024"]
-    },
-    {
-      id: 3,
-      title: "بناء موقع إلكتروني احترافي: الدليل الكامل",
-      excerpt: "خطوات عملية لبناء موقع إلكتروني يحقق أهدافك التجارية",
-      author: "محمد علي",
-      category: "Web Development",
-      status: "published",
-      views: 890,
-      date: "2024-01-10",
-      featured: false,
-      tags: ["تطوير المواقع", "برمجة", "تصميم"]
-    },
-    {
-      id: 4,
-      title: "كيفية قياس نجاح حملاتك الإعلانية الرقمية",
-      excerpt: "المؤشرات المهمة والأدوات اللازمة لقياس أداء حملاتك",
-      author: "فاطمة حسن",
-      category: "Digital Marketing",
-      status: "review",
-      views: 567,
-      date: "2024-01-08",
-      featured: false,
-      tags: ["الإعلانات", "التسويق الرقمي", "القياس"]
-    }
-  ];
+  // جلب المقالات من API
+  const { data: articles = [], isLoading, error } = useQuery({
+    queryKey: ["/api/articles"],
+  });
 
-  const stats = [
-    { label: "إجمالي المقالات", value: "156", color: "text-blue-600", icon: FileText },
-    { label: "المقالات المنشورة", value: "124", color: "text-green-600", icon: Eye },
-    { label: "المسودات", value: "18", color: "text-yellow-600", icon: Edit },
-    { label: "قيد المراجعة", value: "14", color: "text-purple-600", icon: Clock }
-  ];
+  // إضافة مقال جديد
+  const createMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const res = await apiRequest("/api/articles", {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/articles"] });
+      setIsAddDialogOpen(false);
+      form.reset();
+      toast({
+        title: "تم بنجاح",
+        description: "تم إضافة المقال بنجاح",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "خطأ",
+        description: "فشل في إضافة المقال",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // تحديث مقال
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: number; data: any }) => {
+      const res = await apiRequest(`/api/articles/${id}`, {
+        method: "PUT",
+        body: JSON.stringify(data),
+      });
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/articles"] });
+      setIsEditDialogOpen(false);
+      form.reset();
+      toast({
+        title: "تم بنجاح",
+        description: "تم تحديث المقال بنجاح",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "خطأ",
+        description: "فشل في تحديث المقال",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // حذف مقال
+  const deleteMutation = useMutation({
+    mutationFn: async (id: number) => {
+      await apiRequest(`/api/articles/${id}`, {
+        method: "DELETE",
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/articles"] });
+      toast({
+        title: "تم بنجاح",
+        description: "تم حذف المقال بنجاح",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "خطأ",
+        description: "فشل في حذف المقال",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // حساب الإحصائيات من البيانات الحقيقية
+  const stats = React.useMemo(() => {
+    const totalArticles = articles.length;
+    const publishedArticles = articles.filter(a => a.status === 'published').length;
+    const draftArticles = articles.filter(a => a.status === 'draft').length;
+    const reviewArticles = articles.filter(a => a.status === 'review').length;
+    
+    return [
+      { label: "إجمالي المقالات", value: totalArticles.toString(), color: "text-blue-600", icon: FileText },
+      { label: "المقالات المنشورة", value: publishedArticles.toString(), color: "text-green-600", icon: Eye },
+      { label: "المسودات", value: draftArticles.toString(), color: "text-yellow-600", icon: Edit },
+      { label: "قيد المراجعة", value: reviewArticles.toString(), color: "text-purple-600", icon: Clock }
+    ];
+  }, [articles]);
 
   const categories = [
     { id: "all", name: "جميع الفئات" },
@@ -149,7 +195,7 @@ const ArticlesManager = () => {
       excerpt: article.excerpt,
       content: article.content || "",
       category: article.category,
-      tags: article.tags.join(", "),
+      tags: Array.isArray(article.tags) ? article.tags.join(", ") : article.tags || "",
       featured: article.featured,
     });
     setIsEditDialogOpen(true);
@@ -157,17 +203,41 @@ const ArticlesManager = () => {
 
   const handleDeleteArticle = (id: number) => {
     if (window.confirm("هل أنت متأكد من حذف هذا المقال؟")) {
-      // Here you would typically call an API to delete the article
-      console.log("Delete article:", id);
+      deleteMutation.mutate(id);
     }
   };
 
   const onSubmit = (data: any) => {
-    console.log("Form data:", data);
-    setIsAddDialogOpen(false);
-    setIsEditDialogOpen(false);
-    form.reset();
+    if (isEditDialogOpen && currentArticle) {
+      updateMutation.mutate({ id: currentArticle.id, data });
+    } else {
+      createMutation.mutate(data);
+    }
   };
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="text-center py-8">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-inception-purple mx-auto"></div>
+          <p className="mt-4 text-gray-600">جارٍ تحميل المقالات...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div className="text-center py-8">
+          <p className="text-red-600">حدث خطأ في تحميل المقالات</p>
+          <Button onClick={() => queryClient.invalidateQueries({ queryKey: ["/api/articles"] })} className="mt-4">
+            إعادة المحاولة
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
