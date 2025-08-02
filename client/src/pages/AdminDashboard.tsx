@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "wouter";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/components/ui/use-toast";
 import { 
   LayoutDashboard,
@@ -54,7 +54,8 @@ const AdminDashboard = () => {
   const [serviceEditorId, setServiceEditorId] = useState<string | null>(null);
   const [industryEditorId, setIndustryEditorId] = useState<string | null>(null);
   const { toast } = useToast();
-  const { isAuthenticated, isLoading, user } = useAuth();
+  const { user, isLoading } = useAuth();
+  const isAuthenticated = !!user;
   
   // Get current tab from URL
   const currentPath = location.replace('/admin/', '') || 'dashboard';
@@ -77,7 +78,7 @@ const AdminDashboard = () => {
         variant: "destructive",
       });
       setTimeout(() => {
-        window.location.href = "/api/login";
+        window.location.href = "/auth";
       }, 500);
       return;
     }
@@ -103,7 +104,7 @@ const AdminDashboard = () => {
           <LogIn className="h-16 w-16 text-gray-400 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-gray-900 mb-2">تسجيل الدخول مطلوب</h2>
           <p className="text-gray-600 mb-6">يجب تسجيل الدخول للوصول لوحة التحكم</p>
-          <Button onClick={() => window.location.href = "/api/login"}>
+          <Button onClick={() => window.location.href = "/auth"}>
             تسجيل الدخول
           </Button>
         </div>
