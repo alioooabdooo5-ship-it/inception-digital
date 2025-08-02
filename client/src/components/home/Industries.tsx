@@ -3,34 +3,26 @@ import React from "react";
 import { Link } from "wouter";
 import IndustryCard from "@/components/ui/IndustryCard";
 import AnimatedSection from "@/components/common/AnimatedSection";
+import { useQuery } from "@tanstack/react-query";
+import type { Industry } from "@shared/schema";
 
 const Industries: React.FC = () => {
-  const industries = [
-    {
-      image: "/lovable-uploads/28b72d61-4e8f-4b33-847a-1685c6b0b5a5.png",
-      title: "العقارات",
-      description: "في مجال العقارات، القرار الشرائي بياخد وقت، وعلشان كده ركّزنا على إعلانات Google Ads لاستهداف العملاء الجاهزين للشراء.",
-      link: "/industries#real-estate"
-    },
-    {
-      image: "/lovable-uploads/91e78bbe-63bc-4f32-98d9-9b42cbab317a.png",
-      title: "المطابخ والدريسنج",
-      description: "العميل مش بيشتري منتج، العميل بيشتري تجربة! اعتمدنا على التصوير الاحترافي اللي يبرز الفخامة.",
-      link: "/industries#kitchens"
-    },
-    {
-      image: "/lovable-uploads/3cc93b10-435d-4b20-a3d0-da06335cf1ca.png",
-      title: "التشطيبات والديكورات",
-      description: "الثقة هي مفتاح البيع في المجال ده! اشتغلنا على إنتاج محتوى مستمر يشرح التفاصيل الفنية، مع بناء هوية رقمية قوية تعكس خبرة الشركة.",
-      link: "/industries#decoration"
-    },
-    {
-      image: "/lovable-uploads/6b7d5f55-0ca7-45cb-9463-f8a6eb07d7d4.png",
-      title: "التصدير للمصانع",
-      description: "هدفنا إن كل مصنع يوصل لمستوردين حقيقيين! بنبدأ بـ بروفايل احترافي يعكس قوة المصنع، مع موقع إلكتروني احترافي.",
-      link: "/industries#export"
-    }
-  ];
+  const { data: industries = [], isLoading } = useQuery<Industry[]>({
+    queryKey: ['/api/industries']
+  });
+
+  if (isLoading) {
+    return (
+      <section className="py-20 bg-gray-50 relative overflow-hidden">
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-inception-purple mx-auto"></div>
+            <p className="mt-4 text-gray-600">جاري تحميل الصناعات...</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="py-20 bg-gray-50 relative overflow-hidden">
@@ -48,17 +40,17 @@ const Industries: React.FC = () => {
         </AnimatedSection>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
-          {industries.map((industry, index) => (
+          {industries.filter(industry => industry && industry.title).map((industry, index) => (
             <AnimatedSection 
-              key={index}
+              key={industry.id || index}
               variant="fade-in"
               delay={index * 100}
             >
               <IndustryCard
-                image={industry.image}
+                image={industry.image || "/lovable-uploads/28b72d61-4e8f-4b33-847a-1685c6b0b5a5.png"}
                 title={industry.title}
-                description={industry.description}
-                link={industry.link}
+                description={industry.description || 'صناعة متميزة'}
+                link="/contact"
               />
             </AnimatedSection>
           ))}

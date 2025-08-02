@@ -10,6 +10,7 @@ import {
   insertArticleSchema,
   insertContactFormSchema 
 } from "@shared/schema";
+import { seedDatabase } from "./seedData";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
@@ -193,6 +194,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error creating contact form:", error);
       res.status(500).json({ message: "Failed to create contact form" });
+    }
+  });
+
+  // Seed database route (for initial data)
+  app.post('/api/seed-database', async (req, res) => {
+    try {
+      const success = await seedDatabase();
+      if (success) {
+        res.json({ message: "Database seeded successfully" });
+      } else {
+        res.status(500).json({ message: "Failed to seed database" });
+      }
+    } catch (error) {
+      console.error("Error seeding database:", error);
+      res.status(500).json({ message: "Failed to seed database" });
     }
   });
 

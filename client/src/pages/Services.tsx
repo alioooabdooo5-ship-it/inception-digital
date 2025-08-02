@@ -14,8 +14,14 @@ import {
   faChartLine
 } from '@fortawesome/free-solid-svg-icons';
 import { Link } from "wouter";
+import { useQuery } from "@tanstack/react-query";
+import type { Service } from "@shared/schema";
 
 const Services = () => {
+  const { data: services = [], isLoading } = useQuery<Service[]>({
+    queryKey: ['/api/services']
+  });
+
   useEffect(() => {
     window.scrollTo(0, 0);
     
@@ -29,7 +35,37 @@ const Services = () => {
     }
   }, []);
 
-  const services = [
+  const getIconComponent = (iconName: string) => {
+    const iconMap = {
+      'video': faVideo,
+      'bullhorn': faBullhorn, 
+      'search': faSearch,
+      'code': faCode,
+      'share-alt': faShareAlt
+    };
+    const icon = iconMap[iconName as keyof typeof iconMap] || faRocket;
+    return <FontAwesomeIcon icon={icon} className="w-8 h-8" />;
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+        <Header />
+        <main className="pt-20">
+          <div className="container mx-auto px-4 py-16">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-inception-purple mx-auto"></div>
+              <p className="mt-4 text-gray-600">جاري تحميل الخدمات...</p>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  // Demo services as fallback (kept for compatibility)
+  const demoServices = [
     {
       icon: <FontAwesomeIcon icon={faVideo} className="w-8 h-8" />,
       title: "الميديا برودكشن وصناعة المحتوى",
@@ -136,57 +172,68 @@ const Services = () => {
 
             {/* Services Cards */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-20">
-              {services.map((service, index) => (
-                <AnimatedSection 
-                  key={index}
-                  variant="fade-in" 
-                  delay={index * 150}
-                  className="group"
-                >
-                  <div className="relative overflow-hidden rounded-3xl bg-white shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2">
-                    {/* Image Section */}
-                    <div className="relative h-64 overflow-hidden">
-                      <div className={`absolute inset-0 bg-gradient-to-br ${service.gradient} opacity-90`} />
-                      <img 
-                        src={service.image}
-                        alt={service.title}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                      />
-                      
-                      {/* Floating Icon */}
-                      <div className="absolute top-6 right-6 w-16 h-16 bg-white/90 backdrop-blur-sm rounded-2xl flex items-center justify-center text-inception-purple shadow-lg">
-                        {service.icon}
-                      </div>
-                      
-                      {/* Stats Badge */}
-                      <div className="absolute bottom-6 left-6 bg-white/95 backdrop-blur-sm rounded-xl px-4 py-2 shadow-lg">
-                        <div className="flex items-center">
-                          <FontAwesomeIcon icon={faChartLine} className="w-4 h-4 text-inception-orange ml-2" />
-                          <span className="text-sm font-semibold text-inception-purple">{service.stats}</span>
+              {services.map((service, index) => {
+                const defaultImage = `https://images.unsplash.com/photo-${
+                  service.icon === 'search' ? '1432888622747-4eb9a8efeb07' :
+                  service.icon === 'bullhorn' ? '1460925895917-afdab827c52f' :
+                  service.icon === 'share-alt' ? '1611162617474-5b21e879e113' :
+                  service.icon === 'code' ? '1498050108023-c5249f4df085' :
+                  service.icon === 'video' ? '1487058792275-0ad4aaf24ca7' :
+                  '1487058792275-0ad4aaf24ca7'
+                }?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600&q=80`;
+                
+                return (
+                  <AnimatedSection 
+                    key={service.id}
+                    variant="fade-in" 
+                    delay={index * 150}
+                    className="group"
+                  >
+                    <div className="relative overflow-hidden rounded-3xl bg-white shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2">
+                      {/* Image Section */}
+                      <div className="relative h-64 overflow-hidden">
+                        <div className={`absolute inset-0 bg-gradient-to-br ${service.gradient} opacity-90`} />
+                        <img 
+                          src={service.image || defaultImage}
+                          alt={service.title}
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        />
+                        
+                        {/* Floating Icon */}
+                        <div className="absolute top-6 right-6 w-16 h-16 bg-white/90 backdrop-blur-sm rounded-2xl flex items-center justify-center text-inception-purple shadow-lg">
+                          {getIconComponent(service.icon)}
+                        </div>
+                        
+                        {/* Stats Badge */}
+                        <div className="absolute bottom-6 left-6 bg-white/95 backdrop-blur-sm rounded-xl px-4 py-2 shadow-lg">
+                          <div className="flex items-center">
+                            <FontAwesomeIcon icon={faChartLine} className="w-4 h-4 text-inception-orange ml-2" />
+                            <span className="text-sm font-semibold text-inception-purple">{service.stats}</span>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    
-                    {/* Content Section */}
-                    <div className="p-8">
-                      <h3 className="text-2xl font-bold text-inception-purple mb-4 group-hover:text-inception-orange transition-colors">
-                        {service.title}
-                      </h3>
-                      <p className="text-gray-700 leading-relaxed mb-6">
-                        {service.description}
-                      </p>
                       
-                      <Link 
-                        to={service.link}
-                        className="inline-flex items-center text-inception-purple hover:text-inception-orange font-semibold transition-all duration-300 group/link"
-                      >
-                        <span className="ml-2">اقرأ المزيد</span>
-                        <ArrowUpRight className="w-5 h-5 transition-transform group-hover/link:translate-x-1 group-hover/link:-translate-y-1" />
-                      </Link>
+                      {/* Content Section */}
+                      <div className="p-8">
+                        <h3 className="text-2xl font-bold text-inception-purple mb-4 group-hover:text-inception-orange transition-colors">
+                          {service.title}
+                        </h3>
+                        <p className="text-gray-700 leading-relaxed mb-6">
+                          {service.description}
+                        </p>
+                        
+                        <Link 
+                          to="/contact"
+                          className="inline-flex items-center text-inception-purple hover:text-inception-orange font-semibold transition-all duration-300 group/link"
+                        >
+                          <span className="ml-2">اطلب الخدمة</span>
+                          <ArrowUpRight className="w-5 h-5 transition-transform group-hover/link:translate-x-1 group-hover/link:-translate-y-1" />
+                        </Link>
+                      </div>
                     </div>
-                  </div>
-                </AnimatedSection>
-              ))}
+                  </AnimatedSection>
+                );
+              })}
             </div>
 
             {/* CTA Section */}
