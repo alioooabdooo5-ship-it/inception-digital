@@ -223,10 +223,10 @@ const Services = () => {
                         </p>
                         
                         <Link 
-                          to="/contact"
+                          to={`/services/${service.id}`}
                           className="inline-flex items-center text-inception-purple hover:text-inception-orange font-semibold transition-all duration-300 group/link"
                         >
-                          <span className="ml-2">اطلب الخدمة</span>
+                          <span className="ml-2">تفاصيل الخدمة</span>
                           <ArrowUpRight className="w-5 h-5 transition-transform group-hover/link:translate-x-1 group-hover/link:-translate-y-1" />
                         </Link>
                       </div>
