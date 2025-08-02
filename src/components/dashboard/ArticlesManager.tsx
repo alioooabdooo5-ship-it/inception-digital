@@ -1,0 +1,521 @@
+import React, { useState } from "react";
+import { 
+  FileText, 
+  Plus, 
+  Search, 
+  Edit,
+  Trash2,
+  Eye,
+  Filter,
+  Calendar,
+  User,
+  Clock,
+  TrendingUp
+} from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { useForm } from "react-hook-form";
+
+const ArticlesManager = () => {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterStatus, setFilterStatus] = useState("all");
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [currentArticle, setCurrentArticle] = useState(null);
+
+  const form = useForm({
+    defaultValues: {
+      title: "",
+      excerpt: "",
+      content: "",
+      category: "",
+      tags: "",
+      featured: false,
+    },
+  });
+
+  const articles = [
+    {
+      id: 1,
+      title: "كيفية تحسين ترتيب موقعك في جوجل خلال 30 يوم",
+      excerpt: "دليل شامل لتحسين محركات البحث وزيادة ظهور موقعك في النتائج الأولى",
+      author: "أحمد محمد",
+      category: "SEO",
+      status: "published",
+      views: 1250,
+      date: "2024-01-15",
+      featured: true,
+      tags: ["SEO", "تحسين محركات البحث", "جوجل"]
+    },
+    {
+      id: 2,
+      title: "استراتيجيات التسويق عبر السوشيال ميديا لعام 2024",
+      excerpt: "أحدث اتجاهات التسويق على منصات التواصل الاجتماعي",
+      author: "سارة أحمد",
+      category: "Social Media",
+      status: "draft",
+      views: 0,
+      date: "2024-01-12",
+      featured: false,
+      tags: ["السوشيال ميديا", "التسويق", "2024"]
+    },
+    {
+      id: 3,
+      title: "بناء موقع إلكتروني احترافي: الدليل الكامل",
+      excerpt: "خطوات عملية لبناء موقع إلكتروني يحقق أهدافك التجارية",
+      author: "محمد علي",
+      category: "Web Development",
+      status: "published",
+      views: 890,
+      date: "2024-01-10",
+      featured: false,
+      tags: ["تطوير المواقع", "برمجة", "تصميم"]
+    },
+    {
+      id: 4,
+      title: "كيفية قياس نجاح حملاتك الإعلانية الرقمية",
+      excerpt: "المؤشرات المهمة والأدوات اللازمة لقياس أداء حملاتك",
+      author: "فاطمة حسن",
+      category: "Digital Marketing",
+      status: "review",
+      views: 567,
+      date: "2024-01-08",
+      featured: false,
+      tags: ["الإعلانات", "التسويق الرقمي", "القياس"]
+    }
+  ];
+
+  const stats = [
+    { label: "إجمالي المقالات", value: "156", color: "text-blue-600", icon: FileText },
+    { label: "المقالات المنشورة", value: "124", color: "text-green-600", icon: Eye },
+    { label: "المسودات", value: "18", color: "text-yellow-600", icon: Edit },
+    { label: "قيد المراجعة", value: "14", color: "text-purple-600", icon: Clock }
+  ];
+
+  const categories = [
+    { id: "all", name: "جميع الفئات" },
+    { id: "seo", name: "تحسين محركات البحث" },
+    { id: "social-media", name: "وسائل التواصل الاجتماعي" },
+    { id: "web-development", name: "تطوير المواقع" },
+    { id: "digital-marketing", name: "التسويق الرقمي" }
+  ];
+
+  const filteredArticles = articles.filter(article => {
+    const matchesSearch = article.title.includes(searchQuery) || article.excerpt.includes(searchQuery);
+    const matchesStatus = filterStatus === "all" || article.status === filterStatus;
+    return matchesSearch && matchesStatus;
+  });
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "published": return "bg-green-100 text-green-800";
+      case "draft": return "bg-yellow-100 text-yellow-800";
+      case "review": return "bg-purple-100 text-purple-800";
+      default: return "bg-gray-100 text-gray-800";
+    }
+  };
+
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case "published": return "منشور";
+      case "draft": return "مسودة";
+      case "review": return "قيد المراجعة";
+      default: return status;
+    }
+  };
+
+  const handleAddArticle = () => {
+    form.reset({
+      title: "",
+      excerpt: "",
+      content: "",
+      category: "",
+      tags: "",
+      featured: false,
+    });
+    setIsAddDialogOpen(true);
+  };
+
+  const handleEditArticle = (article: any) => {
+    setCurrentArticle(article);
+    form.reset({
+      title: article.title,
+      excerpt: article.excerpt,
+      content: article.content || "",
+      category: article.category,
+      tags: article.tags.join(", "),
+      featured: article.featured,
+    });
+    setIsEditDialogOpen(true);
+  };
+
+  const handleDeleteArticle = (id: number) => {
+    if (window.confirm("هل أنت متأكد من حذف هذا المقال؟")) {
+      // Here you would typically call an API to delete the article
+      console.log("Delete article:", id);
+    }
+  };
+
+  const onSubmit = (data: any) => {
+    console.log("Form data:", data);
+    setIsAddDialogOpen(false);
+    setIsEditDialogOpen(false);
+    form.reset();
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <h2 className="text-2xl font-bold text-inception-purple">إدارة المقالات</h2>
+        
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="relative">
+            <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+            <Input
+              placeholder="بحث في المقالات..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pr-10 w-full md:w-[250px]"
+            />
+          </div>
+          
+          <select
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+            className="px-4 py-2 border rounded-lg bg-white"
+          >
+            <option value="all">جميع الحالات</option>
+            <option value="published">منشور</option>
+            <option value="draft">مسودة</option>
+            <option value="review">قيد المراجعة</option>
+          </select>
+          
+          <Button onClick={handleAddArticle} className="bg-inception-purple hover:bg-inception-purple/90">
+            <Plus size={16} className="ml-1" />
+            مقال جديد
+          </Button>
+        </div>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {stats.map((stat, index) => (
+          <Card key={index} className="hover:shadow-lg transition-shadow">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">{stat.label}</p>
+                  <p className={`text-2xl font-bold ${stat.color}`}>{stat.value}</p>
+                </div>
+                <stat.icon className={`w-8 h-8 ${stat.color} opacity-70`} />
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Articles Table */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-xl font-bold text-inception-purple">قائمة المقالات</CardTitle>
+        </CardHeader>
+        <CardContent className="p-0">
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-gray-50">
+                  <TableHead className="text-right">العنوان</TableHead>
+                  <TableHead className="text-right">الكاتب</TableHead>
+                  <TableHead className="text-right">الفئة</TableHead>
+                  <TableHead className="text-right">الحالة</TableHead>
+                  <TableHead className="text-right">المشاهدات</TableHead>
+                  <TableHead className="text-right">التاريخ</TableHead>
+                  <TableHead className="text-right">الإجراءات</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredArticles.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={7} className="text-center py-8 text-gray-500">
+                      لا توجد مقالات مطابقة للبحث
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  filteredArticles.map((article) => (
+                    <TableRow key={article.id} className="hover:bg-gray-50">
+                      <TableCell>
+                        <div>
+                          <div className="font-medium text-inception-purple flex items-center">
+                            {article.title}
+                            {article.featured && (
+                              <Badge className="mr-2 bg-inception-orange text-white">مميز</Badge>
+                            )}
+                          </div>
+                          <div className="text-sm text-gray-500 truncate max-w-[300px]">
+                            {article.excerpt}
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center">
+                          <User className="w-4 h-4 ml-1 text-gray-400" />
+                          {article.author}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline">{article.category}</Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge className={getStatusColor(article.status)}>
+                          {getStatusText(article.status)}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center">
+                          <TrendingUp className="w-4 h-4 ml-1 text-green-500" />
+                          {article.views}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center text-gray-600">
+                          <Calendar className="w-4 h-4 ml-1" />
+                          {new Date(article.date).toLocaleDateString('ar-EG')}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex space-x-2 space-x-reverse">
+                          <Button variant="ghost" size="icon" title="عرض">
+                            <Eye size={16} className="text-blue-500" />
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            onClick={() => handleEditArticle(article)}
+                            title="تعديل"
+                          >
+                            <Edit size={16} className="text-green-500" />
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            onClick={() => handleDeleteArticle(article.id)}
+                            title="حذف"
+                          >
+                            <Trash2 size={16} className="text-red-500" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Add Article Dialog */}
+      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+        <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-right">إضافة مقال جديد</DialogTitle>
+          </DialogHeader>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <FormField
+                control={form.control}
+                name="title"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>عنوان المقال</FormLabel>
+                    <FormControl>
+                      <Input placeholder="أدخل عنوان المقال" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="excerpt"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>الملخص</FormLabel>
+                    <FormControl>
+                      <Textarea placeholder="ملخص قصير للمقال" {...field} rows={3} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="content"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>محتوى المقال</FormLabel>
+                    <FormControl>
+                      <Textarea placeholder="محتوى المقال الكامل" {...field} rows={8} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="category"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>الفئة</FormLabel>
+                      <FormControl>
+                        <select {...field} className="w-full px-3 py-2 border rounded-lg">
+                          <option value="">اختر الفئة</option>
+                          {categories.slice(1).map((category) => (
+                            <option key={category.id} value={category.id}>
+                              {category.name}
+                            </option>
+                          ))}
+                        </select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="tags"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>الكلمات المفتاحية</FormLabel>
+                      <FormControl>
+                        <Input placeholder="الكلمات المفتاحية مفصولة بفاصلة" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              
+              <DialogFooter>
+                <Button type="submit" className="bg-inception-purple hover:bg-inception-purple/90">
+                  إضافة المقال
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Article Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-right">تعديل المقال</DialogTitle>
+          </DialogHeader>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <FormField
+                control={form.control}
+                name="title"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>عنوان المقال</FormLabel>
+                    <FormControl>
+                      <Input placeholder="أدخل عنوان المقال" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="excerpt"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>الملخص</FormLabel>
+                    <FormControl>
+                      <Textarea placeholder="ملخص قصير للمقال" {...field} rows={3} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="content"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>محتوى المقال</FormLabel>
+                    <FormControl>
+                      <Textarea placeholder="محتوى المقال الكامل" {...field} rows={8} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="category"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>الفئة</FormLabel>
+                      <FormControl>
+                        <select {...field} className="w-full px-3 py-2 border rounded-lg">
+                          <option value="">اختر الفئة</option>
+                          {categories.slice(1).map((category) => (
+                            <option key={category.id} value={category.id}>
+                              {category.name}
+                            </option>
+                          ))}
+                        </select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="tags"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>الكلمات المفتاحية</FormLabel>
+                      <FormControl>
+                        <Input placeholder="الكلمات المفتاحية مفصولة بفاصلة" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              
+              <DialogFooter>
+                <Button type="submit" className="bg-inception-purple hover:bg-inception-purple/90">
+                  حفظ التغييرات
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+};
+
+export default ArticlesManager;
