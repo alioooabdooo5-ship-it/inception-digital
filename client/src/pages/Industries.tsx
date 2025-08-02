@@ -16,9 +16,14 @@ import {
   Play,
   ExternalLink
 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import type { Industry } from "@shared/schema";
 
 const Industries = () => {
   const [activeCard, setActiveCard] = useState<number | null>(null);
+  const { data: industries = [], isLoading } = useQuery<Industry[]>({
+    queryKey: ['/api/industries']
+  });
   
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -33,7 +38,36 @@ const Industries = () => {
     }
   }, []);
 
-  const industries = [
+  const getIconComponent = (iconName: string | null) => {
+    const iconMap = {
+      'home': Home,
+      'chef-hat': ChefHat,
+      'brush': Brush,
+      'factory': Factory
+    };
+    const IconComponent = iconName ? iconMap[iconName as keyof typeof iconMap] || Factory : Factory;
+    return <IconComponent className="w-8 h-8" />;
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+        <Header />
+        <main className="pt-20">
+          <div className="container mx-auto px-4 py-16">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-inception-purple mx-auto"></div>
+              <p className="mt-4 text-gray-600">جاري تحميل الصناعات...</p>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  // Demo industries as fallback (kept for compatibility)
+  const demoIndustries = [
     {
       id: 1,
       title: "العقارات والاستثمار",
@@ -177,23 +211,23 @@ const Industries = () => {
                     <div className="relative h-80 overflow-hidden">
                       <div className={`absolute inset-0 bg-gradient-to-br ${industry.gradient} ${activeCard === industry.id ? 'opacity-90' : 'opacity-75'} transition-opacity duration-500`} />
                       <img 
-                        src={industry.image}
+                        src={industry.image || "https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600&q=80"}
                         alt={industry.title}
                         className={`w-full h-full object-cover transition-all duration-700 ${activeCard === industry.id ? 'scale-110 blur-sm' : 'scale-100'}`}
                       />
                       
                       {/* Floating Icon */}
                       <div className={`absolute top-6 right-6 w-16 h-16 bg-white/95 backdrop-blur-sm rounded-2xl flex items-center justify-center text-inception-purple shadow-lg transition-all duration-500 ${activeCard === industry.id ? 'scale-110 rotate-12' : ''}`}>
-                        {industry.icon}
+                        {getIconComponent(industry.icon)}
                       </div>
                       
                       {/* Animated Stats */}
                       <div className={`absolute bottom-6 left-6 right-6 space-y-2 transition-all duration-500 ${activeCard === industry.id ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}>
                         <div className="grid grid-cols-3 gap-2">
-                          {industry.results.map((result, idx) => (
+                          {(industry.results as any[] || []).map((result: any, idx: number) => (
                             <div key={idx} className="bg-white/95 backdrop-blur-sm rounded-xl p-3 text-center shadow-lg">
-                              <div className="text-lg font-bold text-inception-purple">{result.metric}</div>
-                              <div className="text-xs text-gray-600 leading-tight">{result.label}</div>
+                              <div className="text-lg font-bold text-inception-purple">{result.metric || '+100%'}</div>
+                              <div className="text-xs text-gray-600 leading-tight">{result.label || 'نتائج إيجابية'}</div>
                             </div>
                           ))}
                         </div>
@@ -214,7 +248,7 @@ const Industries = () => {
                           {industry.title}
                         </h3>
                         <p className="text-inception-orange font-semibold mb-3">
-                          {industry.subtitle}
+                          {industry.subtitle || 'حلول تسويقية متقدمة'}
                         </p>
                         <p className="text-gray-700 leading-relaxed">
                           {industry.description}
@@ -223,7 +257,7 @@ const Industries = () => {
                       
                       {/* Services Tags */}
                       <div className="flex flex-wrap gap-2 mb-6">
-                        {industry.services.map((service, idx) => (
+                        {(industry.services as string[] || ['استراتيجيات متقدمة', 'حلول مبتكرة', 'نتائج مضمونة']).map((service: string, idx: number) => (
                           <span 
                             key={idx}
                             className="px-3 py-1 bg-inception-purple/10 text-inception-purple rounded-full text-sm font-medium"
