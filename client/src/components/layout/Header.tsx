@@ -95,18 +95,21 @@ const Header: React.FC = () => {
 
           {/* Login Button */}
           <div className="hidden md:flex items-center space-x-3 space-x-reverse">
-            <button className="text-inception-purple hover:text-inception-orange transition-colors duration-300 font-medium">
+            <Link 
+              to="/auth" 
+              className="text-inception-purple hover:text-inception-orange transition-colors duration-300 font-medium"
+            >
               تسجيل الدخول
-            </button>
+            </Link>
             
             {/* CTA Button */}
-            <a 
-              href="/api/login" 
+            <Link 
+              to="/auth" 
               className="btn-primary group"
             >
               <FontAwesomeIcon icon={faRocket} className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
               ابدأ الآن
-            </a>
+            </Link>
           </div>
 
           {/* Mobile Menu Button */}
@@ -154,16 +157,20 @@ const Header: React.FC = () => {
             <NavLink to="/contact" className="py-3 border-b" onClick={closeMenu}>
               تواصل معنا
             </NavLink>
-            <button className="py-3 border-b text-right text-inception-purple hover:text-inception-orange transition-colors duration-300 font-medium" onClick={closeMenu}>
+            <Link 
+              to="/auth" 
+              className="py-3 border-b text-right text-inception-purple hover:text-inception-orange transition-colors duration-300 font-medium" 
+              onClick={closeMenu}
+            >
               تسجيل الدخول
-            </button>
-            <a 
-              href="/api/login" 
-              className="btn-primary mt-3 text-center"
+            </Link>
+            <Link 
+              to="/auth" 
+              className="btn-primary mt-3 text-center block"
               onClick={closeMenu}
             >
               ابدأ الآن
-            </a>
+            </Link>
           </nav>
         </div>
       </div>
