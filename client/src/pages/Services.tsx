@@ -137,7 +137,7 @@ const Services = () => {
                   المتطورة
                 </span>
               </h1>
-              <p className="text-xl md:text-2xl text-gray-700 max-w-4xl mx-auto leading-relaxed">
+              <p className="text-xl md:text-2xl text-gray-800 max-w-4xl mx-auto leading-relaxed">
                 نقدم مجموعة متكاملة من خدمات التسويق الرقمي المصممة لتحقيق نتائج ملموسة 
                 <span className="font-semibold text-inception-purple"> وتحويل اهتمام العملاء إلى مبيعات حقيقية</span>
               </p>
@@ -165,7 +165,7 @@ const Services = () => {
               <h2 className="text-4xl md:text-5xl font-bold text-inception-purple mb-6">
                 حلول تسويقية شاملة
               </h2>
-              <p className="text-xl text-gray-700 max-w-3xl mx-auto">
+              <p className="text-xl text-gray-800 max-w-3xl mx-auto">
                 كل خدمة مصممة بعناية لضمان تحقيق أهدافك التسويقية بأفضل النتائج
               </p>
             </AnimatedSection>
@@ -200,15 +200,15 @@ const Services = () => {
                         />
                         
                         {/* Floating Icon */}
-                        <div className="absolute top-6 right-6 w-16 h-16 bg-white/90 backdrop-blur-sm rounded-2xl flex items-center justify-center text-inception-purple shadow-lg">
+                        <div className="absolute top-6 right-6 w-16 h-16 bg-white/98 backdrop-blur-sm rounded-2xl flex items-center justify-center text-inception-purple shadow-lg border border-white/50">
                           {service.icon && getIconComponent(service.icon)}
                         </div>
                         
                         {/* Stats Badge */}
-                        <div className="absolute bottom-6 left-6 bg-white/95 backdrop-blur-sm rounded-xl px-4 py-2 shadow-lg">
+                        <div className="absolute bottom-6 left-6 bg-white/98 backdrop-blur-sm rounded-xl px-4 py-2 shadow-lg border border-white/50">
                           <div className="flex items-center">
                             <FontAwesomeIcon icon={faChartLine} className="w-4 h-4 text-inception-orange ml-2" />
-                            <span className="text-sm font-semibold text-inception-purple">{service.stats}</span>
+                            <span className="text-sm font-bold text-inception-purple">{service.stats}</span>
                           </div>
                         </div>
                       </div>
@@ -218,7 +218,7 @@ const Services = () => {
                         <h3 className="text-2xl font-bold text-inception-purple mb-4 group-hover:text-inception-orange transition-colors">
                           {service.title}
                         </h3>
-                        <p className="text-gray-700 leading-relaxed mb-6">
+                        <p className="text-gray-800 leading-relaxed mb-6">
                           {service.description}
                         </p>
                         
