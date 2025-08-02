@@ -158,23 +158,23 @@ const Industries = () => {
                   بنتميز فيها
                 </span>
               </h1>
-              <p className="text-xl md:text-2xl text-gray-700 max-w-4xl mx-auto leading-relaxed mb-10">
+              <p className="text-xl md:text-2xl text-gray-800 max-w-4xl mx-auto leading-relaxed mb-10">
                 كل صناعة ليها استراتيجيتها الخاصة، ونجاح أي حملة تسويقية بيعتمد على 
                 <span className="font-semibold text-inception-purple"> فهم عميق لسلوك العملاء في كل مجال</span>
               </p>
               
               <div className="flex flex-wrap justify-center gap-4 text-sm">
-                <div className="flex items-center bg-white/80 backdrop-blur-sm rounded-full px-4 py-2 shadow-sm">
+                <div className="flex items-center bg-white/95 backdrop-blur-sm rounded-full px-4 py-2 shadow-md border border-white/50">
                   <TrendingUp className="w-4 h-4 text-inception-orange ml-2" />
-                  <span className="text-gray-700">+150% متوسط نمو العملاء</span>
+                  <span className="text-gray-800 font-medium">+150% متوسط نمو العملاء</span>
                 </div>
-                <div className="flex items-center bg-white/80 backdrop-blur-sm rounded-full px-4 py-2 shadow-sm">
+                <div className="flex items-center bg-white/95 backdrop-blur-sm rounded-full px-4 py-2 shadow-md border border-white/50">
                   <Users className="w-4 h-4 text-inception-purple ml-2" />
-                  <span className="text-gray-700">+500 عميل راضي</span>
+                  <span className="text-gray-800 font-medium">+500 عميل راضي</span>
                 </div>
-                <div className="flex items-center bg-white/80 backdrop-blur-sm rounded-full px-4 py-2 shadow-sm">
-                  <Target className="w-4 h-4 text-green-500 ml-2" />
-                  <span className="text-gray-700">استراتيجيات مثبتة النجاح</span>
+                <div className="flex items-center bg-white/95 backdrop-blur-sm rounded-full px-4 py-2 shadow-md border border-white/50">
+                  <Target className="w-4 h-4 text-green-600 ml-2" />
+                  <span className="text-gray-800 font-medium">استراتيجيات مثبتة النجاح</span>
                 </div>
               </div>
             </AnimatedSection>
@@ -188,7 +188,7 @@ const Industries = () => {
               <h2 className="text-4xl md:text-5xl font-bold text-inception-purple mb-6">
                 خبراتنا المتخصصة
               </h2>
-              <p className="text-xl text-gray-700 max-w-3xl mx-auto">
+              <p className="text-xl text-gray-800 max-w-3xl mx-auto">
                 نقدم حلول تسويقية مبتكرة مصممة خصيصاً لكل صناعة
               </p>
             </AnimatedSection>
@@ -217,7 +217,7 @@ const Industries = () => {
                       />
                       
                       {/* Floating Icon */}
-                      <div className={`absolute top-6 right-6 w-16 h-16 bg-white/95 backdrop-blur-sm rounded-2xl flex items-center justify-center text-inception-purple shadow-lg transition-all duration-500 ${activeCard === industry.id ? 'scale-110 rotate-12' : ''}`}>
+                      <div className={`absolute top-6 right-6 w-16 h-16 bg-white/98 backdrop-blur-sm rounded-2xl flex items-center justify-center text-inception-purple shadow-lg border border-white/50 transition-all duration-500 ${activeCard === industry.id ? 'scale-110 rotate-12' : ''}`}>
                         {getIconComponent(industry.icon)}
                       </div>
                       
@@ -225,9 +225,9 @@ const Industries = () => {
                       <div className={`absolute bottom-6 left-6 right-6 space-y-2 transition-all duration-500 ${activeCard === industry.id ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}>
                         <div className="grid grid-cols-3 gap-2">
                           {(industry.results as any[] || []).map((result: any, idx: number) => (
-                            <div key={idx} className="bg-white/95 backdrop-blur-sm rounded-xl p-3 text-center shadow-lg">
+                            <div key={idx} className="bg-white/98 backdrop-blur-sm rounded-xl p-3 text-center shadow-lg border border-white/50">
                               <div className="text-lg font-bold text-inception-purple">{result.metric || '+100%'}</div>
-                              <div className="text-xs text-gray-600 leading-tight">{result.label || 'نتائج إيجابية'}</div>
+                              <div className="text-xs text-gray-800 leading-tight font-medium">{result.label || 'نتائج إيجابية'}</div>
                             </div>
                           ))}
                         </div>
@@ -235,7 +235,7 @@ const Industries = () => {
 
                       {/* Play Button Overlay */}
                       <div className={`absolute inset-0 flex items-center justify-center transition-all duration-500 ${activeCard === industry.id ? 'opacity-100' : 'opacity-0'}`}>
-                        <div className="w-20 h-20 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-xl animate-pulse">
+                        <div className="w-20 h-20 bg-white/98 backdrop-blur-sm rounded-full flex items-center justify-center shadow-xl animate-pulse border border-white/50">
                           <Play className="w-8 h-8 text-inception-purple mr-1" />
                         </div>
                       </div>
@@ -250,7 +250,7 @@ const Industries = () => {
                         <p className="text-inception-orange font-semibold mb-3">
                           {industry.subtitle || 'حلول تسويقية متقدمة'}
                         </p>
-                        <p className="text-gray-700 leading-relaxed">
+                        <p className="text-gray-800 leading-relaxed">
                           {industry.description}
                         </p>
                       </div>
