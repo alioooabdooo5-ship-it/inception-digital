@@ -59,7 +59,8 @@
   }
 
   body {
-    @apply bg-background font-hacen text-foreground antialiased;
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Hacen Maghreb Bd', sans-serif;
   }
 }
 
@@ -132,6 +133,43 @@
   
   .text-shadow {
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Custom colors for the project */
+  .bg-inception-purple {
+    background-color: hsl(271, 63%, 19%);
+  }
+  
+  .bg-inception-orange {
+    background-color: hsl(25, 100%, 50%);
+  }
+  
+  .text-inception-purple {
+    color: hsl(271, 63%, 19%);
+  }
+  
+  .text-inception-orange {
+    color: hsl(25, 100%, 50%);
+  }
+  
+  .text-inception-green {
+    color: hsl(120, 100%, 25%);
+  }
+  
+  .border-inception-purple {
+    border-color: hsl(271, 63%, 19%);
+  }
+  
+  .border-inception-orange {
+    border-color: hsl(25, 100%, 50%);
+  }
+  
+  .before\:bg-inception-orange::before {
+    background-color: hsl(25, 100%, 50%);
+  }
+  
+  .hover\:bg-inception-purple:hover {
+    background-color: hsl(271, 63%, 19%);
   }
   
   .animation-delay-100 {

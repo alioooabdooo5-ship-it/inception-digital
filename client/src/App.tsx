@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Router, Route, Switch } from "wouter";
 import { useState } from "react";
 import Index from "./pages/Index";
 import Services from "./pages/Services";
@@ -33,29 +33,29 @@ const App = () => {
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/services" element={<Services />} />
-            <Route path="/services/media-production" element={<MediaProduction />} />
-            <Route path="/services/paid-ads" element={<PaidAds />} />
-            <Route path="/services/seo" element={<SeoServices />} />
-            <Route path="/services/web-development" element={<WebDevelopment />} />
-            <Route path="/services/social-media" element={<SocialMediaManagement />} />
-            <Route path="/industries" element={<Industries />} />
-            <Route path="/books" element={<Books />} />
-            <Route path="/articles" element={<Articles />} />
-            <Route path="/about" element={<AboutMe />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/seo-guide" element={<SEOGuide />} />
-            <Route path="/digital-marketing-tips" element={<DigitalMarketingTips />} />
-            <Route path="/content-strategy" element={<ContentStrategy />} />
-            <Route path="/admin/*" element={<AdminDashboard />} />
+        <Router>
+          <Switch>
+            <Route path="/" component={Index} />
+            <Route path="/services" component={Services} />
+            <Route path="/services/media-production" component={MediaProduction} />
+            <Route path="/services/paid-ads" component={PaidAds} />
+            <Route path="/services/seo" component={SeoServices} />
+            <Route path="/services/web-development" component={WebDevelopment} />
+            <Route path="/services/social-media" component={SocialMediaManagement} />
+            <Route path="/industries" component={Industries} />
+            <Route path="/books" component={Books} />
+            <Route path="/articles" component={Articles} />
+            <Route path="/about" component={AboutMe} />
+            <Route path="/contact" component={Contact} />
+            <Route path="/seo-guide" component={SEOGuide} />
+            <Route path="/digital-marketing-tips" component={DigitalMarketingTips} />
+            <Route path="/content-strategy" component={ContentStrategy} />
+            <Route path="/admin/:rest*" component={AdminDashboard} />
             
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
+            {/* Catch-all route for 404 */}
+            <Route component={NotFound} />
+          </Switch>
+        </Router>
       </TooltipProvider>
     </QueryClientProvider>
   );

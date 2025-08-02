@@ -3,7 +3,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import AnimatedSection from "@/components/common/AnimatedSection";
 import { Share2, Heart, MessageCircle, TrendingUp, ArrowRight, CheckCircle, Calendar, BarChart3, Users } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link } from "wouter";
 
 const SocialMediaManagement = () => {
   useEffect(() => {

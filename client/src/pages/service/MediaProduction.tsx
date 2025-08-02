@@ -3,7 +3,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import AnimatedSection from "@/components/common/AnimatedSection";
 import { Video, Camera, Edit, Palette, Mic, Monitor, ArrowRight, CheckCircle, Play, Users, Target, TrendingUp } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link } from "wouter";
 
 const MediaProduction = () => {
   useEffect(() => {

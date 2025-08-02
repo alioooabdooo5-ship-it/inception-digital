@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link } from "wouter";
 import IndustryCard from "@/components/ui/IndustryCard";
 import AnimatedSection from "@/components/common/AnimatedSection";
 

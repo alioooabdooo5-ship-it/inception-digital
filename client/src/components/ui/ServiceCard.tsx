@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link } from "wouter";
 import { ArrowLeft, ExternalLink } from "lucide-react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons';

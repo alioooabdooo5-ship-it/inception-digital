@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link } from "wouter";
 import { ArrowLeft, Check, Sparkles, TrendingUp } from "lucide-react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 

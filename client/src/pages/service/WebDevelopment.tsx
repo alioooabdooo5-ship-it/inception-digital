@@ -3,7 +3,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import AnimatedSection from "@/components/common/AnimatedSection";
 import { Globe, Code, Smartphone, Zap, ArrowRight, CheckCircle, Laptop, Shield, Users } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link } from "wouter";
 
 const WebDevelopment = () => {
   useEffect(() => {

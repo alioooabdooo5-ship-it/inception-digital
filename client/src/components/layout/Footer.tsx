@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link } from "wouter";
 import { Phone, Mail, MapPin, Facebook, Instagram, Linkedin, Twitter } from "lucide-react";
 
 const Footer: React.FC = () => {

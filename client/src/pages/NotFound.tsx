@@ -1,19 +1,19 @@
 
-import { useLocation, Link } from "react-router-dom";
+import { useLocation, Link } from "wouter";
 import { useEffect } from "react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { MoveLeft } from "lucide-react";
 
 const NotFound = () => {
-  const location = useLocation();
+  const [location] = useLocation();
 
   useEffect(() => {
     console.error(
       "404 Error: User attempted to access non-existent route:",
-      location.pathname
+      location
     );
-  }, [location.pathname]);
+  }, [location]);
 
   return (
     <div className="min-h-screen bg-white flex flex-col">

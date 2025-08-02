@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link } from "wouter";
 import BookCard from "@/components/ui/BookCard";
 import AnimatedSection from "@/components/common/AnimatedSection";
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";

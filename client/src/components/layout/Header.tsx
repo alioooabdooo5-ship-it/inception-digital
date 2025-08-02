@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation } from "wouter";
 import { ChevronDown, Sparkles } from "lucide-react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faTimes, faRocket } from '@fortawesome/free-solid-svg-icons';
@@ -14,8 +14,8 @@ interface NavLinkProps {
 }
 
 const NavLink: React.FC<NavLinkProps> = ({ to, children, className, onClick }) => {
-  const location = useLocation();
-  const isActive = location.pathname === to;
+  const [location] = useLocation();
+  const isActive = location === to;
 
   return (
     <Link

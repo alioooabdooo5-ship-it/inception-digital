@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link } from "wouter";
 import { Video, Target, Search, Globe, Share2, Camera, Megaphone, TrendingUp, Code, Users, ArrowUpRight } from "lucide-react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 

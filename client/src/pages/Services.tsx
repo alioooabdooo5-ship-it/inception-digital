@@ -13,7 +13,7 @@ import {
   faRocket,
   faChartLine
 } from '@fortawesome/free-solid-svg-icons';
-import { Link } from "react-router-dom";
+import { Link } from "wouter";
 
 const Services = () => {
   useEffect(() => {

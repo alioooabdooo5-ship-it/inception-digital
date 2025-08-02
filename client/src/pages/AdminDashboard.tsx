@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useLocation } from "wouter";
 import { 
   LayoutDashboard,
   FileText,
@@ -46,23 +46,22 @@ import ServiceEditor from "./ServiceEditor";
 import IndustryEditor from "./IndustryEditor";
 
 const AdminDashboard = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
+  const [location] = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [serviceEditorId, setServiceEditorId] = useState<string | null>(null);
   const [industryEditorId, setIndustryEditorId] = useState<string | null>(null);
   
   // Get current tab from URL
-  const currentPath = location.pathname.replace('/admin/', '') || 'dashboard';
+  const currentPath = location.replace('/admin/', '') || 'dashboard';
   const [activeTab, setActiveTab] = useState(currentPath);
 
   // Update activeTab when URL changes
   useEffect(() => {
-    const pathTab = location.pathname.replace('/admin/', '') || 'dashboard';
+    const pathTab = location.replace('/admin/', '') || 'dashboard';
     if (pathTab !== activeTab) {
       setActiveTab(pathTab);
     }
-  }, [location.pathname]);
+  }, [location]);
 
   const menuItems = [
     { id: "dashboard", label: "لوحة التحكم", icon: LayoutDashboard },

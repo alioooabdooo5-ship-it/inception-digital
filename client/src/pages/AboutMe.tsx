@@ -3,7 +3,7 @@ import React, { useEffect } from "react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import AnimatedSection from "@/components/common/AnimatedSection";
-import { Link } from "react-router-dom";
+import { Link } from "wouter";
 import { Check, Users, BookOpen, LineChart, Award } from "lucide-react";
 
 const AboutMe = () => {
