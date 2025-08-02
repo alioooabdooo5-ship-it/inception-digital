@@ -40,12 +40,12 @@ const App = () => {
               {/* Public routes */}
               <Route path="/" component={Index} />
               <Route path="/services" component={Services} />
-              <Route path="/services/:id" component={ServiceDetail} />
               <Route path="/services/media-production" component={MediaProduction} />
               <Route path="/services/paid-ads" component={PaidAds} />
               <Route path="/services/seo" component={SeoServices} />
               <Route path="/services/web-development" component={WebDevelopment} />
               <Route path="/services/social-media" component={SocialMediaManagement} />
+              <Route path="/services/:id" component={ServiceDetail} />
               <Route path="/industries" component={Industries} />
               <Route path="/books" component={Books} />
               <Route path="/articles" component={Articles} />

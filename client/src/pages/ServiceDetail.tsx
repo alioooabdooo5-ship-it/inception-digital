@@ -29,7 +29,7 @@ const ServiceDetail = () => {
     window.scrollTo(0, 0);
   }, []);
 
-  const getIconComponent = (iconName: string) => {
+  const getIconComponent = (iconName: string | null) => {
     const iconMap = {
       'video': faVideo,
       'bullhorn': faBullhorn, 
@@ -37,11 +37,11 @@ const ServiceDetail = () => {
       'code': faCode,
       'share-alt': faShareAlt
     };
-    const icon = iconMap[iconName as keyof typeof iconMap] || faRocket;
+    const icon = iconName ? (iconMap[iconName as keyof typeof iconMap] || faRocket) : faRocket;
     return <FontAwesomeIcon icon={icon} className="w-12 h-12" />;
   };
 
-  const getDefaultImage = (iconName: string) => {
+  const getDefaultImage = (iconName: string | null) => {
     const imageMap = {
       'search': 'https://images.unsplash.com/photo-1432888622747-4eb9a8efeb07?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&h=800&q=80',
       'bullhorn': 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&h=800&q=80',
@@ -49,7 +49,7 @@ const ServiceDetail = () => {
       'code': 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&h=800&q=80',
       'video': 'https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&h=800&q=80'
     };
-    return imageMap[iconName as keyof typeof imageMap] || imageMap.video;
+    return iconName ? (imageMap[iconName as keyof typeof imageMap] || imageMap.video) : imageMap.video;
   };
 
   const portfolioExamples = [
