@@ -89,6 +89,29 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
+  app.put('/api/services/:id', requireAuth, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const validatedData = insertServiceSchema.partial().parse(req.body);
+      const service = await storage.updateService(id, validatedData);
+      res.json(service);
+    } catch (error) {
+      console.error("Error updating service:", error);
+      res.status(500).json({ message: "Failed to update service" });
+    }
+  });
+
+  app.delete('/api/services/:id', requireAuth, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      await storage.deleteService(id);
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting service:", error);
+      res.status(500).json({ message: "Failed to delete service" });
+    }
+  });
+
   // Industries routes
   app.get('/api/industries', async (req, res) => {
     try {
@@ -97,6 +120,54 @@ export function registerRoutes(app: Express): Server {
     } catch (error) {
       console.error("Error fetching industries:", error);
       res.status(500).json({ message: "Failed to fetch industries" });
+    }
+  });
+
+  app.get('/api/industries/:id', async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const industry = await storage.getIndustry(id);
+      if (!industry) {
+        return res.status(404).json({ message: "Industry not found" });
+      }
+      res.json(industry);
+    } catch (error) {
+      console.error("Error fetching industry:", error);
+      res.status(500).json({ message: "Failed to fetch industry" });
+    }
+  });
+
+  app.post('/api/industries', requireAuth, async (req, res) => {
+    try {
+      const validatedData = insertIndustrySchema.parse(req.body);
+      const industry = await storage.createIndustry(validatedData);
+      res.status(201).json(industry);
+    } catch (error) {
+      console.error("Error creating industry:", error);
+      res.status(500).json({ message: "Failed to create industry" });
+    }
+  });
+
+  app.put('/api/industries/:id', requireAuth, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const validatedData = insertIndustrySchema.partial().parse(req.body);
+      const industry = await storage.updateIndustry(id, validatedData);
+      res.json(industry);
+    } catch (error) {
+      console.error("Error updating industry:", error);
+      res.status(500).json({ message: "Failed to update industry" });
+    }
+  });
+
+  app.delete('/api/industries/:id', requireAuth, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      await storage.deleteIndustry(id);
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting industry:", error);
+      res.status(500).json({ message: "Failed to delete industry" });
     }
   });
 

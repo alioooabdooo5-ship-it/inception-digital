@@ -27,6 +27,7 @@ import WebDevelopment from "./pages/service/WebDevelopment";
 import SocialMediaManagement from "./pages/service/SocialMediaManagement";
 import ServiceEditor from "./pages/ServiceEditor";
 import ServiceDetail from "./pages/ServiceDetail";
+import IndustryDetail from "./pages/IndustryDetail";
 
 const App = () => {
   return (
@@ -47,6 +48,7 @@ const App = () => {
               <Route path="/services/social-media" component={SocialMediaManagement} />
               <Route path="/services/:id" component={ServiceDetail} />
               <Route path="/industries" component={Industries} />
+              <Route path="/industries/:id" component={IndustryDetail} />
               <Route path="/books" component={Books} />
               <Route path="/articles" component={Articles} />
               <Route path="/about" component={AboutMe} />
