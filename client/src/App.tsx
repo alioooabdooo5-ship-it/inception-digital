@@ -2,9 +2,9 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { Router, Route, Switch } from "wouter";
-import { useState } from "react";
+import { queryClient } from "@/lib/queryClient";
 import Index from "./pages/Index";
 import Services from "./pages/Services";
 import Industries from "./pages/Industries";
@@ -25,9 +25,6 @@ import SocialMediaManagement from "./pages/service/SocialMediaManagement";
 import ServiceEditor from "./pages/ServiceEditor";
 
 const App = () => {
-  // Create a new QueryClient instance inside the component
-  const [queryClient] = useState(() => new QueryClient());
-
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
@@ -50,6 +47,7 @@ const App = () => {
             <Route path="/seo-guide" component={SEOGuide} />
             <Route path="/digital-marketing-tips" component={DigitalMarketingTips} />
             <Route path="/content-strategy" component={ContentStrategy} />
+            <Route path="/admin" component={AdminDashboard} />
             <Route path="/admin/:rest*" component={AdminDashboard} />
             
             {/* Catch-all route for 404 */}

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "wouter";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/components/ui/use-toast";
 import { 
   LayoutDashboard,
   FileText,
@@ -23,7 +25,8 @@ import {
   User,
   LogOut,
   Menu,
-  X
+  X,
+  LogIn
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -50,6 +53,8 @@ const AdminDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [serviceEditorId, setServiceEditorId] = useState<string | null>(null);
   const [industryEditorId, setIndustryEditorId] = useState<string | null>(null);
+  const { toast } = useToast();
+  const { isAuthenticated, isLoading, user } = useAuth();
   
   // Get current tab from URL
   const currentPath = location.replace('/admin/', '') || 'dashboard';
@@ -62,6 +67,49 @@ const AdminDashboard = () => {
       setActiveTab(pathTab);
     }
   }, [location]);
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      toast({
+        title: "تسجيل الدخول مطلوب",
+        description: "يجب تسجيل الدخول للوصول للوحة التحكم...",
+        variant: "destructive",
+      });
+      setTimeout(() => {
+        window.location.href = "/api/login";
+      }, 500);
+      return;
+    }
+  }, [isAuthenticated, isLoading, toast]);
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-gray-600">جارٍ التحميل...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show login required if not authenticated
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <LogIn className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">تسجيل الدخول مطلوب</h2>
+          <p className="text-gray-600 mb-6">يجب تسجيل الدخول للوصول لوحة التحكم</p>
+          <Button onClick={() => window.location.href = "/api/login"}>
+            تسجيل الدخول
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   const menuItems = [
     { id: "dashboard", label: "لوحة التحكم", icon: LayoutDashboard },
