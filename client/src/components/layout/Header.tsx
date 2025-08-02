@@ -38,7 +38,7 @@ const NavLink: React.FC<NavLinkProps> = ({ to, children, className, onClick }) =
 const Header: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrollPosition, setScrollPosition] = useState(0);
-  const location = useLocation();
+  const [location] = useLocation();
 
   const handleToggleMenu = () => {
     setIsOpen(!isOpen);
