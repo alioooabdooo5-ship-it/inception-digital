@@ -201,7 +201,7 @@ const Services = () => {
                         
                         {/* Floating Icon */}
                         <div className="absolute top-6 right-6 w-16 h-16 bg-white/90 backdrop-blur-sm rounded-2xl flex items-center justify-center text-inception-purple shadow-lg">
-                          {getIconComponent(service.icon)}
+                          {service.icon && getIconComponent(service.icon)}
                         </div>
                         
                         {/* Stats Badge */}
