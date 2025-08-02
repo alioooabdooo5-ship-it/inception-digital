@@ -6,26 +6,52 @@ import AnimatedSection from "@/components/common/AnimatedSection";
 import BookCard from "@/components/ui/BookCard";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { X } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import type { Book } from "@shared/schema";
 
-interface Book {
-  id: number;
-  cover: string;
-  title: string;
-  description: string;
-  price: string;
-  category: string;
-  longDescription: string;
+interface BookWithCategory extends Book {
+  category?: string;
+  longDescription?: string;
 }
 
 const Books = () => {
+  const { data: books = [], isLoading } = useQuery<Book[]>({
+    queryKey: ['/api/books']
+  });
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
-  const [selectedBook, setSelectedBook] = useState<Book | null>(null);
+  const [selectedBook, setSelectedBook] = useState<BookWithCategory | null>(null);
   const [activeCategory, setActiveCategory] = useState("all");
 
-  const books: Book[] = [
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+        <Header />
+        <main className="pt-20">
+          <div className="container mx-auto px-4 py-16">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-inception-purple mx-auto"></div>
+              <p className="mt-4 text-gray-600">جاري تحميل الكتب...</p>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  // Demo books as fallback (convert real books to include category info)
+  const booksWithCategories: BookWithCategory[] = books.map(book => ({
+    ...book,
+    category: 'marketing', // Default category since we don't have it in schema
+    longDescription: book.description + ' - كتاب متميز يقدم نصائح عملية ومجرّبة في هذا المجال.',
+    cover: book.coverImage || "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?ixlib=rb-4.0.3&auto=format&fit=crop&w=687&q=80"
+  }));
+
+  const demoBooks: BookWithCategory[] = [
     {
       id: 1,
       cover: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80",
@@ -90,10 +116,10 @@ const Books = () => {
   ];
 
   const filteredBooks = activeCategory === "all" 
-    ? books 
-    : books.filter(book => book.category === activeCategory);
+    ? booksWithCategories 
+    : booksWithCategories.filter(book => book.category === activeCategory);
 
-  const handleBookClick = (book: Book) => {
+  const handleBookClick = (book: BookWithCategory) => {
     setSelectedBook(book);
   };
 
@@ -149,10 +175,10 @@ const Books = () => {
                 delay={index * 100}
               >
                 <BookCard
-                  cover={book.cover}
+                  cover={book.cover || book.coverImage || "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?ixlib=rb-4.0.3&auto=format&fit=crop&w=687&q=80"}
                   title={book.title}
                   description={book.description}
-                  price={book.price}
+                  price={book.price || 'متاح'}
                   onClick={() => handleBookClick(book)}
                 />
               </AnimatedSection>
@@ -258,7 +284,7 @@ const Books = () => {
               {selectedBook?.title}
             </DialogTitle>
             <DialogDescription>
-              {selectedBook?.description}
+              {selectedBook?.longDescription || selectedBook?.description || 'كتاب مفيد ومثري في هذا المجال'}
             </DialogDescription>
           </DialogHeader>
           <div className="py-4">
@@ -281,7 +307,10 @@ const Books = () => {
                 </p>
               </div>
             </div>
-            <p className="text-gray-700 text-sm mb-4">{selectedBook?.longDescription}</p>
+            <div className="text-gray-700 text-sm mb-4">
+              <p><strong>وصف مفصل:</strong></p>
+              <p>{selectedBook?.longDescription || selectedBook?.description || 'كتاب قيم يقدم معلومات مفيدة في هذا المجال المهم.'}</p>
+            </div>
           </div>
           <DialogFooter>
             <button className="btn-primary w-full">
