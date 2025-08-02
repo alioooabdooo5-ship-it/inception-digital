@@ -16,86 +16,75 @@ import {
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useQuery } from "@tanstack/react-query";
+import type { Article } from "@shared/schema";
 
 const Articles = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
+  
+  const { data: articles = [], isLoading } = useQuery<Article[]>({
+    queryKey: ['/api/articles']
+  });
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
-  const categories = [
-    { id: "all", name: "جميع المقالات", count: 24 },
-    { id: "digital-marketing", name: "التسويق الرقمي", count: 8 },
-    { id: "seo", name: "تحسين محركات البحث", count: 6 },
-    { id: "social-media", name: "وسائل التواصل الاجتماعي", count: 5 },
-    { id: "web-development", name: "تطوير المواقع", count: 5 }
-  ];
+  // Get unique categories from articles
+  const categories = React.useMemo(() => {
+    const categoryMap = new Map([
+      ["all", { id: "all", name: "جميع المقالات", count: articles.length }]
+    ]);
+    
+    articles.forEach(article => {
+      if (article.categoryName && article.category) {
+        const existing = categoryMap.get(article.category);
+        if (existing) {
+          existing.count++;
+        } else {
+          categoryMap.set(article.category, {
+            id: article.category,
+            name: article.categoryName,
+            count: 1
+          });
+        }
+      }
+    });
+    
+    return Array.from(categoryMap.values());
+  }, [articles]);
 
-  const articles = [
-    {
-      id: 1,
-      title: "كيفية تحسين ترتيب موقعك في جوجل خلال 30 يوم",
-      excerpt: "دليل شامل لتحسين محركات البحث وزيادة ظهور موقعك في النتائج الأولى لجوجل",
-      category: "seo",
-      categoryName: "تحسين محركات البحث",
-      author: "أحمد محمد",
-      date: "2024-01-15",
-      readTime: "8 دقائق",
-      image: "https://images.unsplash.com/photo-1432888622747-4eb9a8efeb07?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600&q=80",
-      featured: true,
-      views: 1250
-    },
-    {
-      id: 2,
-      title: "استراتيجيات التسويق عبر السوشيال ميديا لعام 2024",
-      excerpt: "أحدث اتجاهات التسويق على منصات التواصل الاجتماعي وكيفية الاستفادة منها",
-      category: "social-media",
-      categoryName: "وسائل التواصل الاجتماعي",
-      author: "سارة أحمد",
-      date: "2024-01-12",
-      readTime: "6 دقائق",
-      image: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600&q=80",
-      featured: false,
-      views: 890
-    },
-    {
-      id: 3,
-      title: "بناء موقع إلكتروني احترافي: الدليل الكامل",
-      excerpt: "خطوات عملية لبناء موقع إلكتروني يحقق أهدافك التجارية ويجذب العملاء",
-      category: "web-development",
-      categoryName: "تطوير المواقع",
-      author: "محمد علي",
-      date: "2024-01-10",
-      readTime: "12 دقيقة",
-      image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600&q=80",
-      featured: false,
-      views: 1100
-    },
-    {
-      id: 4,
-      title: "كيفية قياس نجاح حملاتك الإعلانية الرقمية",
-      excerpt: "المؤشرات المهمة والأدوات اللازمة لقياس أداء حملاتك التسويقية",
-      category: "digital-marketing",
-      categoryName: "التسويق الرقمي",
-      author: "فاطمة حسن",
-      date: "2024-01-08",
-      readTime: "10 دقائق",
-      image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600&q=80",
-      featured: false,
-      views: 756
-    }
-  ];
-
+  // Filter articles based on search and category
   const filteredArticles = articles.filter(article => {
-    const matchesSearch = article.title.includes(searchQuery) || article.excerpt.includes(searchQuery);
+    const matchesSearch = !searchQuery || 
+      article.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+      (article.excerpt && article.excerpt.toLowerCase().includes(searchQuery.toLowerCase()));
     const matchesCategory = selectedCategory === "all" || article.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
   const featuredArticle = articles.find(article => article.featured);
   const regularArticles = filteredArticles.filter(article => !article.featured);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-white via-gray-50/30 to-inception-purple/5">
+        <Header />
+        <main className="pt-20">
+          <div className="container mx-auto px-4 py-16">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-inception-purple mx-auto"></div>
+              <p className="mt-4 text-gray-600">جاري تحميل المقالات...</p>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-gray-50/30 to-inception-purple/5">
@@ -179,7 +168,7 @@ const Articles = () => {
                         </span>
                       </div>
                       <img 
-                        src={featuredArticle.image}
+                        src={featuredArticle.image || 'https://images.unsplash.com/photo-1432888622747-4eb9a8efeb07?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600&q=80'}
                         alt={featuredArticle.title}
                         className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
                       />
@@ -204,7 +193,7 @@ const Articles = () => {
                           </div>
                           <div className="flex items-center">
                             <Calendar className="w-4 h-4 ml-1" />
-                            {new Date(featuredArticle.date).toLocaleDateString('ar-EG')}
+                            {featuredArticle.createdAt ? new Date(featuredArticle.createdAt).toLocaleDateString('ar-EG') : 'غير محدد'}
                           </div>
                           <div className="flex items-center">
                             <Clock className="w-4 h-4 ml-1" />
@@ -241,7 +230,7 @@ const Articles = () => {
                   <article className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-500 hover:-translate-y-2 overflow-hidden">
                     <div className="relative overflow-hidden h-48">
                       <img 
-                        src={article.image}
+                        src={article.image || 'https://images.unsplash.com/photo-1432888622747-4eb9a8efeb07?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600&q=80'}
                         alt={article.title}
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                       />
@@ -279,7 +268,7 @@ const Articles = () => {
                       
                       <div className="flex items-center justify-between">
                         <span className="text-xs text-gray-500">
-                          {new Date(article.date).toLocaleDateString('ar-EG')}
+                          {article.createdAt ? new Date(article.createdAt).toLocaleDateString('ar-EG') : 'غير محدد'}
                         </span>
                         <Link 
                           to={`/articles/${article.id}`}

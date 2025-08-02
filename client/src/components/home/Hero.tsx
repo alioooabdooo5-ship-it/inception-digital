@@ -52,9 +52,9 @@ const Hero: React.FC = () => {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4">
-                <Link to="/contact" className="btn-primary">
+                <a href="/api/login" className="btn-primary">
                   ابدأ الآن
-                </Link>
+                </a>
                 <Link to="/services" className="btn-outline group">
                   <span>استكشف خدماتنا</span>
                   <FontAwesomeIcon 

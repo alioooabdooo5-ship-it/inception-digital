@@ -100,13 +100,13 @@ const Header: React.FC = () => {
             </button>
             
             {/* CTA Button */}
-            <Link 
-              to="/contact" 
+            <a 
+              href="/api/login" 
               className="btn-primary group"
             >
               <FontAwesomeIcon icon={faRocket} className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
               ابدأ الآن
-            </Link>
+            </a>
           </div>
 
           {/* Mobile Menu Button */}
@@ -157,13 +157,13 @@ const Header: React.FC = () => {
             <button className="py-3 border-b text-right text-inception-purple hover:text-inception-orange transition-colors duration-300 font-medium" onClick={closeMenu}>
               تسجيل الدخول
             </button>
-            <Link 
-              to="/contact" 
+            <a 
+              href="/api/login" 
               className="btn-primary mt-3 text-center"
               onClick={closeMenu}
             >
               ابدأ الآن
-            </Link>
+            </a>
           </nav>
         </div>
       </div>
