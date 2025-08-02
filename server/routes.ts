@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./replitAuth";
+import { setupAuth, requireAuth } from "./auth";
 import { 
   insertServiceSchema,
   insertIndustrySchema,
@@ -12,21 +12,9 @@ import {
 } from "@shared/schema";
 import { seedDatabase } from "./seedData";
 
-export async function registerRoutes(app: Express): Promise<Server> {
-  // Auth middleware
-  await setupAuth(app);
-
-  // Auth routes
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
-      res.json(user);
-    } catch (error) {
-      console.error("Error fetching user:", error);
-      res.status(500).json({ message: "Failed to fetch user" });
-    }
-  });
+export function registerRoutes(app: Express): Server {
+  // sets up /api/register, /api/login, /api/logout, /api/user
+  setupAuth(app);
 
   // Services routes
   app.get('/api/services', async (req, res) => {
@@ -53,7 +41,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/services', isAuthenticated, async (req, res) => {
+  app.post('/api/services', requireAuth, async (req, res) => {
     try {
       const validatedData = insertServiceSchema.parse(req.body);
       const service = await storage.createService(validatedData);
@@ -64,7 +52,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/services/:id', isAuthenticated, async (req, res) => {
+  app.put('/api/services/:id', requireAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const validatedData = insertServiceSchema.partial().parse(req.body);
@@ -76,7 +64,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/services/:id', isAuthenticated, async (req, res) => {
+  app.delete('/api/services/:id', requireAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       await storage.deleteService(id);
@@ -98,7 +86,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/industries', isAuthenticated, async (req, res) => {
+  app.post('/api/industries', requireAuth, async (req, res) => {
     try {
       const validatedData = insertIndustrySchema.parse(req.body);
       const industry = await storage.createIndustry(validatedData);
@@ -120,7 +108,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/books', isAuthenticated, async (req, res) => {
+  app.post('/api/books', requireAuth, async (req, res) => {
     try {
       const validatedData = insertBookSchema.parse(req.body);
       const book = await storage.createBook(validatedData);
@@ -142,7 +130,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/testimonials', isAuthenticated, async (req, res) => {
+  app.post('/api/testimonials', requireAuth, async (req, res) => {
     try {
       const validatedData = insertTestimonialSchema.parse(req.body);
       const testimonial = await storage.createTestimonial(validatedData);
@@ -164,7 +152,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/articles', isAuthenticated, async (req, res) => {
+  app.post('/api/articles', requireAuth, async (req, res) => {
     try {
       const validatedData = insertArticleSchema.parse(req.body);
       const article = await storage.createArticle(validatedData);
@@ -176,7 +164,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Contact forms routes
-  app.get('/api/contact-forms', isAuthenticated, async (req, res) => {
+  app.get('/api/contact-forms', requireAuth, async (req, res) => {
     try {
       const forms = await storage.getContactForms();
       res.json(forms);
