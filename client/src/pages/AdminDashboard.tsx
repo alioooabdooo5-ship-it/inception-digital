@@ -202,18 +202,15 @@ const AdminDashboard = () => {
         return <ServicesManager onEditService={(serviceId) => {
           setServiceEditorId(serviceId);
           setActiveTab("service-editor");
-          navigate("/admin/service-editor");
         }} onCreateService={() => {
           setServiceEditorId("new");
           setActiveTab("service-editor");
-          navigate("/admin/service-editor");
         }} />;
       
       case "service-editor":
         return <ServiceEditor serviceId={serviceEditorId} onBack={() => {
           setActiveTab("services");
           setServiceEditorId(null);
-          navigate("/admin/services");
         }} />;
       
       case "books":
@@ -226,18 +223,15 @@ const AdminDashboard = () => {
         return <IndustriesManager onEditIndustry={(industryId) => {
           setIndustryEditorId(industryId);
           setActiveTab("industry-editor");
-          navigate("/admin/industry-editor");
         }} onCreateIndustry={() => {
           setIndustryEditorId("new");
           setActiveTab("industry-editor");
-          navigate("/admin/industry-editor");
         }} />;
         
       case "industry-editor":
         return <IndustryEditor industryId={industryEditorId} onBack={() => {
           setActiveTab("industries");
           setIndustryEditorId(null);
-          navigate("/admin/industries");
         }} />;
         
       case "users":
@@ -299,7 +293,6 @@ const AdminDashboard = () => {
                   <button
                     onClick={() => {
                       setActiveTab(item.id);
-                      navigate(`/admin/${item.id}`);
                     }}
                     className={`w-full flex items-center p-3 rounded-lg transition-all duration-200 ${
                       isActive 
