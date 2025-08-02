@@ -26,6 +26,7 @@ import SeoServices from "./pages/service/SeoServices";
 import WebDevelopment from "./pages/service/WebDevelopment";
 import SocialMediaManagement from "./pages/service/SocialMediaManagement";
 import ServiceEditor from "./pages/ServiceEditor";
+import ServiceDetail from "./pages/ServiceDetail";
 
 const App = () => {
   return (
@@ -39,6 +40,7 @@ const App = () => {
               {/* Public routes */}
               <Route path="/" component={Index} />
               <Route path="/services" component={Services} />
+              <Route path="/services/:id" component={ServiceDetail} />
               <Route path="/services/media-production" component={MediaProduction} />
               <Route path="/services/paid-ads" component={PaidAds} />
               <Route path="/services/seo" component={SeoServices} />
