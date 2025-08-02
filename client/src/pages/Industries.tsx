@@ -269,10 +269,10 @@ const Industries = () => {
                       
                       <div className="flex items-center justify-between">
                         <Link 
-                          to="/contact"
+                          to={`/industries/${industry.id}`}
                           className="inline-flex items-center text-inception-purple hover:text-inception-orange font-semibold transition-all duration-300 group/link"
                         >
-                          <span className="ml-2">احصل على استراتيجية مماثلة</span>
+                          <span className="ml-2">تفاصيل الصناعة</span>
                           <ArrowUpRight className="w-5 h-5 transition-transform group-hover/link:translate-x-1 group-hover/link:-translate-y-1" />
                         </Link>
                         
