@@ -15,7 +15,12 @@ import {
   Star,
   Image,
   Search,
-  BarChart3
+  BarChart3,
+  Home,
+  Phone,
+  Info,
+  ChevronDown,
+  ChevronRight
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
@@ -92,6 +97,31 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
       ]
     },
     {
+      name: "الصفحات",
+      icon: FileText,
+      color: "text-purple-600",
+      children: [
+        { 
+          name: "محتوى الهوم بيج", 
+          href: "/admin/content/home", 
+          icon: Home,
+          color: "text-purple-600 bg-purple-50 hover:bg-purple-100"
+        },
+        { 
+          name: "محتوى صفحة التواصل", 
+          href: "/admin/content/contact", 
+          icon: Phone,
+          color: "text-green-600 bg-green-50 hover:bg-green-100"
+        },
+        { 
+          name: "محتوى صفحة من نحن", 
+          href: "/admin/content/about", 
+          icon: Info,
+          color: "text-blue-600 bg-blue-50 hover:bg-blue-100"
+        },
+      ]
+    },
+    {
       name: "إدارة النظام",
       icon: Settings,
       color: "text-gray-600",
@@ -127,7 +157,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
           color: "text-cyan-600 bg-cyan-50 hover:bg-cyan-100"
         },
         { 
-          name: "محتوى الهوم بيج", 
+          name: "الإعدادات العامة", 
           href: "/admin/settings", 
           icon: Settings,
           color: "text-gray-600 bg-gray-50 hover:bg-gray-100"
