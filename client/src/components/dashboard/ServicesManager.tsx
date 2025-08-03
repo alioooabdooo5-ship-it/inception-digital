@@ -8,46 +8,56 @@ import {
   Filter, 
   Eye 
 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 interface ServicesManagerProps {
   onEditService?: (serviceId: string) => void;
   onCreateService?: () => void;
 }
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Textarea } from "@/components/ui/textarea";
-
-// بيانات تجريبية
-const sampleServices = [
-  {
-    id: "1",
-    title: "الاستشارات الإدارية",
-    description: "نقدم خدمات استشارية متكاملة لتطوير الأعمال وتحسين الأداء",
-    illustration: "/lovable-uploads/28b72d61-4e8f-4b33-847a-1685c6b0b5a5.png",
-  },
-  {
-    id: "2",
-    title: "تطوير الأعمال",
-    description: "استراتيجيات وحلول مبتكرة لتنمية أعمالك وزيادة أرباحك",
-    illustration: "/lovable-uploads/3cc93b10-435d-4b20-a3d0-da06335cf1ca.png",
-  },
-  {
-    id: "3",
-    title: "التحول الرقمي",
-    description: "مساعدة الشركات على التحول الرقمي وتبني أحدث التقنيات",
-    illustration: "/lovable-uploads/6b7d5f55-0ca7-45cb-9463-f8a6eb07d7d4.png",
-  },
-];
 
 const ServicesManager: React.FC<ServicesManagerProps> = ({ onEditService, onCreateService }) => {
-  const [services, setServices] = useState(sampleServices);
   const [searchQuery, setSearchQuery] = useState("");
+  const { toast } = useToast();
+
+  // جلب الخدمات من API
+  const { data: services = [], isLoading, error } = useQuery({
+    queryKey: ["/api/services"],
+  });
+
+  // حذف خدمة
+  const deleteMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const res = await fetch(`/api/services/${id}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) {
+        throw new Error("خطأ في حذف الخدمة");
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/services"] });
+      toast({
+        title: "تم بنجاح",
+        description: "تم حذف الخدمة بنجاح",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "خطأ",
+        description: "حدث خطأ في حذف الخدمة",
+        variant: "destructive",
+      });
+    },
+  });
 
   // فلترة الخدمات بناءً على البحث
   const filteredServices = services.filter(
-    (service) =>
+    (service: any) =>
       service.title.includes(searchQuery) ||
       service.description.includes(searchQuery)
   );
@@ -58,17 +68,37 @@ const ServicesManager: React.FC<ServicesManagerProps> = ({ onEditService, onCrea
     }
   };
 
-  const handleEditService = (service) => {
+  const handleEditService = (service: any) => {
     if (onEditService) {
-      onEditService(service.id);
+      onEditService(service.id.toString());
     }
   };
 
-  const handleDeleteService = (id) => {
+  const handleDeleteService = (id: number) => {
     if (window.confirm("هل أنت متأكد من حذف هذه الخدمة؟")) {
-      setServices(services.filter((service) => service.id !== id));
+      deleteMutation.mutate(id);
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="bg-white rounded-lg border shadow-sm p-6">
+        <div className="text-center py-8">
+          <p className="text-gray-500">جارٍ تحميل الخدمات...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-white rounded-lg border shadow-sm p-6">
+        <div className="text-center py-8">
+          <p className="text-red-500">خطأ في تحميل الخدمات</p>
+        </div>
+      </div>
+    );
+  }
 
 
   return (
@@ -116,9 +146,9 @@ const ServicesManager: React.FC<ServicesManagerProps> = ({ onEditService, onCrea
                 <TableRow key={service.id}>
                   <TableCell>
                     <div className="w-12 h-12 rounded bg-gray-100 overflow-hidden">
-                      {service.illustration ? (
+                      {service.image ? (
                         <img
-                          src={service.illustration}
+                          src={service.image}
                           alt={service.title}
                           className="w-full h-full object-cover"
                         />
@@ -146,6 +176,7 @@ const ServicesManager: React.FC<ServicesManagerProps> = ({ onEditService, onCrea
                         variant="ghost"
                         size="icon"
                         onClick={() => handleDeleteService(service.id)}
+                        disabled={deleteMutation.isPending}
                       >
                         <Trash2 size={16} className="text-red-500" />
                       </Button>

@@ -10,86 +10,91 @@ import {
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Textarea } from "@/components/ui/textarea";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { useForm } from "react-hook-form";
-
-// بيانات تجريبية
-const sampleBooks = [
-  {
-    id: "1",
-    title: "أساسيات القيادة الإدارية",
-    description: "كتاب يشرح أساسيات القيادة الإدارية الفعالة في عالم الأعمال",
-    cover: "/lovable-uploads/6b7d5f55-0ca7-45cb-9463-f8a6eb07d7d4.png",
-    price: "99 ريال",
-  },
-  {
-    id: "2",
-    title: "استراتيجيات التسويق الرقمي",
-    description: "دليل شامل لاستراتيجيات التسويق الرقمي الحديثة",
-    cover: "/lovable-uploads/28b72d61-4e8f-4b33-847a-1685c6b0b5a5.png",
-    price: "129 ريال",
-  },
-  {
-    id: "3",
-    title: "إدارة المشاريع الاحترافية",
-    description: "منهجية شاملة في إدارة المشاريع بفعالية واحترافية",
-    cover: "/lovable-uploads/3cc93b10-435d-4b20-a3d0-da06335cf1ca.png",
-    price: "149 ريال",
-  },
-];
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 const BooksManager = () => {
-  const [books, setBooks] = useState(sampleBooks);
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [currentBook, setCurrentBook] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const { toast } = useToast();
 
-  const form = useForm({
-    defaultValues: {
-      title: "",
-      description: "",
-      cover: "",
-      price: "",
+  // جلب الكتب من API
+  const { data: books = [], isLoading, error } = useQuery({
+    queryKey: ["/api/books"],
+  });
+
+  // حذف كتاب
+  const deleteMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const res = await fetch(`/api/books/${id}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) {
+        throw new Error("خطأ في حذف الكتاب");
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/books"] });
+      toast({
+        title: "تم بنجاح",
+        description: "تم حذف الكتاب بنجاح",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "خطأ",
+        description: "حدث خطأ في حذف الكتاب",
+        variant: "destructive",
+      });
     },
   });
 
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [currentBook, setCurrentBook] = useState(null);
+
   // فلترة الكتب بناءً على البحث
   const filteredBooks = books.filter(
-    (book) =>
+    (book: any) =>
       book.title.includes(searchQuery) ||
       book.description.includes(searchQuery)
   );
 
   const handleAddBook = () => {
-    form.reset({
-      title: "",
-      description: "",
-      cover: "",
-      price: "",
-    });
     setIsAddDialogOpen(true);
   };
 
-  const handleEditBook = (book) => {
+  const handleEditBook = (book: any) => {
     setCurrentBook(book);
-    form.reset({
-      title: book.title,
-      description: book.description,
-      cover: book.cover,
-      price: book.price,
-    });
     setIsEditDialogOpen(true);
   };
 
-  const handleDeleteBook = (id) => {
+  const handleDeleteBook = (id: number) => {
     if (window.confirm("هل أنت متأكد من حذف هذا الكتاب؟")) {
-      setBooks(books.filter((book) => book.id !== id));
+      deleteMutation.mutate(id);
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="bg-white rounded-lg border shadow-sm p-6">
+        <div className="text-center py-8">
+          <p className="text-gray-500">جارٍ تحميل الكتب...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-white rounded-lg border shadow-sm p-6">
+        <div className="text-center py-8">
+          <p className="text-red-500">خطأ في تحميل الكتب</p>
+        </div>
+      </div>
+    );
+  }
 
   const onSubmit = (data) => {
     if (isEditDialogOpen && currentBook) {

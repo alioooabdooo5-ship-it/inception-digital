@@ -9,45 +9,54 @@ import {
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+
 interface IndustriesManagerProps {
   onEditIndustry?: (industryId: string) => void;
   onCreateIndustry?: () => void;
 }
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Textarea } from "@/components/ui/textarea";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { useForm } from "react-hook-form";
-
-// بيانات تجريبية
-const sampleIndustries = [
-  {
-    id: "1",
-    title: "التكنولوجيا والاتصالات",
-    description: "خدمات استشارية مخصصة لقطاع التكنولوجيا والاتصالات",
-    image: "/lovable-uploads/91e78bbe-63bc-4f32-98d9-9b42cbab317a.png",
-  },
-  {
-    id: "2",
-    title: "الخدمات المالية",
-    description: "خدمات استشارية للبنوك والمؤسسات المالية والتأمين",
-    image: "/lovable-uploads/28b72d61-4e8f-4b33-847a-1685c6b0b5a5.png",
-  },
-  {
-    id: "3",
-    title: "التصنيع والإنتاج",
-    description: "خدمات استشارية للمصانع وشركات الإنتاج والتصنيع",
-    image: "/lovable-uploads/3cc93b10-435d-4b20-a3d0-da06335cf1ca.png",
-  },
-];
-
 const IndustriesManager: React.FC<IndustriesManagerProps> = ({ onEditIndustry, onCreateIndustry }) => {
-  const [industries, setIndustries] = useState(sampleIndustries);
+  const [searchQuery, setSearchQuery] = useState("");
+  const { toast } = useToast();
+
+  // جلب الصناعات من API
+  const { data: industries = [], isLoading, error } = useQuery({
+    queryKey: ["/api/industries"],
+  });
+
+  // حذف صناعة
+  const deleteMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const res = await fetch(`/api/industries/${id}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) {
+        throw new Error("خطأ في حذف الصناعة");
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/industries"] });
+      toast({
+        title: "تم بنجاح",
+        description: "تم حذف الصناعة بنجاح",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "خطأ",
+        description: "حدث خطأ في حذف الصناعة",
+        variant: "destructive",
+      });
+    },
+  });
+
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [currentIndustry, setCurrentIndustry] = useState(null);
-  const [searchQuery, setSearchQuery] = useState("");
 
   const form = useForm({
     defaultValues: {
@@ -59,7 +68,7 @@ const IndustriesManager: React.FC<IndustriesManagerProps> = ({ onEditIndustry, o
 
   // فلترة الصناعات بناءً على البحث
   const filteredIndustries = industries.filter(
-    (industry) =>
+    (industry: any) =>
       industry.title.includes(searchQuery) ||
       industry.description.includes(searchQuery)
   );
@@ -70,17 +79,37 @@ const IndustriesManager: React.FC<IndustriesManagerProps> = ({ onEditIndustry, o
     }
   };
 
-  const handleEditIndustry = (industry) => {
+  const handleEditIndustry = (industry: any) => {
     if (onEditIndustry) {
-      onEditIndustry(industry.id);
+      onEditIndustry(industry.id.toString());
     }
   };
 
-  const handleDeleteIndustry = (id) => {
+  const handleDeleteIndustry = (id: number) => {
     if (window.confirm("هل أنت متأكد من حذف هذه الصناعة؟")) {
-      setIndustries(industries.filter((industry) => industry.id !== id));
+      deleteMutation.mutate(id);
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="bg-white rounded-lg border shadow-sm p-6">
+        <div className="text-center py-8">
+          <p className="text-gray-500">جارٍ تحميل الصناعات...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-white rounded-lg border shadow-sm p-6">
+        <div className="text-center py-8">
+          <p className="text-red-500">خطأ في تحميل الصناعات</p>
+        </div>
+      </div>
+    );
+  }
 
   const onSubmit = (data) => {
     if (isEditDialogOpen && currentIndustry) {
