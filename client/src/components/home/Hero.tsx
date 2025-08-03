@@ -67,11 +67,17 @@ const Hero: React.FC = () => {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4">
-                <a href="/api/login" className="btn-primary">
-                  ابدأ الآن
-                </a>
-                <Link to="/services" className="btn-outline group">
-                  <span>استكشف خدماتنا</span>
+                <Link 
+                  to={getSetting('hero_primary_button_link') || '/contact'} 
+                  className="btn-primary"
+                >
+                  {getSetting('hero_primary_button_text') || 'ابدأ الآن'}
+                </Link>
+                <Link 
+                  to={getSetting('hero_secondary_button_link') || '/services'} 
+                  className="btn-outline group"
+                >
+                  <span>{getSetting('hero_secondary_button_text') || 'استكشف خدماتنا'}</span>
                   <FontAwesomeIcon 
                     icon={faArrowLeft} 
                     className="mr-2 w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" 
@@ -86,8 +92,8 @@ const Hero: React.FC = () => {
               <div className="relative">
                 {/* Animation illustration */}
                 <img
-                  src="/lovable-uploads/6b7d5f55-0ca7-45cb-9463-f8a6eb07d7d4.png"
-                  alt="Inception Digital Marketing"
+                  src={getSetting('hero_image_url') || '/lovable-uploads/6b7d5f55-0ca7-45cb-9463-f8a6eb07d7d4.png'}
+                  alt={getSetting('hero_image_alt') || 'Inception Digital Marketing'}
                   className="w-full h-auto animate-float"
                 />
                 
