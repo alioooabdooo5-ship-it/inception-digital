@@ -5,12 +5,17 @@ export default {
   content: ["./client/index.html", "./client/src/**/*.{js,jsx,ts,tsx}"],
   theme: {
     extend: {
+      fontFamily: {
+        'hacen': ['"Hacen Maghreb Bd"', 'Arial', 'sans-serif'],
+      },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
       colors: {
+        'inception-purple': '#37124f',
+        'inception-orange': '#ff6600',
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         card: {
