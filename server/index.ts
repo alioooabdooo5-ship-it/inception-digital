@@ -39,6 +39,19 @@ app.use((req, res, next) => {
 (async () => {
   const server = await registerRoutes(app);
 
+  // Import auth functions for admin page protection
+  const { requireAuthForPages } = await import("./auth");
+  
+  // Protect admin pages BEFORE setting up Vite middleware
+  app.use((req: any, res: any, next: any) => {
+    if (req.originalUrl.startsWith('/admin')) {
+      if (!req.isAuthenticated()) {
+        return res.redirect('/auth');
+      }
+    }
+    next();
+  });
+
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
