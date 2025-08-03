@@ -26,6 +26,9 @@ import AdminMedia from "./pages/admin/AdminMedia";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminSEO from "./pages/admin/AdminSEO";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
+import AdminArticleEditor from "./pages/admin/AdminArticleEditor";
+import AdminServiceEditor from "./pages/admin/AdminServiceEditor";
+import AdminIndustryEditor from "./pages/admin/AdminIndustryEditor";
 import AuthPage from "./pages/auth-page";
 import NotFound from "./pages/NotFound";
 import SEOGuide from "./pages/SEOGuide";
@@ -74,11 +77,11 @@ const App = () => {
               {/* Protected admin routes */}
               <ProtectedRoute path="/admin" component={AdminDashboard} />
               <ProtectedRoute path="/admin/articles" component={AdminArticles} />
-              <ProtectedRoute path="/admin/article-editor" component={AdminArticles} />
+              <ProtectedRoute path="/admin/article-editor" component={AdminArticleEditor} />
               <ProtectedRoute path="/admin/services" component={AdminServices} />
-              <ProtectedRoute path="/admin/service-editor" component={AdminServices} />
+              <ProtectedRoute path="/admin/service-editor" component={AdminServiceEditor} />
               <ProtectedRoute path="/admin/industries" component={AdminIndustries} />
-              <ProtectedRoute path="/admin/industry-editor" component={AdminIndustries} />
+              <ProtectedRoute path="/admin/industry-editor" component={AdminIndustryEditor} />
               <ProtectedRoute path="/admin/books" component={AdminBooks} />
               <ProtectedRoute path="/admin/testimonials" component={AdminTestimonials} />
               <ProtectedRoute path="/admin/users" component={AdminUsers} />
