@@ -5,7 +5,9 @@ import ServicesManager from "@/components/dashboard/ServicesManager";
 const AdminServices = () => {
   return (
     <AdminLayout>
-      <ServicesManager />
+      <div className="space-y-6">
+        <ServicesManager />
+      </div>
     </AdminLayout>
   );
 };
