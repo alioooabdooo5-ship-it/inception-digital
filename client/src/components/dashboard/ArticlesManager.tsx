@@ -32,7 +32,7 @@ const ArticlesManager = () => {
   const [filterStatus, setFilterStatus] = useState("all");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [currentArticle, setCurrentArticle] = useState(null);
+  const [currentArticle, setCurrentArticle] = useState<Article | null>(null);
   const { toast } = useToast();
 
   const form = useForm({
@@ -48,17 +48,14 @@ const ArticlesManager = () => {
   });
 
   // جلب المقالات من API
-  const { data: articles = [], isLoading, error } = useQuery({
+  const { data: articles = [], isLoading, error } = useQuery<Article[]>({
     queryKey: ["/api/articles"],
   });
 
   // إضافة مقال جديد
   const createMutation = useMutation({
     mutationFn: async (data: any) => {
-      const res = await apiRequest("/api/articles", {
-        method: "POST",
-        body: JSON.stringify(data),
-      });
+      const res = await apiRequest("POST", "/api/articles", data);
       return res.json();
     },
     onSuccess: () => {
@@ -82,10 +79,7 @@ const ArticlesManager = () => {
   // تحديث مقال
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number; data: any }) => {
-      const res = await apiRequest(`/api/articles/${id}`, {
-        method: "PUT",
-        body: JSON.stringify(data),
-      });
+      const res = await apiRequest("PUT", `/api/articles/${id}`, data);
       return res.json();
     },
     onSuccess: () => {
@@ -109,9 +103,7 @@ const ArticlesManager = () => {
   // حذف مقال
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
-      await apiRequest(`/api/articles/${id}`, {
-        method: "DELETE",
-      });
+      await apiRequest("DELETE", `/api/articles/${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/articles"] });
@@ -177,28 +169,13 @@ const ArticlesManager = () => {
   };
 
   const handleAddArticle = () => {
-    form.reset({
-      title: "",
-      excerpt: "",
-      content: "",
-      category: "",
-      tags: "",
-      featured: false,
-    });
-    setIsAddDialogOpen(true);
+    // التوجه مباشرة لصفحة المحرر
+    window.location.href = '/admin/article-editor';
   };
 
-  const handleEditArticle = (article: any) => {
-    setCurrentArticle(article);
-    form.reset({
-      title: article.title,
-      excerpt: article.excerpt,
-      content: article.content || "",
-      category: article.category,
-      tags: Array.isArray(article.tags) ? article.tags.join(", ") : article.tags || "",
-      featured: article.featured,
-    });
-    setIsEditDialogOpen(true);
+  const handleEditArticle = (article: Article) => {
+    // التوجه لصفحة المحرر مع معرف المقال
+    window.location.href = `/admin/article-editor?id=${article.id}`;
   };
 
   const handleDeleteArticle = (id: number) => {
@@ -209,7 +186,7 @@ const ArticlesManager = () => {
 
   const onSubmit = (data: any) => {
     if (isEditDialogOpen && currentArticle) {
-      updateMutation.mutate({ id: currentArticle.id, data });
+      updateMutation.mutate({ id: (currentArticle as any).id, data });
     } else {
       createMutation.mutate(data);
     }
@@ -318,7 +295,7 @@ const ArticlesManager = () => {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  filteredArticles.map((article) => (
+                  filteredArticles.map((article: Article) => (
                     <TableRow key={article.id} className="hover:bg-gray-50">
                       <TableCell>
                         <div>
@@ -343,20 +320,20 @@ const ArticlesManager = () => {
                         <Badge variant="outline">{article.category}</Badge>
                       </TableCell>
                       <TableCell>
-                        <Badge className={getStatusColor(article.status)}>
-                          {getStatusText(article.status)}
+                        <Badge className={getStatusColor(article.status || 'published')}>
+                          {getStatusText(article.status || 'published')}
                         </Badge>
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center">
                           <TrendingUp className="w-4 h-4 ml-1 text-green-500" />
-                          {article.views}
+                          {article.views || 0}
                         </div>
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center text-gray-600">
                           <Calendar className="w-4 h-4 ml-1" />
-                          {new Date(article.date).toLocaleDateString('ar-EG')}
+                          {new Date(article.createdAt || Date.now()).toLocaleDateString('ar-EG')}
                         </div>
                       </TableCell>
                       <TableCell>

@@ -1,13 +1,8 @@
 import React from "react";
-import AdminLayout from "@/components/AdminLayout";
-import ArticleEditor from "@/components/dashboard/ArticleEditor";
+import EnhancedArticleEditor from "@/components/dashboard/EnhancedArticleEditor";
 
 const AdminArticleEditor = () => {
-  return (
-    <AdminLayout>
-      <ArticleEditor />
-    </AdminLayout>
-  );
+  return <EnhancedArticleEditor />;
 };
 
 export default AdminArticleEditor;

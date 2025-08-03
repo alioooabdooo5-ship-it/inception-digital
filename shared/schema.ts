@@ -109,6 +109,11 @@ export const articles = pgTable("articles", {
   image: text("image"),
   featured: boolean("featured").default(false),
   views: integer("views").default(0),
+  status: text("status").default("draft"), // draft, review, published
+  tags: text("tags").array(),
+  metaTitle: text("meta_title"),
+  metaDescription: text("meta_description"),
+  focusKeyword: text("focus_keyword"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

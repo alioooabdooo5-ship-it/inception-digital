@@ -14,6 +14,7 @@ import Books from "./pages/Books";
 import AboutMe from "./pages/AboutMe";
 import Contact from "./pages/Contact";
 import Articles from "./pages/Articles";
+import ArticleDetail from "./pages/ArticleDetail";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminArticles from "./pages/admin/AdminArticles";
 import AdminServices from "./pages/admin/AdminServices";
@@ -68,6 +69,7 @@ const App = () => {
               <Route path="/industries/:id" component={IndustryDetail} />
               <Route path="/books" component={Books} />
               <Route path="/articles" component={Articles} />
+              <Route path="/articles/:id" component={ArticleDetail} />
               <Route path="/about" component={AboutMe} />
               <Route path="/contact" component={Contact} />
               <Route path="/seo-guide" component={SEOGuide} />
