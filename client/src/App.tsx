@@ -15,6 +15,17 @@ import AboutMe from "./pages/AboutMe";
 import Contact from "./pages/Contact";
 import Articles from "./pages/Articles";
 import AdminDashboard from "./pages/AdminDashboard";
+import AdminArticles from "./pages/admin/AdminArticles";
+import AdminServices from "./pages/admin/AdminServices";
+import AdminIndustries from "./pages/admin/AdminIndustries";
+import AdminBooks from "./pages/admin/AdminBooks";
+import AdminTestimonials from "./pages/admin/AdminTestimonials";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminContactForms from "./pages/admin/AdminContactForms";
+import AdminMedia from "./pages/admin/AdminMedia";
+import AdminSettings from "./pages/admin/AdminSettings";
+import AdminSEO from "./pages/admin/AdminSEO";
+import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AuthPage from "./pages/auth-page";
 import NotFound from "./pages/NotFound";
 import SEOGuide from "./pages/SEOGuide";
@@ -62,7 +73,20 @@ const App = () => {
               
               {/* Protected admin routes */}
               <ProtectedRoute path="/admin" component={AdminDashboard} />
-              <ProtectedRoute path="/admin/:rest*" component={AdminDashboard} />
+              <ProtectedRoute path="/admin/articles" component={AdminArticles} />
+              <ProtectedRoute path="/admin/article-editor" component={AdminArticles} />
+              <ProtectedRoute path="/admin/services" component={AdminServices} />
+              <ProtectedRoute path="/admin/service-editor" component={AdminServices} />
+              <ProtectedRoute path="/admin/industries" component={AdminIndustries} />
+              <ProtectedRoute path="/admin/industry-editor" component={AdminIndustries} />
+              <ProtectedRoute path="/admin/books" component={AdminBooks} />
+              <ProtectedRoute path="/admin/testimonials" component={AdminTestimonials} />
+              <ProtectedRoute path="/admin/users" component={AdminUsers} />
+              <ProtectedRoute path="/admin/contact-forms" component={AdminContactForms} />
+              <ProtectedRoute path="/admin/media" component={AdminMedia} />
+              <ProtectedRoute path="/admin/seo" component={AdminSEO} />
+              <ProtectedRoute path="/admin/analytics" component={AdminAnalytics} />
+              <ProtectedRoute path="/admin/settings" component={AdminSettings} />
               
               {/* Catch-all route for 404 */}
               <Route component={NotFound} />

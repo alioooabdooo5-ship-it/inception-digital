@@ -64,6 +64,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
     onSuccess: (user: SelectUser) => {
       queryClient.setQueryData(["/api/user"], user);
+      // Redirect to admin after successful login
+      window.location.href = "/admin";
     },
     onError: (error: Error) => {
       toast({
