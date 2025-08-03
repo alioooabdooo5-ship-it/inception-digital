@@ -19,7 +19,8 @@ import {
   insertArticleSchema,
   insertContactFormSchema,
   insertMediaFileSchema,
-  insertSettingSchema
+  insertSettingSchema,
+  insertPageContentSchema
 } from "@shared/schema";
 import { seedDatabase } from "./seedData";
 
@@ -507,6 +508,45 @@ export function registerRoutes(app: Express): Server {
     } catch (error) {
       console.error("Error seeding database:", error);
       res.status(500).json({ message: "Failed to seed database" });
+    }
+  });
+
+  // Page Content routes
+  app.get('/api/page-content/:page', async (req, res) => {
+    try {
+      const page = req.params.page;
+      const content = await storage.getPageContent(page);
+      if (!content) {
+        return res.status(404).json({ message: "Page content not found" });
+      }
+      res.json(content);
+    } catch (error) {
+      console.error("Error fetching page content:", error);
+      res.status(500).json({ message: "Failed to fetch page content" });
+    }
+  });
+
+  app.post('/api/page-content/:page', requireAuth, async (req, res) => {
+    try {
+      const page = req.params.page;
+      const contentData = { ...req.body, page };
+      const validatedData = insertPageContentSchema.parse(contentData);
+      const content = await storage.upsertPageContent(validatedData);
+      res.json(content);
+    } catch (error) {
+      console.error("Error saving page content:", error);
+      res.status(500).json({ message: "Failed to save page content" });
+    }
+  });
+
+  app.delete('/api/page-content/:id', requireAuth, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      await storage.deletePageContent(id);
+      res.json({ message: "Page content deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting page content:", error);
+      res.status(500).json({ message: "Failed to delete page content" });
     }
   });
 

@@ -8,6 +8,7 @@ import {
   contactForms,
   mediaFiles,
   settings,
+  pageContents,
   sessions,
   type User,
   type InsertUser,
@@ -27,6 +28,8 @@ import {
   type InsertMediaFile,
   type Setting,
   type InsertSetting,
+  type PageContent,
+  type InsertPageContent,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc } from "drizzle-orm";
@@ -99,6 +102,11 @@ export interface IStorage {
   createSetting(setting: InsertSetting): Promise<Setting>;
   updateSetting(id: number, setting: Partial<InsertSetting>): Promise<Setting>;
   deleteSetting(id: number): Promise<void>;
+  
+  // Page Content operations
+  getPageContent(page: string): Promise<PageContent | undefined>;
+  upsertPageContent(pageContent: InsertPageContent): Promise<PageContent>;
+  deletePageContent(id: number): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -362,6 +370,34 @@ export class DatabaseStorage implements IStorage {
 
   async deleteSetting(id: number): Promise<void> {
     await db.delete(settings).where(eq(settings.id, id));
+  }
+
+  // Page Content operations
+  async getPageContent(page: string): Promise<PageContent | undefined> {
+    const [content] = await db.select().from(pageContents).where(eq(pageContents.page, page));
+    return content;
+  }
+
+  async upsertPageContent(pageContent: InsertPageContent): Promise<PageContent> {
+    const existing = await this.getPageContent(pageContent.page);
+    
+    if (existing) {
+      // Update existing content
+      const [updatedContent] = await db
+        .update(pageContents)
+        .set({ ...pageContent, updatedAt: new Date() })
+        .where(eq(pageContents.page, pageContent.page))
+        .returning();
+      return updatedContent;
+    } else {
+      // Create new content
+      const [newContent] = await db.insert(pageContents).values(pageContent).returning();
+      return newContent;
+    }
+  }
+
+  async deletePageContent(id: number): Promise<void> {
+    await db.delete(pageContents).where(eq(pageContents.id, id));
   }
 }
 

@@ -217,6 +217,20 @@ export const settings = pgTable("settings", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Page Content table
+export const pageContents = pgTable("page_contents", {
+  id: serial("id").primaryKey(),
+  page: text("page").notNull(), // home, contact, about
+  title: text("title").notNull(),
+  metaTitle: text("meta_title"),
+  metaDescription: text("meta_description"),
+  sections: jsonb("sections").notNull(), // Array of page sections
+  contactInfo: jsonb("contact_info"), // Contact information for contact page
+  socialLinks: jsonb("social_links"), // Social media links
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Schema types  
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
@@ -244,6 +258,9 @@ export type InsertMediaFile = typeof mediaFiles.$inferInsert;
 
 export type Setting = typeof settings.$inferSelect;
 export type InsertSetting = typeof settings.$inferInsert;
+
+export type PageContent = typeof pageContents.$inferSelect;
+export type InsertPageContent = typeof pageContents.$inferInsert;
 
 // Zod schemas
 export const insertUserSchema = createInsertSchema(users).omit({
@@ -295,6 +312,12 @@ export const insertMediaFileSchema = createInsertSchema(mediaFiles).omit({
 });
 
 export const insertSettingSchema = createInsertSchema(settings).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertPageContentSchema = createInsertSchema(pageContents).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
