@@ -270,7 +270,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
         </div>
 
         {/* Page content */}
-        <main className="p-6">
+        <main className="p-3 lg:p-6">
           {children}
         </main>
       </div>
