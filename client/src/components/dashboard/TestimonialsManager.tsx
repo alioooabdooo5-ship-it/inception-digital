@@ -16,44 +16,47 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
-
-// بيانات تجريبية
-const sampleTestimonials = [
-  {
-    id: "1",
-    name: "محمد أحمد",
-    position: "مدير تنفيذي",
-    company: "شركة التقنية المتقدمة",
-    image: "/lovable-uploads/28b72d61-4e8f-4b33-847a-1685c6b0b5a5.png",
-    content: "تعاملنا مع إنسيبشن كان من أفضل القرارات التي اتخذناها. لقد ساعدونا في تطوير استراتيجية رقمية متكاملة.",
-    rating: 5,
-  },
-  {
-    id: "2",
-    name: "سارة محمود",
-    position: "مديرة تسويق",
-    company: "مجموعة الخليج للاستثمار",
-    image: "/lovable-uploads/3cc93b10-435d-4b20-a3d0-da06335cf1ca.png",
-    content: "الاستشارات التي قدمها فريق إنسيبشن ساعدتنا في رفع مبيعاتنا بنسبة 40% خلال ثلاثة أشهر فقط.",
-    rating: 5,
-  },
-  {
-    id: "3",
-    name: "خالد العتيبي",
-    position: "رئيس قسم التطوير",
-    company: "شركة المستقبل للحلول التقنية",
-    image: "/lovable-uploads/6b7d5f55-0ca7-45cb-9463-f8a6eb07d7d4.png",
-    content: "تمكنا من تحقيق أهدافنا الاستراتيجية بشكل أسرع بكثير مع دعم واستشارات إنسيبشن المتميزة.",
-    rating: 4,
-  },
-];
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 const TestimonialsManager = () => {
-  const [testimonials, setTestimonials] = useState(sampleTestimonials);
+  const { toast } = useToast();
+
+  // جلب آراء العملاء من API
+  const { data: testimonials = [], isLoading, error } = useQuery({
+    queryKey: ["/api/testimonials"],
+  });
+
+  // حذف شهادة
+  const deleteMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const res = await fetch(`/api/testimonials/${id}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) {
+        throw new Error("خطأ في حذف الشهادة");
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/testimonials"] });
+      toast({
+        title: "تم بنجاح",
+        description: "تم حذف الشهادة بنجاح",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "خطأ",
+        description: "حدث خطأ في حذف الشهادة",
+        variant: "destructive",
+      });
+    },
+  });
+
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [currentTestimonial, setCurrentTestimonial] = useState(null);
-  const [searchQuery, setSearchQuery] = useState("");
 
   const form = useForm({
     defaultValues: {
@@ -68,7 +71,7 @@ const TestimonialsManager = () => {
 
   // فلترة الشهادات بناءً على البحث
   const filteredTestimonials = testimonials.filter(
-    (testimonial) =>
+    (testimonial: any) =>
       testimonial.name.includes(searchQuery) ||
       testimonial.company.includes(searchQuery) ||
       testimonial.content.includes(searchQuery)

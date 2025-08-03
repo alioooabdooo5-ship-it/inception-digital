@@ -69,7 +69,7 @@ const AdminDashboard = () => {
     }
   }, [location]);
 
-  // Redirect to login if not authenticated
+  // Stay on admin routes if authenticated
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       toast({
