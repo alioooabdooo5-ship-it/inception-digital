@@ -144,19 +144,19 @@ const AdminDashboard = () => {
 
   return (
     <AdminLayout>
-      <div className="space-y-4 lg:space-y-6 xl:space-y-8">
+      <div className="space-y-3 lg:space-y-4">
         {/* Header */}
-        <div className="bg-gradient-to-r from-inception-purple to-purple-700 rounded-xl lg:rounded-2xl p-4 lg:p-8 text-white">
-          <h1 className="text-2xl lg:text-4xl font-bold mb-2 lg:mb-3">مرحباً بك في لوحة التحكم</h1>
-          <p className="text-purple-100 text-sm lg:text-lg">نظرة شاملة على أداء موقع إنسيبشن والإحصائيات المهمة</p>
+        <div className="bg-gradient-to-r from-inception-purple to-purple-700 rounded-lg p-4 lg:p-6 text-white">
+          <h1 className="text-xl lg:text-3xl font-bold mb-1 lg:mb-2">مرحباً بك في لوحة التحكم</h1>
+          <p className="text-purple-100 text-sm lg:text-base">نظرة شاملة على أداء موقع إنسيبشن والإحصائيات المهمة</p>
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-4 lg:gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
           {stats.map((stat, index) => (
             <Link key={index} href={stat.href}>
               <Card className="hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer group h-full">
-                <CardContent className="p-4 lg:p-6 h-full">
+                <CardContent className="p-3 lg:p-4 h-full">
                   <div className="flex items-center justify-between h-full">
                     <div className="flex-1 min-w-0">
                       <p className="text-xs lg:text-sm font-medium text-gray-600 mb-1 truncate">{stat.title}</p>
@@ -181,17 +181,17 @@ const AdminDashboard = () => {
 
         {/* Quick Actions */}
         <Card className="shadow-lg">
-          <CardHeader className="pb-3 lg:pb-4">
-            <CardTitle className="text-lg lg:text-2xl font-bold text-gray-900 flex items-center gap-2 lg:gap-3">
-              <PlusCircle className="w-5 h-5 lg:w-7 lg:h-7 text-inception-purple" />
+          <CardHeader className="pb-2 lg:pb-3">
+            <CardTitle className="text-base lg:text-xl font-bold text-gray-900 flex items-center gap-2">
+              <PlusCircle className="w-4 h-4 lg:w-6 lg:h-6 text-inception-purple" />
               إجراءات سريعة
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-6">
+          <CardContent className="pt-0">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 lg:gap-3">
               {quickActions.map((action, index) => (
                 <Link key={index} href={action.href}>
-                  <div className="group bg-gradient-to-br from-gray-50 to-gray-100 p-3 lg:p-6 rounded-xl hover:shadow-lg transition-all duration-300 transform hover:-translate-y-2 cursor-pointer border border-gray-200 h-full">
+                  <div className="group bg-gradient-to-br from-gray-50 to-gray-100 p-2 lg:p-4 rounded-lg hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 cursor-pointer border border-gray-200 h-full">
                     <div className={`w-10 h-10 lg:w-14 lg:h-14 bg-gradient-to-r ${action.color} rounded-xl flex items-center justify-center mb-2 lg:mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg mx-auto`}>
                       <action.icon size={16} className="text-white lg:w-6 lg:h-6" />
                     </div>
@@ -208,12 +208,12 @@ const AdminDashboard = () => {
         </Card>
 
         {/* Recent Activity & Analytics - Full Width Layout */}
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 lg:gap-8">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-3 lg:gap-4">
           {/* Recent Activity */}
           <Card className="shadow-lg xl:col-span-2">
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 lg:gap-3 text-lg lg:text-xl font-bold text-gray-900">
-                <BarChart3 className="w-5 h-5 lg:w-6 lg:h-6 text-inception-purple" />
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center gap-2 text-base lg:text-lg font-bold text-gray-900">
+                <BarChart3 className="w-4 h-4 lg:w-5 lg:h-5 text-inception-purple" />
                 النشاط الأخير
               </CardTitle>
             </CardHeader>
@@ -245,9 +245,9 @@ const AdminDashboard = () => {
 
           {/* Quick Stats */}
           <Card className="shadow-lg">
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 lg:gap-3 text-lg lg:text-xl font-bold text-gray-900">
-                <TrendingUp className="w-5 h-5 lg:w-6 lg:h-6 text-inception-purple" />
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center gap-2 text-base lg:text-lg font-bold text-gray-900">
+                <TrendingUp className="w-4 h-4 lg:w-5 lg:h-5 text-inception-purple" />
                 الإحصائيات السريعة
               </CardTitle>
             </CardHeader>
@@ -275,48 +275,48 @@ const AdminDashboard = () => {
         </div>
         
         {/* Additional Performance Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 lg:gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 lg:gap-4">
           <Card className="shadow-lg">
-            <CardContent className="p-4 lg:p-6 text-center">
-              <div className="w-12 h-12 lg:w-16 lg:h-16 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-3 lg:mb-4">
-                <Users className="w-6 h-6 lg:w-8 lg:h-8 text-white" />
+            <CardContent className="p-3 lg:p-4 text-center">
+              <div className="w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-2 lg:mb-3">
+                <Users className="w-5 h-5 lg:w-6 lg:h-6 text-white" />
               </div>
-              <h3 className="font-bold text-lg lg:text-xl text-gray-900 mb-1">2,847</h3>
-              <p className="text-xs lg:text-sm text-gray-600">زائر نشط اليوم</p>
-              <div className="mt-2 text-green-600 text-xs lg:text-sm font-medium">+15% من أمس</div>
+              <h3 className="font-bold text-base lg:text-lg text-gray-900 mb-1">2,847</h3>
+              <p className="text-xs text-gray-600">زائر نشط اليوم</p>
+              <div className="mt-1 text-green-600 text-xs font-medium">+15% من أمس</div>
             </CardContent>
           </Card>
           
           <Card className="shadow-lg">
-            <CardContent className="p-4 lg:p-6 text-center">
-              <div className="w-12 h-12 lg:w-16 lg:h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-3 lg:mb-4">
-                <Eye className="w-6 h-6 lg:w-8 lg:h-8 text-white" />
+            <CardContent className="p-3 lg:p-4 text-center">
+              <div className="w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-2 lg:mb-3">
+                <Eye className="w-5 h-5 lg:w-6 lg:h-6 text-white" />
               </div>
-              <h3 className="font-bold text-lg lg:text-xl text-gray-900 mb-1">45,892</h3>
-              <p className="text-xs lg:text-sm text-gray-600">مشاهدات الصفحات</p>
-              <div className="mt-2 text-green-600 text-xs lg:text-sm font-medium">+22% هذا الأسبوع</div>
+              <h3 className="font-bold text-base lg:text-lg text-gray-900 mb-1">45,892</h3>
+              <p className="text-xs text-gray-600">مشاهدات الصفحات</p>
+              <div className="mt-1 text-green-600 text-xs font-medium">+22% هذا الأسبوع</div>
             </CardContent>
           </Card>
           
           <Card className="shadow-lg">
-            <CardContent className="p-4 lg:p-6 text-center">
-              <div className="w-12 h-12 lg:w-16 lg:h-16 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full flex items-center justify-center mx-auto mb-3 lg:mb-4">
-                <TrendingUp className="w-6 h-6 lg:w-8 lg:h-8 text-white" />
+            <CardContent className="p-3 lg:p-4 text-center">
+              <div className="w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full flex items-center justify-center mx-auto mb-2 lg:mb-3">
+                <TrendingUp className="w-5 h-5 lg:w-6 lg:h-6 text-white" />
               </div>
-              <h3 className="font-bold text-lg lg:text-xl text-gray-900 mb-1">87.3%</h3>
-              <p className="text-xs lg:text-sm text-gray-600">معدل الارتداد</p>
-              <div className="mt-2 text-red-600 text-xs lg:text-sm font-medium">-5% تحسن</div>
+              <h3 className="font-bold text-base lg:text-lg text-gray-900 mb-1">87.3%</h3>
+              <p className="text-xs text-gray-600">معدل الارتداد</p>
+              <div className="mt-1 text-red-600 text-xs font-medium">-5% تحسن</div>
             </CardContent>
           </Card>
           
           <Card className="shadow-lg">
-            <CardContent className="p-4 lg:p-6 text-center">
-              <div className="w-12 h-12 lg:w-16 lg:h-16 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-3 lg:mb-4">
-                <MessageSquare className="w-6 h-6 lg:w-8 lg:h-8 text-white" />
+            <CardContent className="p-3 lg:p-4 text-center">
+              <div className="w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-2 lg:mb-3">
+                <MessageSquare className="w-5 h-5 lg:w-6 lg:h-6 text-white" />
               </div>
-              <h3 className="font-bold text-lg lg:text-xl text-gray-900 mb-1">124</h3>
-              <p className="text-xs lg:text-sm text-gray-600">استفسارات جديدة</p>
-              <div className="mt-2 text-green-600 text-xs lg:text-sm font-medium">+8% هذا الشهر</div>
+              <h3 className="font-bold text-base lg:text-lg text-gray-900 mb-1">124</h3>
+              <p className="text-xs text-gray-600">استفسارات جديدة</p>
+              <div className="mt-1 text-green-600 text-xs font-medium">+8% هذا الشهر</div>
             </CardContent>
           </Card>
         </div>
