@@ -120,9 +120,38 @@ export const contactForms = pgTable("contact_forms", {
   email: text("email").notNull(),
   phone: text("phone"),
   company: text("company"),
-  service: text("service"),
+  subject: text("subject"),
   message: text("message").notNull(),
-  status: text("status").default("new"), // new, read, replied
+  status: text("status").default("new"), // new, replied, archived
+  priority: text("priority").default("medium"), // high, medium, low
+  source: text("source").default("contact-form"), // contact-form, website, email
+  location: text("location"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Media files table
+export const mediaFiles = pgTable("media_files", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  type: text("type").notNull(), // image, document, video, audio
+  size: text("size").notNull(),
+  url: text("url").notNull(),
+  dimensions: text("dimensions"),
+  downloads: integer("downloads").default(0),
+  description: text("description"),
+  tags: jsonb("tags"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Settings table
+export const settings = pgTable("settings", {
+  id: serial("id").primaryKey(),
+  category: text("category").notNull(), // general, social, seo
+  key: text("key").notNull(),
+  value: text("value").notNull(),
+  description: text("description"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -148,6 +177,12 @@ export type Article = typeof articles.$inferSelect;
 
 export type InsertContactForm = typeof contactForms.$inferInsert;
 export type ContactForm = typeof contactForms.$inferSelect;
+
+export type InsertMediaFile = typeof mediaFiles.$inferInsert;
+export type MediaFile = typeof mediaFiles.$inferSelect;
+
+export type InsertSetting = typeof settings.$inferInsert;
+export type Setting = typeof settings.$inferSelect;
 
 // Zod schemas
 export const insertUserSchema = createInsertSchema(users).omit({
@@ -188,7 +223,18 @@ export const insertArticleSchema = createInsertSchema(articles).omit({
 
 export const insertContactFormSchema = createInsertSchema(contactForms).omit({
   id: true,
-  status: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertMediaFileSchema = createInsertSchema(mediaFiles).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertSettingSchema = createInsertSchema(settings).omit({
+  id: true,
   createdAt: true,
   updatedAt: true,
 });

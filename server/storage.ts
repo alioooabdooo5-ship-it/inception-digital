@@ -6,6 +6,8 @@ import {
   testimonials,
   articles,
   contactForms,
+  mediaFiles,
+  settings,
   sessions,
   type User,
   type InsertUser,
@@ -21,6 +23,10 @@ import {
   type InsertArticle,
   type ContactForm,
   type InsertContactForm,
+  type MediaFile,
+  type InsertMediaFile,
+  type Setting,
+  type InsertSetting,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc } from "drizzle-orm";
@@ -78,6 +84,21 @@ export interface IStorage {
   createContactForm(form: InsertContactForm): Promise<ContactForm>;
   updateContactFormStatus(id: number, status: string): Promise<ContactForm>;
   deleteContactForm(id: number): Promise<void>;
+
+  // Media files operations
+  getMediaFiles(): Promise<MediaFile[]>;
+  getMediaFile(id: number): Promise<MediaFile | undefined>;
+  createMediaFile(mediaFile: InsertMediaFile): Promise<MediaFile>;
+  updateMediaFile(id: number, mediaFile: Partial<InsertMediaFile>): Promise<MediaFile>;
+  deleteMediaFile(id: number): Promise<void>;
+
+  // Settings operations
+  getSettings(): Promise<Setting[]>;
+  getSetting(id: number): Promise<Setting | undefined>;
+  getSettingByKey(key: string): Promise<Setting | undefined>;
+  createSetting(setting: InsertSetting): Promise<Setting>;
+  updateSetting(id: number, setting: Partial<InsertSetting>): Promise<Setting>;
+  deleteSetting(id: number): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -276,6 +297,67 @@ export class DatabaseStorage implements IStorage {
 
   async deleteContactForm(id: number): Promise<void> {
     await db.delete(contactForms).where(eq(contactForms.id, id));
+  }
+
+  // Media files operations
+  async getMediaFiles(): Promise<MediaFile[]> {
+    return await db.select().from(mediaFiles).orderBy(desc(mediaFiles.createdAt));
+  }
+
+  async getMediaFile(id: number): Promise<MediaFile | undefined> {
+    const [file] = await db.select().from(mediaFiles).where(eq(mediaFiles.id, id));
+    return file;
+  }
+
+  async createMediaFile(mediaFile: InsertMediaFile): Promise<MediaFile> {
+    const [newFile] = await db.insert(mediaFiles).values(mediaFile).returning();
+    return newFile;
+  }
+
+  async updateMediaFile(id: number, mediaFile: Partial<InsertMediaFile>): Promise<MediaFile> {
+    const [updatedFile] = await db
+      .update(mediaFiles)
+      .set({ ...mediaFile, updatedAt: new Date() })
+      .where(eq(mediaFiles.id, id))
+      .returning();
+    return updatedFile;
+  }
+
+  async deleteMediaFile(id: number): Promise<void> {
+    await db.delete(mediaFiles).where(eq(mediaFiles.id, id));
+  }
+
+  // Settings operations
+  async getSettings(): Promise<Setting[]> {
+    return await db.select().from(settings).orderBy(desc(settings.createdAt));
+  }
+
+  async getSetting(id: number): Promise<Setting | undefined> {
+    const [setting] = await db.select().from(settings).where(eq(settings.id, id));
+    return setting;
+  }
+
+  async getSettingByKey(key: string): Promise<Setting | undefined> {
+    const [setting] = await db.select().from(settings).where(eq(settings.key, key));
+    return setting;
+  }
+
+  async createSetting(setting: InsertSetting): Promise<Setting> {
+    const [newSetting] = await db.insert(settings).values(setting).returning();
+    return newSetting;
+  }
+
+  async updateSetting(id: number, setting: Partial<InsertSetting>): Promise<Setting> {
+    const [updatedSetting] = await db
+      .update(settings)
+      .set({ ...setting, updatedAt: new Date() })
+      .where(eq(settings.id, id))
+      .returning();
+    return updatedSetting;
+  }
+
+  async deleteSetting(id: number): Promise<void> {
+    await db.delete(settings).where(eq(settings.id, id));
   }
 }
 

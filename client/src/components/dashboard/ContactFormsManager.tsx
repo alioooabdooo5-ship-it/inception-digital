@@ -23,104 +23,59 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+import { ContactForm } from "@shared/schema";
 
 const ContactFormsManager = () => {
+  const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
-  const [selectedMessage, setSelectedMessage] = useState<any>(null);
+  const [selectedMessage, setSelectedMessage] = useState<ContactForm | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const messages = [
-    {
-      id: 1,
-      name: "أحمد محمد علي",
-      email: "ahmed@example.com",
-      phone: "+20123456789",
-      subject: "استفسار عن خدمات التسويق الرقمي",
-      message: "السلام عليكم، أريد الاستفسار عن خدمات التسويق الرقمي وكيفية تحسين ظهور موقعي في محركات البحث. هل يمكنكم تقديم عرض سعر مفصل؟",
-      date: "2024-01-20",
-      time: "14:30",
-      status: "new",
-      priority: "high",
-      source: "contact-form",
-      location: "القاهرة، مصر"
-    },
-    {
-      id: 2,
-      name: "سارة أحمد حسن",
-      email: "sara@example.com",
-      phone: "+20123456788",
-      subject: "طلب تصميم موقع إلكتروني",
-      message: "مرحباً، أحتاج لتصميم موقع إلكتروني لشركتي الناشئة في مجال الأزياء. هل يمكنكم مساعدتي في هذا الأمر؟",
-      date: "2024-01-19",
-      time: "09:15",
-      status: "replied",
-      priority: "medium",
-      source: "website",
-      location: "الإسكندرية، مصر"
-    },
-    {
-      id: 3,
-      name: "محمد علي حسين",
-      email: "mohamed@example.com",
-      phone: "+20123456787",
-      subject: "شكر وتقدير",
-      message: "أشكركم على الخدمة الممتازة التي قدمتموها لي في تطوير موقع شركتي. النتائج كانت فوق التوقعات.",
-      date: "2024-01-18",
-      time: "16:45",
-      status: "archived",
-      priority: "low",
-      source: "email",
-      location: "الجيزة، مصر"
-    },
-    {
-      id: 4,
-      name: "فاطمة حسن محمد",
-      email: "fatma@example.com",
-      phone: "+20123456786",
-      subject: "مشكلة في الموقع",
-      message: "أواجه مشكلة في الموقع الخاص بي، حيث لا تظهر الصور بشكل صحيح. أرجو المساعدة في حل هذه المشكلة بأسرع وقت ممكن.",
-      date: "2024-01-17",
-      time: "11:20",
-      status: "in-progress",
-      priority: "urgent",
-      source: "support-ticket",
-      location: "المنيا، مصر"
-    }
-  ];
+  const { data: messages = [], isLoading } = useQuery<ContactForm[]>({
+    queryKey: ['/api/contact-forms'],
+  });
 
-  const stats = [
-    { label: "الرسائل الجديدة", value: "12", color: "text-blue-600", icon: MessageSquare },
-    { label: "تم الرد عليها", value: "45", color: "text-green-600", icon: CheckCircle },
-    { label: "قيد المعالجة", value: "8", color: "text-yellow-600", icon: Clock },
-    { label: "مؤرشفة", value: "156", color: "text-gray-600", icon: Archive }
-  ];
+  const deleteMutation = useMutation({
+    mutationFn: async (id: number) => {
+      await apiRequest("DELETE", `/api/contact-forms/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/contact-forms'] });
+      toast({
+        title: "تم الحذف بنجاح",
+        description: "تم حذف الرسالة بنجاح",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "خطأ في الحذف",
+        description: "حدث خطأ أثناء حذف الرسالة",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleDelete = (id: number) => {
+    if (window.confirm("هل أنت متأكد من حذف هذه الرسالة؟")) {
+      deleteMutation.mutate(id);
+    }
+  };
+
+  const handleViewMessage = (message: ContactForm) => {
+    setSelectedMessage(message);
+    setIsDialogOpen(true);
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case "new": return "bg-blue-100 text-blue-800";
       case "replied": return "bg-green-100 text-green-800";
-      case "in-progress": return "bg-yellow-100 text-yellow-800";
       case "archived": return "bg-gray-100 text-gray-800";
       default: return "bg-gray-100 text-gray-800";
-    }
-  };
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case "urgent": return "text-red-600";
-      case "high": return "text-orange-600";
-      case "medium": return "text-yellow-600";
-      case "low": return "text-green-600";
-      default: return "text-gray-600";
-    }
-  };
-
-  const getPriorityIcon = (priority: string) => {
-    switch (priority) {
-      case "urgent": return <AlertCircle className="w-4 h-4" />;
-      case "high": return <Star className="w-4 h-4" />;
-      default: return null;
     }
   };
 
@@ -128,15 +83,22 @@ const ContactFormsManager = () => {
     switch (status) {
       case "new": return "جديد";
       case "replied": return "تم الرد";
-      case "in-progress": return "قيد المعالجة";
       case "archived": return "مؤرشف";
       default: return status;
     }
   };
 
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case "high": return "text-red-600";
+      case "medium": return "text-yellow-600";
+      case "low": return "text-green-600";
+      default: return "text-gray-600";
+    }
+  };
+
   const getPriorityText = (priority: string) => {
     switch (priority) {
-      case "urgent": return "عاجل";
       case "high": return "عالي";
       case "medium": return "متوسط";
       case "low": return "منخفض";
@@ -145,17 +107,43 @@ const ContactFormsManager = () => {
   };
 
   const filteredMessages = messages.filter(message => {
-    const matchesSearch = message.name.includes(searchQuery) || 
-                         message.email.includes(searchQuery) || 
-                         message.subject.includes(searchQuery);
-    const matchesStatus = filterStatus === "all" || message.status === filterStatus;
-    return matchesSearch && matchesStatus;
+    const matchesSearch = message.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         message.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         (message.subject?.toLowerCase() || "").includes(searchQuery.toLowerCase());
+    const matchesFilter = filterStatus === "all" || message.status === filterStatus;
+    return matchesSearch && matchesFilter;
   });
 
-  const handleViewMessage = (message: any) => {
-    setSelectedMessage(message);
-    setIsDialogOpen(true);
-  };
+  const stats = [
+    { 
+      label: "الرسائل الجديدة", 
+      value: messages.filter(m => m.status === "new").length.toString(), 
+      color: "text-blue-600", 
+      icon: MessageSquare 
+    },
+    { 
+      label: "تم الرد عليها", 
+      value: messages.filter(m => m.status === "replied").length.toString(), 
+      color: "text-green-600", 
+      icon: CheckCircle 
+    },
+    { 
+      label: "مؤرشفة", 
+      value: messages.filter(m => m.status === "archived").length.toString(), 
+      color: "text-gray-600", 
+      icon: Archive 
+    },
+    { 
+      label: "إجمالي الرسائل", 
+      value: messages.length.toString(), 
+      color: "text-purple-600", 
+      icon: Mail 
+    }
+  ];
+
+  if (isLoading) {
+    return <div className="text-center p-4">جاري التحميل...</div>;
+  }
 
   return (
     <div className="space-y-6">
@@ -180,7 +168,6 @@ const ContactFormsManager = () => {
             <option value="all">جميع الحالات</option>
             <option value="new">جديد</option>
             <option value="replied">تم الرد</option>
-            <option value="in-progress">قيد المعالجة</option>
             <option value="archived">مؤرشف</option>
           </select>
         </div>
@@ -196,7 +183,9 @@ const ContactFormsManager = () => {
                   <p className="text-sm text-gray-600 mb-1">{stat.label}</p>
                   <p className={`text-2xl font-bold ${stat.color}`}>{stat.value}</p>
                 </div>
-                <stat.icon className={`w-8 h-8 ${stat.color} opacity-70`} />
+                <div className={`p-3 rounded-full bg-gray-50 ${stat.color}`}>
+                  <stat.icon size={24} />
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -206,177 +195,146 @@ const ContactFormsManager = () => {
       {/* Messages Table */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-xl font-bold text-inception-purple">الرسائل الواردة</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <MessageSquare className="w-5 h-5" />
+            الرسائل ({filteredMessages.length})
+          </CardTitle>
         </CardHeader>
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-gray-50">
-                  <TableHead className="text-right">المرسل</TableHead>
-                  <TableHead className="text-right">الموضوع</TableHead>
-                  <TableHead className="text-right">الأولوية</TableHead>
-                  <TableHead className="text-right">الحالة</TableHead>
-                  <TableHead className="text-right">التاريخ</TableHead>
-                  <TableHead className="text-right">المصدر</TableHead>
-                  <TableHead className="text-right">الإجراءات</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredMessages.map((message) => (
-                  <TableRow key={message.id} className="hover:bg-gray-50">
-                    <TableCell>
-                      <div>
-                        <div className="font-medium text-inception-purple">{message.name}</div>
-                        <div className="text-sm text-gray-500 flex items-center">
-                          <Mail className="w-3 h-3 ml-1" />
-                          {message.email}
-                        </div>
-                        <div className="text-sm text-gray-500 flex items-center">
-                          <Phone className="w-3 h-3 ml-1" />
-                          {message.phone}
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="max-w-[200px]">
-                        <div className="font-medium text-gray-900 truncate">{message.subject}</div>
-                        <div className="text-sm text-gray-500 truncate">{message.message}</div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className={`flex items-center ${getPriorityColor(message.priority)}`}>
-                        {getPriorityIcon(message.priority)}
-                        <span className="mr-1 font-medium">{getPriorityText(message.priority)}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge className={getStatusColor(message.status)}>
-                        {getStatusText(message.status)}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-gray-600">
-                      <div className="flex items-center">
-                        <Calendar className="w-4 h-4 ml-1" />
-                        {new Date(message.date).toLocaleDateString('ar-EG')}
-                      </div>
-                      <div className="text-sm text-gray-500">{message.time}</div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline">
-                        {message.source === "contact-form" ? "نموذج التواصل" :
-                         message.source === "website" ? "الموقع" :
-                         message.source === "email" ? "البريد الإلكتروني" : "تذكرة الدعم"}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex space-x-2 space-x-reverse">
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          onClick={() => handleViewMessage(message)}
-                          title="عرض"
-                        >
-                          <Eye size={16} className="text-blue-500" />
-                        </Button>
-                        <Button variant="ghost" size="icon" title="رد">
-                          <Reply size={16} className="text-green-500" />
-                        </Button>
-                        <Button variant="ghost" size="icon" title="حذف">
-                          <Trash2 size={16} className="text-red-500" />
-                        </Button>
-                      </div>
-                    </TableCell>
+        <CardContent>
+          {filteredMessages.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              لا توجد رسائل
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>الاسم</TableHead>
+                    <TableHead>البريد الإلكتروني</TableHead>
+                    <TableHead>الموضوع</TableHead>
+                    <TableHead>الحالة</TableHead>
+                    <TableHead>الأولوية</TableHead>
+                    <TableHead>التاريخ</TableHead>
+                    <TableHead>الإجراءات</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+                </TableHeader>
+                <TableBody>
+                  {filteredMessages.map((message) => (
+                    <TableRow key={message.id} className="hover:bg-gray-50">
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <User className="w-4 h-4 text-gray-400" />
+                          <span className="font-medium">{message.name}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <Mail className="w-4 h-4 text-gray-400" />
+                          <span>{message.email}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <span className="text-sm">{message.subject || "بدون موضوع"}</span>
+                      </TableCell>
+                      <TableCell>
+                        <Badge className={getStatusColor(message.status)}>
+                          {getStatusText(message.status)}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <span className={`text-sm font-medium ${getPriorityColor(message.priority || "medium")}`}>
+                          {getPriorityText(message.priority || "medium")}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-1 text-sm text-gray-500">
+                          <Calendar className="w-4 h-4" />
+                          <span>{new Date(message.createdAt).toLocaleDateString('ar-EG')}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleViewMessage(message)}
+                          >
+                            <Eye className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDelete(message.id)}
+                            className="text-red-600 hover:text-red-700"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
         </CardContent>
       </Card>
 
-      {/* Message Details Dialog */}
+      {/* Message Detail Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle className="text-right text-xl font-bold text-inception-purple">
-              تفاصيل الرسالة
-            </DialogTitle>
+            <DialogTitle>تفاصيل الرسالة</DialogTitle>
           </DialogHeader>
-          
           {selectedMessage && (
-            <div className="space-y-6">
-              {/* Sender Info */}
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <h3 className="font-semibold text-inception-purple mb-3">معلومات المرسل</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="flex items-center">
-                    <User className="w-4 h-4 text-gray-500 ml-2" />
-                    <span>{selectedMessage.name}</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Mail className="w-4 h-4 text-gray-500 ml-2" />
-                    <span>{selectedMessage.email}</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Phone className="w-4 h-4 text-gray-500 ml-2" />
-                    <span>{selectedMessage.phone}</span>
-                  </div>
-                  <div className="flex items-center">
-                    <MapPin className="w-4 h-4 text-gray-500 ml-2" />
-                    <span>{selectedMessage.location}</span>
-                  </div>
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm font-medium text-gray-500">الاسم</p>
+                  <p className="text-lg">{selectedMessage.name}</p>
                 </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-500">البريد الإلكتروني</p>
+                  <p className="text-lg">{selectedMessage.email}</p>
+                </div>
+                {selectedMessage.phone && (
+                  <div>
+                    <p className="text-sm font-medium text-gray-500">الهاتف</p>
+                    <p className="text-lg">{selectedMessage.phone}</p>
+                  </div>
+                )}
+                {selectedMessage.company && (
+                  <div>
+                    <p className="text-sm font-medium text-gray-500">الشركة</p>
+                    <p className="text-lg">{selectedMessage.company}</p>
+                  </div>
+                )}
               </div>
-
-              {/* Message Details */}
+              {selectedMessage.subject && (
+                <div>
+                  <p className="text-sm font-medium text-gray-500">الموضوع</p>
+                  <p className="text-lg">{selectedMessage.subject}</p>
+                </div>
+              )}
               <div>
-                <h3 className="font-semibold text-inception-purple mb-3">تفاصيل الرسالة</h3>
-                <div className="space-y-3">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">الموضوع</label>
-                    <div className="p-3 bg-gray-50 rounded-lg">{selectedMessage.subject}</div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">المحتوى</label>
-                    <div className="p-3 bg-gray-50 rounded-lg min-h-[100px]">{selectedMessage.message}</div>
-                  </div>
+                <p className="text-sm font-medium text-gray-500">الرسالة</p>
+                <div className="bg-gray-50 p-4 rounded-lg mt-2">
+                  <p className="whitespace-pre-wrap">{selectedMessage.message}</p>
                 </div>
               </div>
-
-              {/* Message Meta */}
-              <div className="flex flex-wrap gap-4 text-sm">
-                <div className="flex items-center">
-                  <Calendar className="w-4 h-4 text-gray-500 ml-1" />
-                  <span>{new Date(selectedMessage.date).toLocaleDateString('ar-EG')}</span>
+              <div className="flex items-center justify-between pt-4 border-t">
+                <div className="flex items-center gap-4">
+                  <Badge className={getStatusColor(selectedMessage.status)}>
+                    {getStatusText(selectedMessage.status)}
+                  </Badge>
+                  <span className={`text-sm font-medium ${getPriorityColor(selectedMessage.priority || "medium")}`}>
+                    {getPriorityText(selectedMessage.priority || "medium")}
+                  </span>
                 </div>
-                <div className="flex items-center">
-                  <Clock className="w-4 h-4 text-gray-500 ml-1" />
-                  <span>{selectedMessage.time}</span>
+                <div className="text-sm text-gray-500">
+                  {new Date(selectedMessage.createdAt).toLocaleString('ar-EG')}
                 </div>
-                <Badge className={getStatusColor(selectedMessage.status)}>
-                  {getStatusText(selectedMessage.status)}
-                </Badge>
-                <div className={`flex items-center ${getPriorityColor(selectedMessage.priority)}`}>
-                  {getPriorityIcon(selectedMessage.priority)}
-                  <span className="mr-1">أولوية {getPriorityText(selectedMessage.priority)}</span>
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex space-x-3 space-x-reverse pt-4 border-t">
-                <Button className="bg-inception-purple hover:bg-inception-purple/90">
-                  <Reply className="w-4 h-4 ml-1" />
-                  رد على الرسالة
-                </Button>
-                <Button variant="outline">
-                  <Archive className="w-4 h-4 ml-1" />
-                  أرشفة
-                </Button>
-                <Button variant="outline" className="text-red-600 hover:text-red-700">
-                  <Trash2 className="w-4 h-4 ml-1" />
-                  حذف
-                </Button>
               </div>
             </div>
           )}
