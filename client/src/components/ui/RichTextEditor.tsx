@@ -82,8 +82,13 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
 
   const addImage = () => {
     const url = window.prompt('رابط الصورة:');
+    const alt = window.prompt('وصف الصورة (Alt Text):');
     if (url) {
-      editor.chain().focus().setImage({ src: url }).run();
+      editor.chain().focus().setImage({ 
+        src: url, 
+        alt: alt || '',
+        title: alt || '' 
+      }).run();
     }
   };
 

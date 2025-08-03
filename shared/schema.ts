@@ -245,27 +245,6 @@ export type InsertMediaFile = typeof mediaFiles.$inferInsert;
 export type Setting = typeof settings.$inferSelect;
 export type InsertSetting = typeof settings.$inferInsert;
 
-export type InsertIndustry = typeof industries.$inferInsert;
-export type Industry = typeof industries.$inferSelect;
-
-export type InsertBook = typeof books.$inferInsert;
-export type Book = typeof books.$inferSelect;
-
-export type InsertTestimonial = typeof testimonials.$inferInsert;
-export type Testimonial = typeof testimonials.$inferSelect;
-
-export type InsertArticle = typeof articles.$inferInsert;
-export type Article = typeof articles.$inferSelect;
-
-export type InsertContactForm = typeof contactForms.$inferInsert;
-export type ContactForm = typeof contactForms.$inferSelect;
-
-export type InsertMediaFile = typeof mediaFiles.$inferInsert;
-export type MediaFile = typeof mediaFiles.$inferSelect;
-
-export type InsertSetting = typeof settings.$inferInsert;
-export type Setting = typeof settings.$inferSelect;
-
 // Zod schemas
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,

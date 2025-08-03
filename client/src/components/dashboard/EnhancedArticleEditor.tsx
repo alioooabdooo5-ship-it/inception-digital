@@ -22,6 +22,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import type { Article } from "@shared/schema";
+import MediaManager from "@/components/dashboard/MediaManager";
 
 const EnhancedArticleEditor = () => {
   const { toast } = useToast();
@@ -93,6 +94,9 @@ const EnhancedArticleEditor = () => {
   // UI states
   const [isPreview, setIsPreview] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [autoSaveStatus, setAutoSaveStatus] = useState<'saved' | 'saving' | 'error' | null>(null);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [showMediaManager, setShowMediaManager] = useState(false);
 
   // تحديد الفئات المتاحة
   const categories = [
@@ -154,6 +158,79 @@ const EnhancedArticleEditor = () => {
     setWordCount(words);
     setReadingTime(Math.ceil(words / 200)); // متوسط 200 كلمة في الدقيقة
   }, [content]);
+
+  // Auto-save functionality
+  const autoSave = async () => {
+    if (!title.trim() || !hasUnsavedChanges || !isEditing) return;
+    
+    setAutoSaveStatus('saving');
+    
+    try {
+      const selectedCategory = categories.find(cat => cat.id === category);
+      const articleData = {
+        title: title.trim(),
+        content,
+        excerpt: excerpt.trim(),
+        category,
+        categoryName: selectedCategory?.name || "",
+        tags,
+        image: featuredImage,
+        author,
+        readTime,
+        featured,
+        status,
+        metaTitle: metaTitle || title,
+        metaDescription: metaDescription || excerpt,
+        focusKeyword,
+        canonicalUrl,
+        robotsIndex,
+        robotsFollow,
+        ogTitle: ogTitle || metaTitle || title,
+        ogDescription: ogDescription || metaDescription || excerpt,
+        ogImage: ogImage || featuredImage,
+        twitterTitle: twitterTitle || ogTitle || metaTitle || title,
+        twitterDescription: twitterDescription || ogDescription || metaDescription || excerpt,
+        twitterImage: twitterImage || ogImage || featuredImage,
+        schemaType,
+        h1Tag: h1Tag || title,
+        h2Tags,
+        h3Tags,
+        internalLinks,
+        externalLinks,
+        altTexts,
+        wordCount,
+        readingTime,
+        seoScore,
+      };
+
+      await apiRequest('PUT', `/api/articles/${articleId}`, articleData);
+      setAutoSaveStatus('saved');
+      setHasUnsavedChanges(false);
+      
+      setTimeout(() => setAutoSaveStatus(null), 2000);
+    } catch (error) {
+      setAutoSaveStatus('error');
+      setTimeout(() => setAutoSaveStatus(null), 3000);
+    }
+  };
+
+  // Track changes for auto-save
+  useEffect(() => {
+    setHasUnsavedChanges(true);
+  }, [title, content, excerpt, category, tags, featuredImage, author, readTime, featured, status, metaTitle, metaDescription, focusKeyword, canonicalUrl, robotsIndex, robotsFollow, ogTitle, ogDescription, ogImage, twitterTitle, twitterDescription, twitterImage, schemaType, h1Tag, h2Tags, h3Tags, internalLinks, externalLinks, altTexts]);
+
+  // Auto-save every 30 seconds if there are unsaved changes
+  useEffect(() => {
+    if (!isEditing) return;
+    
+    const interval = setInterval(() => {
+      if (hasUnsavedChanges) {
+        autoSave();
+      }
+    }, 30000); // 30 seconds
+
+    return () => clearInterval(interval);
+  }, [hasUnsavedChanges, isEditing]);
 
   // حساب نقاط SEO الشامل
   useEffect(() => {
@@ -272,6 +349,8 @@ const EnhancedArticleEditor = () => {
     setTags(tags.filter(tag => tag !== tagToRemove));
   };
 
+
+
   // حفظ المقال
   const handleSave = (newStatus?: string) => {
     if (!title.trim()) {
@@ -360,6 +439,22 @@ const EnhancedArticleEditor = () => {
           </div>
           
           <div className="flex items-center space-x-3 space-x-reverse">
+            {/* Auto-save Status */}
+            {autoSaveStatus && (
+              <div className={`flex items-center text-sm px-3 py-1 rounded-full ${
+                autoSaveStatus === 'saved' ? 'bg-green-100 text-green-800' :
+                autoSaveStatus === 'saving' ? 'bg-blue-100 text-blue-800' :
+                'bg-red-100 text-red-800'
+              }`}>
+                {autoSaveStatus === 'saved' && <CheckCircle className="w-4 h-4 ml-1" />}
+                {autoSaveStatus === 'saving' && <Clock className="w-4 h-4 ml-1 animate-spin" />}
+                {autoSaveStatus === 'error' && <AlertCircle className="w-4 h-4 ml-1" />}
+                {autoSaveStatus === 'saved' && 'تم الحفظ تلقائياً'}
+                {autoSaveStatus === 'saving' && 'جاري الحفظ...'}
+                {autoSaveStatus === 'error' && 'خطأ في الحفظ'}
+              </div>
+            )}
+            
             <Button 
               variant="outline" 
               onClick={() => setIsPreview(!isPreview)}
@@ -603,18 +698,31 @@ const EnhancedArticleEditor = () => {
 
                 <div>
                   <Label>الصورة المميزة</Label>
-                  <Input
-                    value={featuredImage}
-                    onChange={(e) => setFeaturedImage(e.target.value)}
-                    placeholder="رابط الصورة المميزة"
-                  />
-                  {featuredImage && (
-                    <img 
-                      src={featuredImage} 
-                      alt="معاينة" 
-                      className="w-full h-32 object-cover rounded-lg mt-2"
-                    />
-                  )}
+                  <div className="space-y-2">
+                    <div className="flex space-x-2 space-x-reverse">
+                      <Input
+                        value={featuredImage}
+                        onChange={(e) => setFeaturedImage(e.target.value)}
+                        placeholder="رابط الصورة المميزة"
+                        className="flex-1"
+                      />
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        onClick={() => setShowMediaManager(true)}
+                        className="px-3"
+                      >
+                        <Image className="w-4 h-4" />
+                      </Button>
+                    </div>
+                    {featuredImage && (
+                      <img 
+                        src={featuredImage} 
+                        alt="معاينة" 
+                        className="w-full h-32 object-cover rounded-lg"
+                      />
+                    )}
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -1017,6 +1125,30 @@ const EnhancedArticleEditor = () => {
           </div>
         </div>
       </div>
+
+      {/* MediaManager Dialog */}
+      {showMediaManager && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-4xl max-h-[80vh] overflow-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold">مكتبة الصور</h3>
+              <Button 
+                variant="ghost" 
+                onClick={() => setShowMediaManager(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                ✕
+              </Button>
+            </div>
+            <MediaManager 
+              onSelect={(url) => {
+                setFeaturedImage(url);
+                setShowMediaManager(false);
+              }} 
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
