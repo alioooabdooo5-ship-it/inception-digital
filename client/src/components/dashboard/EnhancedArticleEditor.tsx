@@ -47,10 +47,47 @@ const EnhancedArticleEditor = () => {
   const [featured, setFeatured] = useState(false);
   const [status, setStatus] = useState("draft");
   
-  // SEO states
+  // SEO states - الحقول الأساسية
   const [metaTitle, setMetaTitle] = useState("");
   const [metaDescription, setMetaDescription] = useState("");
   const [focusKeyword, setFocusKeyword] = useState("");
+  const [canonicalUrl, setCanonicalUrl] = useState("");
+  const [robotsIndex, setRobotsIndex] = useState(true);
+  const [robotsFollow, setRobotsFollow] = useState(true);
+  
+  // Open Graph / Facebook
+  const [ogTitle, setOgTitle] = useState("");
+  const [ogDescription, setOgDescription] = useState("");
+  const [ogImage, setOgImage] = useState("");
+  
+  // Twitter Cards
+  const [twitterTitle, setTwitterTitle] = useState("");
+  const [twitterDescription, setTwitterDescription] = useState("");
+  const [twitterImage, setTwitterImage] = useState("");
+  
+  // Schema.org
+  const [schemaType, setSchemaType] = useState("Article");
+  
+  // SEO التقني
+  const [h1Tag, setH1Tag] = useState("");
+  const [h2Tags, setH2Tags] = useState<string[]>([]);
+  const [h3Tags, setH3Tags] = useState<string[]>([]);
+  const [currentH2, setCurrentH2] = useState("");
+  const [currentH3, setCurrentH3] = useState("");
+  
+  // الروابط الداخلية والخارجية
+  const [internalLinks, setInternalLinks] = useState<{url: string, anchor: string}[]>([]);
+  const [externalLinks, setExternalLinks] = useState<{url: string, anchor: string}[]>([]);
+  const [currentInternalLink, setCurrentInternalLink] = useState({url: "", anchor: ""});
+  const [currentExternalLink, setCurrentExternalLink] = useState({url: "", anchor: ""});
+  
+  // Alt texts للصور
+  const [altTexts, setAltTexts] = useState<{image: string, alt: string}[]>([]);
+  const [currentAltText, setCurrentAltText] = useState({image: "", alt: ""});
+  
+  // معلومات SEO إضافية
+  const [wordCount, setWordCount] = useState(0);
+  const [readingTime, setReadingTime] = useState(0);
   const [seoScore, setSeoScore] = useState(0);
   
   // UI states
@@ -81,31 +118,118 @@ const EnhancedArticleEditor = () => {
       setExcerpt(existingArticle.excerpt || "");
       setCategory(existingArticle.category || "");
       setCategoryName(existingArticle.categoryName || "");
-      setTags(existingArticle.tags ? (Array.isArray(existingArticle.tags) ? existingArticle.tags : []) : []);
+      setTags((existingArticle as any).tags ? (Array.isArray((existingArticle as any).tags) ? (existingArticle as any).tags : []) : []);
       setFeaturedImage(existingArticle.image || "");
       setAuthor(existingArticle.author || "فريق إنسيبشن");
       setReadTime(existingArticle.readTime || "5 دقائق");
       setFeatured(existingArticle.featured || false);
-      setStatus(existingArticle.status || "draft");
-      setMetaTitle(existingArticle.metaTitle || "");
-      setMetaDescription(existingArticle.metaDescription || "");
-      setFocusKeyword(existingArticle.focusKeyword || "");
+      setStatus((existingArticle as any).status || "draft");
+      setMetaTitle((existingArticle as any).metaTitle || "");
+      setMetaDescription((existingArticle as any).metaDescription || "");
+      setFocusKeyword((existingArticle as any).focusKeyword || "");
+      setCanonicalUrl((existingArticle as any).canonicalUrl || "");
+      setRobotsIndex((existingArticle as any).robotsIndex !== false);
+      setRobotsFollow((existingArticle as any).robotsFollow !== false);
+      setOgTitle((existingArticle as any).ogTitle || "");
+      setOgDescription((existingArticle as any).ogDescription || "");
+      setOgImage((existingArticle as any).ogImage || "");
+      setTwitterTitle((existingArticle as any).twitterTitle || "");
+      setTwitterDescription((existingArticle as any).twitterDescription || "");
+      setTwitterImage((existingArticle as any).twitterImage || "");
+      setSchemaType((existingArticle as any).schemaType || "Article");
+      setH1Tag((existingArticle as any).h1Tag || "");
+      setH2Tags((existingArticle as any).h2Tags || []);
+      setH3Tags((existingArticle as any).h3Tags || []);
+      setInternalLinks((existingArticle as any).internalLinks || []);
+      setExternalLinks((existingArticle as any).externalLinks || []);
+      setAltTexts((existingArticle as any).altTexts || []);
+      setWordCount((existingArticle as any).wordCount || 0);
+      setReadingTime((existingArticle as any).readingTime || 0);
     }
   }, [existingArticle, isEditing]);
 
-  // حساب نقاط SEO
+  // حساب عدد الكلمات ووقت القراءة
+  useEffect(() => {
+    const words = content.replace(/<[^>]*>/g, '').split(/\s+/).length;
+    setWordCount(words);
+    setReadingTime(Math.ceil(words / 200)); // متوسط 200 كلمة في الدقيقة
+  }, [content]);
+
+  // حساب نقاط SEO الشامل
   useEffect(() => {
     let score = 0;
-    if (title.length > 10 && title.length < 60) score += 20;
-    if (metaDescription.length > 120 && metaDescription.length < 160) score += 20;
-    if (focusKeyword && title.toLowerCase().includes(focusKeyword.toLowerCase())) score += 15;
-    if (focusKeyword && content.toLowerCase().includes(focusKeyword.toLowerCase())) score += 15;
-    if (excerpt.length > 120) score += 10;
-    if (featuredImage) score += 10;
-    if (tags.length >= 3) score += 10;
+    const maxScore = 100;
     
-    setSeoScore(score);
-  }, [title, metaDescription, focusKeyword, content, excerpt, featuredImage, tags]);
+    // عنوان الصفحة (20 نقطة)
+    if (title.length >= 30 && title.length <= 60) score += 20;
+    else if (title.length > 10) score += 10;
+    
+    // وصف الصفحة (20 نقطة)
+    if (metaDescription.length >= 120 && metaDescription.length <= 160) score += 20;
+    else if (metaDescription.length > 50) score += 10;
+    
+    // الكلمة المفتاحية الرئيسية (25 نقطة)
+    if (focusKeyword) {
+      if (title.toLowerCase().includes(focusKeyword.toLowerCase())) score += 10;
+      if (metaDescription.toLowerCase().includes(focusKeyword.toLowerCase())) score += 5;
+      if (h1Tag.toLowerCase().includes(focusKeyword.toLowerCase())) score += 5;
+      if (content.toLowerCase().includes(focusKeyword.toLowerCase())) score += 5;
+    }
+    
+    // المحتوى (15 نقطة)
+    if (wordCount >= 300) score += 5;
+    if (wordCount >= 1000) score += 5;
+    if (h2Tags.length >= 2) score += 5;
+    
+    // الصور (10 نقطة)
+    if (featuredImage) score += 5;
+    if (altTexts.length > 0) score += 5;
+    
+    // الكلمات المفتاحية (5 نقاط)
+    if (tags.length >= 3 && tags.length <= 8) score += 5;
+    
+    // العناصر التقنية (5 نقاط)
+    if (canonicalUrl) score += 2;
+    if (ogTitle && ogDescription) score += 3;
+    
+    setSeoScore(Math.min(score, maxScore));
+  }, [title, metaDescription, focusKeyword, content, h1Tag, h2Tags, wordCount, featuredImage, altTexts, tags, canonicalUrl, ogTitle, ogDescription]);
+
+  // وظائف إضافة العناصر
+  const addH2Tag = () => {
+    if (currentH2.trim() && !h2Tags.includes(currentH2.trim())) {
+      setH2Tags([...h2Tags, currentH2.trim()]);
+      setCurrentH2("");
+    }
+  };
+
+  const addH3Tag = () => {
+    if (currentH3.trim() && !h3Tags.includes(currentH3.trim())) {
+      setH3Tags([...h3Tags, currentH3.trim()]);
+      setCurrentH3("");
+    }
+  };
+
+  const addInternalLink = () => {
+    if (currentInternalLink.url.trim() && currentInternalLink.anchor.trim()) {
+      setInternalLinks([...internalLinks, currentInternalLink]);
+      setCurrentInternalLink({url: "", anchor: ""});
+    }
+  };
+
+  const addExternalLink = () => {
+    if (currentExternalLink.url.trim() && currentExternalLink.anchor.trim()) {
+      setExternalLinks([...externalLinks, currentExternalLink]);
+      setCurrentExternalLink({url: "", anchor: ""});
+    }
+  };
+
+  const addAltText = () => {
+    if (currentAltText.image.trim() && currentAltText.alt.trim()) {
+      setAltTexts([...altTexts, currentAltText]);
+      setCurrentAltText({image: "", alt: ""});
+    }
+  };
 
   // حفظ المقال
   const saveMutation = useMutation({
@@ -177,6 +301,25 @@ const EnhancedArticleEditor = () => {
       metaTitle: metaTitle || title,
       metaDescription: metaDescription || excerpt,
       focusKeyword,
+      canonicalUrl,
+      robotsIndex,
+      robotsFollow,
+      ogTitle: ogTitle || metaTitle || title,
+      ogDescription: ogDescription || metaDescription || excerpt,
+      ogImage: ogImage || featuredImage,
+      twitterTitle: twitterTitle || ogTitle || metaTitle || title,
+      twitterDescription: twitterDescription || ogDescription || metaDescription || excerpt,
+      twitterImage: twitterImage || ogImage || featuredImage,
+      schemaType,
+      h1Tag: h1Tag || title,
+      h2Tags,
+      h3Tags,
+      internalLinks,
+      externalLinks,
+      altTexts,
+      wordCount,
+      readingTime,
+      seoScore,
       views: isEditing ? existingArticle?.views || 0 : 0,
     };
 
@@ -476,70 +619,399 @@ const EnhancedArticleEditor = () => {
               </CardContent>
             </Card>
 
-            {/* تحسين محركات البحث */}
+            {/* تحسين محركات البحث الشامل */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
                   <div className="flex items-center">
                     <Target className="w-5 h-5 ml-2 text-inception-orange" />
-                    تحسين SEO
+                    تحسين SEO الشامل
                   </div>
                   <div className={`text-sm font-bold ${getSeoScoreColor(seoScore)}`}>
                     {seoScore}/100 ({getSeoScoreText(seoScore)})
                   </div>
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Progress value={seoScore} className="w-full" />
-                </div>
+              <CardContent>
+                <Tabs defaultValue="basic" className="w-full">
+                  <TabsList className="grid w-full grid-cols-5">
+                    <TabsTrigger value="basic">أساسي</TabsTrigger>
+                    <TabsTrigger value="social">وسائل التواصل</TabsTrigger>
+                    <TabsTrigger value="technical">تقني</TabsTrigger>
+                    <TabsTrigger value="content">المحتوى</TabsTrigger>
+                    <TabsTrigger value="analysis">التحليل</TabsTrigger>
+                  </TabsList>
+                  
+                  {/* SEO الأساسي */}
+                  <TabsContent value="basic" className="space-y-4">
+                    <div>
+                      <Progress value={seoScore} className="w-full mb-2" />
+                      <div className="text-center text-sm text-gray-600">
+                        نقاط SEO: {seoScore}/100
+                      </div>
+                    </div>
 
-                <div>
-                  <Label>الكلمة المفتاحية الرئيسية</Label>
-                  <Input
-                    value={focusKeyword}
-                    onChange={(e) => setFocusKeyword(e.target.value)}
-                    placeholder="الكلمة المفتاحية الرئيسية"
-                  />
-                </div>
+                    <div>
+                      <Label>الكلمة المفتاحية الرئيسية</Label>
+                      <Input
+                        value={focusKeyword}
+                        onChange={(e) => setFocusKeyword(e.target.value)}
+                        placeholder="الكلمة المفتاحية الرئيسية"
+                      />
+                    </div>
 
-                <div>
-                  <Label>عنوان SEO</Label>
-                  <Input
-                    value={metaTitle}
-                    onChange={(e) => setMetaTitle(e.target.value)}
-                    placeholder="عنوان محرك البحث"
-                  />
-                  <div className="text-sm text-gray-500">
-                    {metaTitle.length}/60 حرف
-                  </div>
-                </div>
+                    <div>
+                      <Label>عنوان SEO (Title Tag)</Label>
+                      <Input
+                        value={metaTitle}
+                        onChange={(e) => setMetaTitle(e.target.value)}
+                        placeholder="عنوان محرك البحث"
+                      />
+                      <div className={`text-sm ${metaTitle.length > 60 ? 'text-red-500' : metaTitle.length > 30 ? 'text-green-500' : 'text-gray-500'}`}>
+                        {metaTitle.length}/60 حرف (مثالي: 30-60)
+                      </div>
+                    </div>
 
-                <div>
-                  <Label>وصف SEO</Label>
-                  <Textarea
-                    value={metaDescription}
-                    onChange={(e) => setMetaDescription(e.target.value)}
-                    placeholder="وصف المقال في محركات البحث"
-                    rows={3}
-                  />
-                  <div className="text-sm text-gray-500">
-                    {metaDescription.length}/160 حرف
-                  </div>
-                </div>
+                    <div>
+                      <Label>وصف SEO (Meta Description)</Label>
+                      <Textarea
+                        value={metaDescription}
+                        onChange={(e) => setMetaDescription(e.target.value)}
+                        placeholder="وصف المقال في محركات البحث"
+                        rows={3}
+                      />
+                      <div className={`text-sm ${metaDescription.length > 160 ? 'text-red-500' : metaDescription.length > 120 ? 'text-green-500' : 'text-gray-500'}`}>
+                        {metaDescription.length}/160 حرف (مثالي: 120-160)
+                      </div>
+                    </div>
 
-                {/* نصائح SEO */}
-                <Alert>
-                  <Lightbulb className="h-4 w-4" />
-                  <AlertDescription>
-                    <strong>نصائح:</strong>
-                    <ul className="list-disc list-inside mt-2 text-sm space-y-1">
-                      <li>استخدم الكلمة المفتاحية في العنوان</li>
-                      <li>اكتب وصف جذاب بين 120-160 حرف</li>
-                      <li>أضف 3-5 كلمات مفتاحية ذات صلة</li>
-                    </ul>
-                  </AlertDescription>
-                </Alert>
+                    <div>
+                      <Label>Canonical URL</Label>
+                      <Input
+                        value={canonicalUrl}
+                        onChange={(e) => setCanonicalUrl(e.target.value)}
+                        placeholder="https://example.com/article-url"
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <Label>فهرسة الصفحة (Index)</Label>
+                        <p className="text-sm text-gray-500">السماح لمحركات البحث بفهرسة الصفحة</p>
+                      </div>
+                      <Switch checked={robotsIndex} onCheckedChange={setRobotsIndex} />
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <Label>تتبع الروابط (Follow)</Label>
+                        <p className="text-sm text-gray-500">السماح لمحركات البحث بتتبع الروابط</p>
+                      </div>
+                      <Switch checked={robotsFollow} onCheckedChange={setRobotsFollow} />
+                    </div>
+                  </TabsContent>
+
+                  {/* وسائل التواصل الاجتماعي */}
+                  <TabsContent value="social" className="space-y-4">
+                    <h4 className="font-semibold text-inception-purple">Open Graph (Facebook)</h4>
+                    
+                    <div>
+                      <Label>عنوان Facebook</Label>
+                      <Input
+                        value={ogTitle}
+                        onChange={(e) => setOgTitle(e.target.value)}
+                        placeholder="عنوان المقال على Facebook"
+                      />
+                    </div>
+
+                    <div>
+                      <Label>وصف Facebook</Label>
+                      <Textarea
+                        value={ogDescription}
+                        onChange={(e) => setOgDescription(e.target.value)}
+                        placeholder="وصف المقال على Facebook"
+                        rows={3}
+                      />
+                    </div>
+
+                    <div>
+                      <Label>صورة Facebook</Label>
+                      <Input
+                        value={ogImage}
+                        onChange={(e) => setOgImage(e.target.value)}
+                        placeholder="رابط صورة Facebook (1200x630)"
+                      />
+                    </div>
+
+                    <Separator />
+
+                    <h4 className="font-semibold text-inception-purple">Twitter Cards</h4>
+                    
+                    <div>
+                      <Label>عنوان Twitter</Label>
+                      <Input
+                        value={twitterTitle}
+                        onChange={(e) => setTwitterTitle(e.target.value)}
+                        placeholder="عنوان المقال على Twitter"
+                      />
+                    </div>
+
+                    <div>
+                      <Label>وصف Twitter</Label>
+                      <Textarea
+                        value={twitterDescription}
+                        onChange={(e) => setTwitterDescription(e.target.value)}
+                        placeholder="وصف المقال على Twitter"
+                        rows={3}
+                      />
+                    </div>
+
+                    <div>
+                      <Label>صورة Twitter</Label>
+                      <Input
+                        value={twitterImage}
+                        onChange={(e) => setTwitterImage(e.target.value)}
+                        placeholder="رابط صورة Twitter (1024x512)"
+                      />
+                    </div>
+                  </TabsContent>
+
+                  {/* SEO التقني */}
+                  <TabsContent value="technical" className="space-y-4">
+                    <div>
+                      <Label>نوع Schema.org</Label>
+                      <Select value={schemaType} onValueChange={setSchemaType}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Article">مقال (Article)</SelectItem>
+                          <SelectItem value="BlogPosting">مشاركة مدونة (BlogPosting)</SelectItem>
+                          <SelectItem value="NewsArticle">مقال إخباري (NewsArticle)</SelectItem>
+                          <SelectItem value="TechArticle">مقال تقني (TechArticle)</SelectItem>
+                          <SelectItem value="HowTo">دليل إرشادي (HowTo)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div>
+                      <Label>H1 Tag</Label>
+                      <Input
+                        value={h1Tag}
+                        onChange={(e) => setH1Tag(e.target.value)}
+                        placeholder="عنوان H1 الرئيسي"
+                      />
+                    </div>
+
+                    <div>
+                      <Label>عناوين H2</Label>
+                      <div className="flex space-x-2 space-x-reverse">
+                        <Input
+                          value={currentH2}
+                          onChange={(e) => setCurrentH2(e.target.value)}
+                          placeholder="أضف عنوان H2"
+                          onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addH2Tag())}
+                        />
+                        <Button onClick={addH2Tag} size="sm">إضافة</Button>
+                      </div>
+                      {h2Tags.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          {h2Tags.map((tag, index) => (
+                            <Badge key={index} variant="secondary" className="cursor-pointer"
+                              onClick={() => setH2Tags(h2Tags.filter((_, i) => i !== index))}>
+                              {tag} ×
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    <div>
+                      <Label>عناوين H3</Label>
+                      <div className="flex space-x-2 space-x-reverse">
+                        <Input
+                          value={currentH3}
+                          onChange={(e) => setCurrentH3(e.target.value)}
+                          placeholder="أضف عنوان H3"
+                          onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addH3Tag())}
+                        />
+                        <Button onClick={addH3Tag} size="sm">إضافة</Button>
+                      </div>
+                      {h3Tags.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          {h3Tags.map((tag, index) => (
+                            <Badge key={index} variant="secondary" className="cursor-pointer"
+                              onClick={() => setH3Tags(h3Tags.filter((_, i) => i !== index))}>
+                              {tag} ×
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    <Separator />
+
+                    <div>
+                      <Label>Alt Texts للصور</Label>
+                      <div className="space-y-2">
+                        <div className="flex space-x-2 space-x-reverse">
+                          <Input
+                            value={currentAltText.image}
+                            onChange={(e) => setCurrentAltText({...currentAltText, image: e.target.value})}
+                            placeholder="اسم الصورة"
+                            className="flex-1"
+                          />
+                          <Input
+                            value={currentAltText.alt}
+                            onChange={(e) => setCurrentAltText({...currentAltText, alt: e.target.value})}
+                            placeholder="النص البديل"
+                            className="flex-1"
+                          />
+                          <Button onClick={addAltText} size="sm">إضافة</Button>
+                        </div>
+                        {altTexts.length > 0 && (
+                          <div className="space-y-1">
+                            {altTexts.map((item, index) => (
+                              <div key={index} className="flex justify-between items-center bg-gray-50 p-2 rounded">
+                                <span className="text-sm">{item.image}: {item.alt}</span>
+                                <Button size="sm" variant="ghost" 
+                                  onClick={() => setAltTexts(altTexts.filter((_, i) => i !== index))}>×</Button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </TabsContent>
+
+                  {/* إدارة المحتوى */}
+                  <TabsContent value="content" className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <Card>
+                        <CardContent className="p-4 text-center">
+                          <div className="text-2xl font-bold text-inception-purple">{wordCount}</div>
+                          <div className="text-sm text-gray-600">عدد الكلمات</div>
+                        </CardContent>
+                      </Card>
+                      
+                      <Card>
+                        <CardContent className="p-4 text-center">
+                          <div className="text-2xl font-bold text-inception-orange">{readingTime}</div>
+                          <div className="text-sm text-gray-600">دقائق القراءة</div>
+                        </CardContent>
+                      </Card>
+                    </div>
+
+                    <div>
+                      <Label>الروابط الداخلية</Label>
+                      <div className="space-y-2">
+                        <div className="flex space-x-2 space-x-reverse">
+                          <Input
+                            value={currentInternalLink.url}
+                            onChange={(e) => setCurrentInternalLink({...currentInternalLink, url: e.target.value})}
+                            placeholder="الرابط الداخلي"
+                            className="flex-1"
+                          />
+                          <Input
+                            value={currentInternalLink.anchor}
+                            onChange={(e) => setCurrentInternalLink({...currentInternalLink, anchor: e.target.value})}
+                            placeholder="نص الرابط"
+                            className="flex-1"
+                          />
+                          <Button onClick={addInternalLink} size="sm">إضافة</Button>
+                        </div>
+                        {internalLinks.length > 0 && (
+                          <div className="space-y-1">
+                            {internalLinks.map((link, index) => (
+                              <div key={index} className="flex justify-between items-center bg-green-50 p-2 rounded">
+                                <span className="text-sm">{link.anchor} → {link.url}</span>
+                                <Button size="sm" variant="ghost" 
+                                  onClick={() => setInternalLinks(internalLinks.filter((_, i) => i !== index))}>×</Button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label>الروابط الخارجية</Label>
+                      <div className="space-y-2">
+                        <div className="flex space-x-2 space-x-reverse">
+                          <Input
+                            value={currentExternalLink.url}
+                            onChange={(e) => setCurrentExternalLink({...currentExternalLink, url: e.target.value})}
+                            placeholder="الرابط الخارجي"
+                            className="flex-1"
+                          />
+                          <Input
+                            value={currentExternalLink.anchor}
+                            onChange={(e) => setCurrentExternalLink({...currentExternalLink, anchor: e.target.value})}
+                            placeholder="نص الرابط"
+                            className="flex-1"
+                          />
+                          <Button onClick={addExternalLink} size="sm">إضافة</Button>
+                        </div>
+                        {externalLinks.length > 0 && (
+                          <div className="space-y-1">
+                            {externalLinks.map((link, index) => (
+                              <div key={index} className="flex justify-between items-center bg-blue-50 p-2 rounded">
+                                <span className="text-sm">{link.anchor} → {link.url}</span>
+                                <Button size="sm" variant="ghost" 
+                                  onClick={() => setExternalLinks(externalLinks.filter((_, i) => i !== index))}>×</Button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </TabsContent>
+
+                  {/* التحليل والنصائح */}
+                  <TabsContent value="analysis" className="space-y-4">
+                    <Alert>
+                      <CheckCircle className="h-4 w-4" />
+                      <AlertDescription>
+                        <strong>تحليل SEO:</strong>
+                        <div className="mt-2 space-y-1 text-sm">
+                          <div className={title.length >= 30 && title.length <= 60 ? 'text-green-600' : 'text-red-600'}>
+                            • العنوان: {title.length} حرف {title.length >= 30 && title.length <= 60 ? '✓' : '✗'}
+                          </div>
+                          <div className={metaDescription.length >= 120 && metaDescription.length <= 160 ? 'text-green-600' : 'text-red-600'}>
+                            • الوصف: {metaDescription.length} حرف {metaDescription.length >= 120 && metaDescription.length <= 160 ? '✓' : '✗'}
+                          </div>
+                          <div className={focusKeyword && title.toLowerCase().includes(focusKeyword.toLowerCase()) ? 'text-green-600' : 'text-red-600'}>
+                            • الكلمة المفتاحية في العنوان: {focusKeyword && title.toLowerCase().includes(focusKeyword.toLowerCase()) ? '✓' : '✗'}
+                          </div>
+                          <div className={wordCount >= 300 ? 'text-green-600' : 'text-red-600'}>
+                            • عدد الكلمات: {wordCount} {wordCount >= 300 ? '✓' : '✗'}
+                          </div>
+                          <div className={h2Tags.length >= 2 ? 'text-green-600' : 'text-red-600'}>
+                            • عناوين H2: {h2Tags.length} {h2Tags.length >= 2 ? '✓' : '✗'}
+                          </div>
+                          <div className={altTexts.length > 0 ? 'text-green-600' : 'text-red-600'}>
+                            • Alt texts: {altTexts.length} {altTexts.length > 0 ? '✓' : '✗'}
+                          </div>
+                        </div>
+                      </AlertDescription>
+                    </Alert>
+
+                    <Alert>
+                      <Lightbulb className="h-4 w-4" />
+                      <AlertDescription>
+                        <strong>نصائح لتحسين SEO:</strong>
+                        <ul className="list-disc list-inside mt-2 text-sm space-y-1">
+                          <li>استخدم الكلمة المفتاحية في أول 100 كلمة</li>
+                          <li>أضف روابط داخلية لمقالات ذات صلة</li>
+                          <li>استخدم عناوين H2 و H3 لتنظيم المحتوى</li>
+                          <li>أضف نص بديل وصفي لجميع الصور</li>
+                          <li>اكتب محتوى أكثر من 300 كلمة</li>
+                          <li>استخدم الكلمات المرادفة والمتعلقة</li>
+                        </ul>
+                      </AlertDescription>
+                    </Alert>
+                  </TabsContent>
+                </Tabs>
               </CardContent>
             </Card>
           </div>

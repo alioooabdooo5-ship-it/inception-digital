@@ -33,6 +33,9 @@ import AdminAboutContent from "./pages/admin/AdminAboutContent";
 import AdminArticleEditor from "./pages/admin/AdminArticleEditor";
 import AdminServiceEditor from "./pages/admin/AdminServiceEditor";
 import AdminIndustryEditor from "./pages/admin/AdminIndustryEditor";
+import EnhancedArticleEditor from "./components/dashboard/EnhancedArticleEditor";
+import EnhancedServiceEditor from "./components/dashboard/EnhancedServiceEditor";
+import EnhancedIndustryEditor from "./components/dashboard/EnhancedIndustryEditor";
 import AuthPage from "./pages/auth-page";
 import NotFound from "./pages/NotFound";
 import SEOGuide from "./pages/SEOGuide";
@@ -83,10 +86,13 @@ const App = () => {
               <ProtectedRoute path="/admin" component={AdminDashboard} />
               <ProtectedRoute path="/admin/articles" component={AdminArticles} />
               <ProtectedRoute path="/admin/article-editor" component={AdminArticleEditor} />
+              <ProtectedRoute path="/admin/enhanced-article-editor" component={EnhancedArticleEditor} />
               <ProtectedRoute path="/admin/services" component={AdminServices} />
               <ProtectedRoute path="/admin/service-editor" component={AdminServiceEditor} />
+              <ProtectedRoute path="/admin/enhanced-service-editor" component={EnhancedServiceEditor} />
               <ProtectedRoute path="/admin/industries" component={AdminIndustries} />
               <ProtectedRoute path="/admin/industry-editor" component={AdminIndustryEditor} />
+              <ProtectedRoute path="/admin/enhanced-industry-editor" component={EnhancedIndustryEditor} />
               <ProtectedRoute path="/admin/books" component={AdminBooks} />
               <ProtectedRoute path="/admin/testimonials" component={AdminTestimonials} />
               <ProtectedRoute path="/admin/users" component={AdminUsers} />
