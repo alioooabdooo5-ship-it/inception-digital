@@ -23,6 +23,56 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import type { Service } from "@shared/schema";
 
+// أنواع البيانات المحسنة
+interface PortfolioItem {
+  id: number;
+  title: string;
+  description: string;
+  image: string;
+  result: string;
+  clientName: string;
+}
+
+interface Feature {
+  id: number;
+  title: string;
+  description: string;
+  icon?: string;
+}
+
+interface ProcessStep {
+  id: number;
+  step: number;
+  title: string;
+  description: string;
+  icon?: string;
+}
+
+interface ServiceTestimonial {
+  id: number;
+  name: string;
+  position: string;
+  company: string;
+  content: string;
+  image?: string;
+  rating: number;
+}
+
+interface ServicePackage {
+  id: number;
+  name: string;
+  price: string;
+  description: string;
+  features?: string[];
+  highlighted: boolean;
+}
+
+interface ServiceFaq {
+  id: number;
+  question: string;
+  answer: string;
+}
+
 const EnhancedServiceEditor = () => {
   const { toast } = useToast();
   const [location, navigate] = useLocation();
@@ -55,16 +105,19 @@ const EnhancedServiceEditor = () => {
   const [seoScore, setSeoScore] = useState(0);
   
   // Enhanced Content states
-  const [portfolioItems, setPortfolioItems] = useState([]);
-  const [features, setFeatures] = useState([]);
-  const [processSteps, setProcessSteps] = useState([]);
-  const [testimonials, setTestimonials] = useState([]);
-  const [packages, setPackages] = useState([]);
-  const [faqs, setFaqs] = useState([]);
+  const [portfolioItems, setPortfolioItems] = useState<PortfolioItem[]>([]);
+  const [features, setFeatures] = useState<Feature[]>([]);
+  const [processSteps, setProcessSteps] = useState<ProcessStep[]>([]);
+  const [testimonials, setTestimonials] = useState<ServiceTestimonial[]>([]);
+  const [packages, setPackages] = useState<ServicePackage[]>([]);
+  const [faqs, setFaqs] = useState<ServiceFaq[]>([]);
   
   // UI states
   const [isPreview, setIsPreview] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [previewData, setPreviewData] = useState<any>(null);
+  const [autoSaveStatus, setAutoSaveStatus] = useState<'saved' | 'saving' | 'error' | null>(null);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   // جلب الخدمة للتعديل
   const { data: existingService } = useQuery<Service>({
@@ -285,6 +338,128 @@ const EnhancedServiceEditor = () => {
     }]);
   };
 
+  // معاينة محسنة
+  const generatePreviewData = () => {
+    return {
+      title,
+      description,
+      longDescription,
+      image,
+      icon,
+      link,
+      category,
+      stats,
+      gradient,
+      portfolioItems,
+      features,
+      processSteps,
+      testimonials,
+      packages,
+      faqs,
+      metaTitle: metaTitle || title,
+      metaDescription: metaDescription || description,
+      focusKeyword,
+      canonicalUrl,
+      ogTitle: ogTitle || metaTitle || title,
+      ogDescription: ogDescription || metaDescription || description,
+      ogImage: ogImage || image,
+      seoScore
+    };
+  };
+
+  const openPreview = () => {
+    const data = generatePreviewData();
+    setPreviewData(data);
+    setIsPreview(true);
+  };
+
+  const closePreview = () => {
+    setIsPreview(false);
+    setPreviewData(null);
+  };
+
+  // Auto-save functionality
+  const autoSave = async () => {
+    if (!title.trim() || !hasUnsavedChanges) return;
+    
+    setAutoSaveStatus('saving');
+    
+    try {
+      const serviceData = {
+        title: title.trim(),
+        description: description.trim(),
+        longDescription,
+        image,
+        icon,
+        link,
+        category,
+        stats,
+        gradient,
+        portfolioItems,
+        features,
+        processSteps,
+        testimonials,
+        packages,
+        faqs,
+        metaTitle: metaTitle || title,
+        metaDescription: metaDescription || description,
+        focusKeyword,
+        canonicalUrl,
+        ogTitle: ogTitle || metaTitle || title,
+        ogDescription: ogDescription || metaDescription || description,
+        ogImage: ogImage || image,
+        seoScore,
+      };
+
+      if (isEditing && serviceId) {
+        await apiRequest('PUT', `/api/services/${serviceId}`, serviceData);
+      }
+      
+      setAutoSaveStatus('saved');
+      setHasUnsavedChanges(false);
+      
+      setTimeout(() => setAutoSaveStatus(null), 2000);
+    } catch (error) {
+      setAutoSaveStatus('error');
+      setTimeout(() => setAutoSaveStatus(null), 3000);
+    }
+  };
+
+  // Track changes for auto-save
+  useEffect(() => {
+    setHasUnsavedChanges(true);
+  }, [title, description, longDescription, image, icon, link, category, stats, gradient, portfolioItems, features, processSteps, testimonials, packages, faqs, metaTitle, metaDescription, focusKeyword, canonicalUrl, ogTitle, ogDescription, ogImage]);
+
+  // Auto-save every 30 seconds if there are unsaved changes
+  useEffect(() => {
+    if (!isEditing) return;
+    
+    const interval = setInterval(() => {
+      if (hasUnsavedChanges) {
+        autoSave();
+      }
+    }, 30000); // 30 seconds
+
+    return () => clearInterval(interval);
+  }, [hasUnsavedChanges, isEditing]);
+
+  // Validation functions
+  const validateForm = () => {
+    const errors: string[] = [];
+    
+    if (!title.trim()) errors.push("عنوان الخدمة مطلوب");
+    if (!description.trim()) errors.push("وصف قصير مطلوب");
+    if (!category.trim()) errors.push("فئة الخدمة مطلوبة");
+    if (title.length > 100) errors.push("عنوان الخدمة طويل جداً (أقصى 100 حرف)");
+    if (description.length > 200) errors.push("الوصف القصير طويل جداً (أقصى 200 حرف)");
+    
+    // SEO validation
+    if (metaTitle && metaTitle.length > 60) errors.push("العنوان التسويقي طويل جداً (أقصى 60 حرف)");
+    if (metaDescription && metaDescription.length > 160) errors.push("الوصف التسويقي طويل جداً (أقصى 160 حرف)");
+    
+    return errors;
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 pb-8">
       {/* Header */}
@@ -306,6 +481,22 @@ const EnhancedServiceEditor = () => {
           </div>
           
           <div className="flex items-center space-x-3 space-x-reverse">
+            {/* Auto-save Status */}
+            {autoSaveStatus && (
+              <div className={`flex items-center text-sm px-3 py-1 rounded-full ${
+                autoSaveStatus === 'saved' ? 'bg-green-100 text-green-800' :
+                autoSaveStatus === 'saving' ? 'bg-blue-100 text-blue-800' :
+                'bg-red-100 text-red-800'
+              }`}>
+                {autoSaveStatus === 'saved' && <CheckCircle className="w-4 h-4 ml-1" />}
+                {autoSaveStatus === 'saving' && <Clock className="w-4 h-4 ml-1 animate-spin" />}
+                {autoSaveStatus === 'error' && <AlertCircle className="w-4 h-4 ml-1" />}
+                {autoSaveStatus === 'saved' && 'تم الحفظ تلقائياً'}
+                {autoSaveStatus === 'saving' && 'جاري الحفظ...'}
+                {autoSaveStatus === 'error' && 'خطأ في الحفظ'}
+              </div>
+            )}
+            
             <Button 
               variant="outline" 
               onClick={() => setIsPreview(!isPreview)}

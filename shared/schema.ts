@@ -224,6 +224,27 @@ export type InsertUser = typeof users.$inferInsert;
 export type InsertService = typeof services.$inferInsert;
 export type Service = typeof services.$inferSelect;
 
+export type Industry = typeof industries.$inferSelect;
+export type InsertIndustry = typeof industries.$inferInsert;
+
+export type Book = typeof books.$inferSelect;
+export type InsertBook = typeof books.$inferInsert;
+
+export type Testimonial = typeof testimonials.$inferSelect;
+export type InsertTestimonial = typeof testimonials.$inferInsert;
+
+export type Article = typeof articles.$inferSelect;
+export type InsertArticle = typeof articles.$inferInsert;
+
+export type ContactForm = typeof contactForms.$inferSelect;
+export type InsertContactForm = typeof contactForms.$inferInsert;
+
+export type MediaFile = typeof mediaFiles.$inferSelect;
+export type InsertMediaFile = typeof mediaFiles.$inferInsert;
+
+export type Setting = typeof settings.$inferSelect;
+export type InsertSetting = typeof settings.$inferInsert;
+
 export type InsertIndustry = typeof industries.$inferInsert;
 export type Industry = typeof industries.$inferSelect;
 

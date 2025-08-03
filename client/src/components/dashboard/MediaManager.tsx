@@ -1,107 +1,140 @@
-import React, { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import React, { useState, useRef } from "react";
+import { 
+  Upload, 
+  Image, 
+  Video, 
+  FileText, 
+  Trash2, 
+  Copy, 
+  Search,
+  Filter,
+  Grid,
+  List,
+  Download
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Upload, Image, Link, Save, Eye, Trash2 } from "lucide-react";
-import type { MediaFile } from "@shared/schema";
+import { Badge } from "@/components/ui/badge";
 
-const MediaManager = () => {
+interface MediaFile {
+  id: number;
+  name: string;
+  type: string;
+  size: string;
+  url: string;
+  dimensions?: string;
+  downloads: number;
+  description?: string;
+  tags?: string[];
+  createdAt: string;
+}
+
+interface MediaManagerProps {
+  onSelectFile?: (file: MediaFile) => void;
+  allowSelection?: boolean;
+  fileType?: 'image' | 'video' | 'document' | 'all';
+}
+
+const MediaManager: React.FC<MediaManagerProps> = ({ 
+  onSelectFile, 
+  allowSelection = false,
+  fileType = 'all'
+}) => {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedType, setSelectedType] = useState<string>("all");
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
-  const queryClient = useQueryClient();
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const [uploading, setUploading] = useState(false);
 
-  // Fetch media files
+  // جلب ملفات الوسائط
   const { data: mediaFiles = [], isLoading } = useQuery<MediaFile[]>({
-    queryKey: ['/api/media-files']
+    queryKey: ["/api/media-files"]
   });
 
-  // Upload media mutation
+  // رفع ملف جديد
   const uploadMutation = useMutation({
-    mutationFn: async (files: File[]) => {
-      setUploading(true);
-      const uploadPromises = files.map(async (file) => {
-        // Simulate upload - في المشروع الحقيقي ستقوم برفع الملف لخدمة التخزين
-        const mockUrl = `https://images.unsplash.com/photo-${Date.now()}?w=800&q=80`;
-        
-        const response = await fetch('/api/media-files', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: file.name,
-            url: mockUrl,
-            type: file.type,
-            size: file.size.toString(),
-            description: file.name.split('.')[0]
-          })
-        });
-        
-        if (!response.ok) throw new Error('Failed to save media file');
-        return response.json();
+    mutationFn: async (file: File) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      const response = await fetch('/api/media-files/upload', {
+        method: 'POST',
+        body: formData
       });
-
-      return Promise.all(uploadPromises);
+      
+      if (!response.ok) {
+        throw new Error('فشل في رفع الملف');
+      }
+      
+      return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/media-files'] });
-      setSelectedFiles([]);
-      setUploading(false);
+      queryClient.invalidateQueries({ queryKey: ["/api/media-files"] });
+      setUploadProgress(null);
       toast({
-        title: "تم الرفع",
-        description: "تم رفع الملفات بنجاح",
+        title: "تم بنجاح",
+        description: "تم رفع الملف بنجاح"
       });
     },
     onError: () => {
-      setUploading(false);
+      setUploadProgress(null);
       toast({
-        title: "خطأ في الرفع",
-        description: "فشل في رفع الملفات",
-        variant: "destructive",
+        title: "خطأ",
+        description: "فشل في رفع الملف",
+        variant: "destructive"
       });
-    },
+    }
   });
 
-  // Delete media mutation
+  // حذف ملف
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
-      const response = await fetch(`/api/media-files/${id}`, {
-        method: 'DELETE'
-      });
-      if (!response.ok) throw new Error('Failed to delete media file');
+      const response = await apiRequest('DELETE', `/api/media-files/${id}`);
+      return response;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/media-files'] });
+      queryClient.invalidateQueries({ queryKey: ["/api/media-files"] });
       toast({
-        title: "تم الحذف",
-        description: "تم حذف الملف بنجاح",
+        title: "تم بنجاح",
+        description: "تم حذف الملف بنجاح"
       });
     },
     onError: () => {
       toast({
-        title: "خطأ في الحذف",
+        title: "خطأ",
         description: "فشل في حذف الملف",
-        variant: "destructive",
+        variant: "destructive"
       });
-    },
+    }
   });
 
-  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(event.target.files || []);
-    setSelectedFiles(files);
-  };
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // التحقق من نوع الملف إذا كان محدداً
+      if (fileType !== 'all') {
+        const isValidType = 
+          (fileType === 'image' && file.type.startsWith('image/')) ||
+          (fileType === 'video' && file.type.startsWith('video/')) ||
+          (fileType === 'document' && !file.type.startsWith('image/') && !file.type.startsWith('video/'));
+        
+        if (!isValidType) {
+          toast({
+            title: "نوع ملف غير مدعوم",
+            description: `يجب أن يكون الملف من نوع ${fileType}`,
+            variant: "destructive"
+          });
+          return;
+        }
+      }
 
-  const handleUpload = () => {
-    if (selectedFiles.length > 0) {
-      uploadMutation.mutate(selectedFiles);
-    }
-  };
-
-  const handleDelete = (id: number) => {
-    if (confirm('هل أنت متأكد من حذف هذا الملف؟')) {
-      deleteMutation.mutate(id);
+      setUploadProgress(0);
+      uploadMutation.mutate(file);
     }
   };
 
@@ -109,139 +142,216 @@ const MediaManager = () => {
     navigator.clipboard.writeText(url);
     toast({
       title: "تم النسخ",
-      description: "تم نسخ رابط الصورة",
+      description: "تم نسخ رابط الملف"
     });
   };
 
+  const getFileIcon = (type: string) => {
+    if (type.startsWith('image/')) return <Image className="w-8 h-8" />;
+    if (type.startsWith('video/')) return <Video className="w-8 h-8" />;
+    return <FileText className="w-8 h-8" />;
+  };
+
+  const getFileTypeColor = (type: string) => {
+    if (type.startsWith('image/')) return 'bg-blue-100 text-blue-800';
+    if (type.startsWith('video/')) return 'bg-purple-100 text-purple-800';
+    return 'bg-gray-100 text-gray-800';
+  };
+
+  // فلترة الملفات
+  const filteredFiles = mediaFiles.filter(file => {
+    const matchesSearch = file.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         file.description?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesType = selectedType === 'all' || file.type.startsWith(selectedType + '/');
+    const matchesFileType = fileType === 'all' || 
+                           (fileType === 'image' && file.type.startsWith('image/')) ||
+                           (fileType === 'video' && file.type.startsWith('video/')) ||
+                           (fileType === 'document' && !file.type.startsWith('image/') && !file.type.startsWith('video/'));
+    
+    return matchesSearch && matchesType && matchesFileType;
+  });
+
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-inception-purple mx-auto"></div>
-          <p className="mt-4 text-gray-600">جاري تحميل الملفات...</p>
-        </div>
-      </div>
+      <Card>
+        <CardContent className="p-6">
+          <div className="text-center py-8">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-inception-purple mx-auto mb-4"></div>
+            <p className="text-gray-500">جاري تحميل ملفات الوسائط...</p>
+          </div>
+        </CardContent>
+      </Card>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">إدارة الملفات والصور</h1>
-          <p className="text-gray-600 mt-2">رفع وإدارة الصور والملفات المستخدمة في الموقع</p>
-        </div>
-        
-        <Badge variant="secondary" className="bg-inception-purple/10 text-inception-purple">
-          <Image className="w-4 h-4 ml-2" />
-          {mediaFiles.length} ملف
-        </Badge>
-      </div>
-
-      {/* Upload Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Upload className="w-5 h-5 text-inception-purple" />
-            رفع ملفات جديدة
+    <Card>
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center">
+            <Image className="w-5 h-5 ml-2" />
+            إدارة ملفات الوسائط
           </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center gap-4">
-            <Input
-              type="file"
-              multiple
-              accept="image/*"
-              onChange={handleFileSelect}
-              className="flex-1"
-            />
+          <div className="flex items-center gap-2">
             <Button
-              onClick={handleUpload}
-              disabled={selectedFiles.length === 0 || uploading}
-              className="bg-inception-purple hover:bg-inception-purple/90"
+              variant="outline"
+              size="sm"
+              onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
             >
+              {viewMode === 'grid' ? <List className="w-4 h-4" /> : <Grid className="w-4 h-4" />}
+            </Button>
+            <Button onClick={() => fileInputRef.current?.click()}>
               <Upload className="w-4 h-4 ml-2" />
-              {uploading ? 'جاري الرفع...' : 'رفع'}
+              رفع ملف
             </Button>
           </div>
+        </div>
+      </CardHeader>
+      
+      <CardContent className="space-y-6">
+        {/* شريط البحث والفلترة */}
+        <div className="flex flex-wrap gap-4">
+          <div className="flex-1 min-w-64">
+            <div className="relative">
+              <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Input
+                placeholder="البحث في الملفات..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pr-10"
+              />
+            </div>
+          </div>
           
-          {selectedFiles.length > 0 && (
-            <div className="text-sm text-gray-600">
-              تم اختيار {selectedFiles.length} ملف للرفع
-            </div>
-          )}
-        </CardContent>
-      </Card>
+          <select
+            value={selectedType}
+            onChange={(e) => setSelectedType(e.target.value)}
+            className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-inception-purple"
+          >
+            <option value="all">جميع الأنواع</option>
+            <option value="image">صور</option>
+            <option value="video">فيديوهات</option>
+            <option value="application">مستندات</option>
+          </select>
+        </div>
 
-      {/* Media Gallery */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {mediaFiles.map((file) => (
-          <Card key={file.id} className="overflow-hidden">
-            <div className="aspect-video bg-gray-100 relative">
-              {file.type.startsWith('image/') ? (
-                <img
-                  src={file.url}
-                  alt={file.description || file.name}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  <Image className="w-8 h-8 text-gray-400" />
+        {/* تقدم الرفع */}
+        {uploadProgress !== null && (
+          <div className="bg-gray-50 rounded-lg p-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium">جاري رفع الملف...</span>
+              <span className="text-sm text-gray-500">{uploadProgress}%</span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div 
+                className="bg-inception-purple h-2 rounded-full transition-all duration-300"
+                style={{ width: `${uploadProgress}%` }}
+              ></div>
+            </div>
+          </div>
+        )}
+
+        {/* عرض الملفات */}
+        {filteredFiles.length === 0 ? (
+          <div className="text-center py-12">
+            <Image className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <p className="text-gray-500 text-lg">لا توجد ملفات وسائط</p>
+            <p className="text-gray-400">ابدأ برفع ملفاتك الأولى</p>
+          </div>
+        ) : (
+          <div className={`grid gap-4 ${viewMode === 'grid' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : 'grid-cols-1'}`}>
+            {filteredFiles.map((file) => (
+              <div 
+                key={file.id} 
+                className={`border rounded-lg overflow-hidden hover:shadow-lg transition-shadow ${allowSelection ? 'cursor-pointer hover:border-inception-purple' : ''}`}
+                onClick={() => allowSelection && onSelectFile?.(file)}
+              >
+                {/* معاينة الملف */}
+                <div className="aspect-square bg-gray-100 flex items-center justify-center relative overflow-hidden">
+                  {file.type.startsWith('image/') ? (
+                    <img 
+                      src={file.url} 
+                      alt={file.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="text-gray-400">
+                      {getFileIcon(file.type)}
+                    </div>
+                  )}
+                  
+                  {/* نوع الملف */}
+                  <Badge className={`absolute top-2 right-2 ${getFileTypeColor(file.type)}`}>
+                    {file.type.split('/')[0]}
+                  </Badge>
                 </div>
-              )}
-            </div>
-            
-            <CardContent className="p-4 space-y-3">
-              <div>
-                <h3 className="font-medium text-gray-900 truncate">{file.name}</h3>
-                <p className="text-sm text-gray-500">
-                  {(parseInt(file.size) / 1024).toFixed(1)} KB
-                </p>
+                
+                {/* معلومات الملف */}
+                <div className="p-4">
+                  <h4 className="font-medium text-sm truncate mb-2">{file.name}</h4>
+                  <p className="text-xs text-gray-500 mb-3">{file.size}</p>
+                  
+                  {/* أزرار التحكم */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          copyToClipboard(file.url);
+                        }}
+                      >
+                        <Copy className="w-3 h-3" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          window.open(file.url, '_blank');
+                        }}
+                      >
+                        <Download className="w-3 h-3" />
+                      </Button>
+                    </div>
+                    
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (window.confirm('هل أنت متأكد من حذف هذا الملف؟')) {
+                          deleteMutation.mutate(file.id);
+                        }
+                      }}
+                      className="text-red-500 hover:text-red-700"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </Button>
+                  </div>
+                </div>
               </div>
-              
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => window.open(file.url, '_blank')}
-                  className="flex-1"
-                >
-                  <Eye className="w-4 h-4 ml-2" />
-                  عرض
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => copyToClipboard(file.url)}
-                  className="flex-1"
-                >
-                  <Link className="w-4 h-4 ml-2" />
-                  نسخ
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleDelete(file.id)}
-                  className="text-red-600 hover:text-red-700"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+            ))}
+          </div>
+        )}
 
-      {mediaFiles.length === 0 && (
-        <Card>
-          <CardContent className="text-center py-12">
-            <Image className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">لا توجد ملفات</h3>
-            <p className="text-gray-600 mb-4">ابدأ برفع صور وملفات لاستخدامها في الموقع</p>
-          </CardContent>
-        </Card>
-      )}
-    </div>
+        {/* حقل رفع الملفات المخفي */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          multiple
+          className="hidden"
+          onChange={handleFileUpload}
+          accept={
+            fileType === 'image' ? 'image/*' :
+            fileType === 'video' ? 'video/*' :
+            fileType === 'document' ? '.pdf,.doc,.docx,.txt' :
+            '*/*'
+          }
+        />
+      </CardContent>
+    </Card>
   );
 };
 
