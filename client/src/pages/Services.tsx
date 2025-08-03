@@ -67,7 +67,8 @@ const Services = () => {
   // Demo services as fallback (kept for compatibility)
   const demoServices = [
     {
-      icon: <FontAwesomeIcon icon={faVideo} className="w-8 h-8" />,
+      id: 101,
+      icon: "video",
       title: "الميديا برودكشن وصناعة المحتوى",
       description: "العميل مش هيشتري إلا لما يحس إن المنتج أو الخدمة تستاهل، وهنا بييجي دور المحتوى البصري",
       link: "/services/media-production",
@@ -76,7 +77,8 @@ const Services = () => {
       stats: "+175% زيادة التفاعل"
     },
     {
-      icon: <FontAwesomeIcon icon={faBullhorn} className="w-8 h-8" />,
+      id: 102,
+      icon: "bullhorn",
       title: "الإعلانات والمديا باينج",
       description: "مش أي إعلان ناجح يبقى إعلان بيبيع، إحنا بنشتغل بأسلوب منظم يخلي كل جنيه يتحول لمبيعات حقيقية",
       link: "/services/paid-ads",
@@ -85,7 +87,8 @@ const Services = () => {
       stats: "+210% نتائج الحملات"
     },
     {
-      icon: <FontAwesomeIcon icon={faSearch} className="w-8 h-8" />,
+      id: 103,
+      icon: "search",
       title: "تحسين محركات البحث (SEO)",
       description: "لو انت مش ظاهر في البحث، فإنت حرفيًا مش موجود! إحنا بنشتغل على تحسين ترتيب موقعك",
       link: "/services/seo",
@@ -94,7 +97,8 @@ const Services = () => {
       stats: "المركز الأول في جوجل"
     },
     {
-      icon: <FontAwesomeIcon icon={faCode} className="w-8 h-8" />,
+      id: 104,
+      icon: "code",
       title: "تصميم وتطوير المواقع",
       description: "الموقع مش مجرد شكل، الموقع هو أهم موظف مبيعات عندك! بنصمم مواقع بتقنع وبتبيع",
       link: "/services/web-development",
@@ -103,7 +107,8 @@ const Services = () => {
       stats: "+300% معدل التحويل"
     },
     {
-      icon: <FontAwesomeIcon icon={faShareAlt} className="w-8 h-8" />,
+      id: 105,
+      icon: "share-alt",
       title: "إدارة السوشيال ميديا",
       description: "الناس بتدور على البراندات اللي عندها محتوى مقنع، مش مجرد بوستات والسلام!",
       link: "/services/social-media",
@@ -172,7 +177,7 @@ const Services = () => {
 
             {/* Services Cards */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-20">
-              {services.map((service, index) => {
+              {(services.length > 0 ? services : demoServices).map((service, index) => {
                 const defaultImage = `https://images.unsplash.com/photo-${
                   service.icon === 'search' ? '1432888622747-4eb9a8efeb07' :
                   service.icon === 'bullhorn' ? '1460925895917-afdab827c52f' :
@@ -201,7 +206,7 @@ const Services = () => {
                         
                         {/* Floating Icon */}
                         <div className="absolute top-6 right-6 w-16 h-16 bg-white/98 backdrop-blur-sm rounded-2xl flex items-center justify-center text-inception-purple shadow-lg border border-white/50">
-                          {service.icon && getIconComponent(service.icon)}
+                          {service.icon && getIconComponent(typeof service.icon === 'string' ? service.icon : 'video')}
                         </div>
                         
                         {/* Stats Badge */}
