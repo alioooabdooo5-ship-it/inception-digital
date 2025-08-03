@@ -50,11 +50,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const loginMutation = useMutation({
     mutationFn: async (credentials: LoginData) => {
-      const res = await apiRequest("/api/login", {
+      const res = await fetch("/api/login", {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify(credentials),
       });
-      return res;
+      if (!res.ok) {
+        throw new Error("خطأ في بيانات تسجيل الدخول");
+      }
+      return await res.json();
     },
     onSuccess: (user: SelectUser) => {
       queryClient.setQueryData(["/api/user"], user);
@@ -70,11 +76,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const registerMutation = useMutation({
     mutationFn: async (credentials: InsertUser) => {
-      const res = await apiRequest("/api/register", {
+      const res = await fetch("/api/register", {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify(credentials),
       });
-      return res;
+      if (!res.ok) {
+        throw new Error("خطأ في إنشاء الحساب");
+      }
+      return await res.json();
     },
     onSuccess: (user: SelectUser) => {
       queryClient.setQueryData(["/api/user"], user);
@@ -90,9 +102,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logoutMutation = useMutation({
     mutationFn: async () => {
-      await apiRequest("/api/logout", {
+      const res = await fetch("/api/logout", {
         method: "POST",
       });
+      if (!res.ok) {
+        throw new Error("خطأ في تسجيل الخروج");
+      }
     },
     onSuccess: () => {
       queryClient.setQueryData(["/api/user"], null);
