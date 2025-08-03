@@ -342,6 +342,10 @@ export class DatabaseStorage implements IStorage {
     return setting;
   }
 
+  async getSettingsByCategory(category: string): Promise<Setting[]> {
+    return await db.select().from(settings).where(eq(settings.category, category));
+  }
+
   async createSetting(setting: InsertSetting): Promise<Setting> {
     const [newSetting] = await db.insert(settings).values(setting).returning();
     return newSetting;
