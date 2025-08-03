@@ -21,7 +21,7 @@ import AdminServices from "./pages/admin/AdminServices";
 import AdminIndustries from "./pages/admin/AdminIndustries";
 import AdminBooks from "./pages/admin/AdminBooks";
 import AdminTestimonials from "./pages/admin/AdminTestimonials";
-import AdminUsers from "./pages/admin/AdminUsers";
+import UsersPage from "./pages/admin/users-page";
 import AdminContactForms from "./pages/admin/AdminContactForms";
 import AdminMedia from "./pages/admin/AdminMedia";
 import AdminSettings from "./pages/admin/AdminSettings";
@@ -95,7 +95,7 @@ const App = () => {
               <ProtectedRoute path="/admin/enhanced-industry-editor" component={EnhancedIndustryEditor} />
               <ProtectedRoute path="/admin/books" component={AdminBooks} />
               <ProtectedRoute path="/admin/testimonials" component={AdminTestimonials} />
-              <ProtectedRoute path="/admin/users" component={AdminUsers} />
+              <ProtectedRoute path="/admin/users" component={UsersPage} />
               <ProtectedRoute path="/admin/contact-forms" component={AdminContactForms} />
               <ProtectedRoute path="/admin/media" component={AdminMedia} />
               <ProtectedRoute path="/admin/seo" component={AdminSEO} />

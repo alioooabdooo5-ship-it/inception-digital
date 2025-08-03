@@ -31,14 +31,14 @@ export function registerRoutes(app: Express): Server {
   // Setup security middleware first
   setupSecurity(app);
   
+  // sets up /api/register, /api/login, /api/logout, /api/user
+  setupAuth(app);
+  
   // Setup audit logging
   setupAuditLogging(app);
   
   // Setup CSRF protection
   setupCSRF(app);
-  
-  // sets up /api/register, /api/login, /api/logout, /api/user
-  setupAuth(app);
 
   // Services routes
   app.get('/api/services', async (req, res) => {
@@ -559,6 +559,45 @@ export function registerRoutes(app: Express): Server {
     } catch (error) {
       console.error("Error deleting page content:", error);
       res.status(500).json({ message: "Failed to delete page content" });
+    }
+  });
+
+  // Users management routes
+  app.get('/api/users', requireAuth, async (req, res) => {
+    try {
+      const users = await storage.getAllUsers();
+      res.json(users);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      res.status(500).json({ message: "Failed to fetch users" });
+    }
+  });
+
+  app.patch('/api/users/:id/password', requireAuth, sensitiveOperationLimiter, async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const { password } = req.body;
+      
+      if (!password) {
+        return res.status(400).json({ message: "Password is required" });
+      }
+      
+      await storage.updateUserPassword(userId, password);
+      res.json({ message: "Password updated successfully" });
+    } catch (error) {
+      console.error('Error updating user password:', error);
+      res.status(500).json({ message: "Failed to update password" });
+    }
+  });
+
+  app.delete('/api/users/:id', requireAuth, sensitiveOperationLimiter, async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      await storage.deleteUser(userId);
+      res.status(204).send();
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      res.status(500).json({ message: "Failed to delete user" });
     }
   });
 
