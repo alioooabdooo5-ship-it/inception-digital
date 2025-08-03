@@ -42,6 +42,9 @@ export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
+  getAllUsers(): Promise<User[]>;
+  updateUserPassword(id: number, password: string): Promise<void>;
+  deleteUser(id: number): Promise<void>;
   
   // Session store
   sessionStore: session.Store;
@@ -137,6 +140,20 @@ export class DatabaseStorage implements IStorage {
       .values(userData)
       .returning();
     return user;
+  }
+
+  async getAllUsers(): Promise<User[]> {
+    return await db.select().from(users).orderBy(desc(users.createdAt));
+  }
+
+  async updateUserPassword(id: number, password: string): Promise<void> {
+    const { hashPassword } = await import('./auth');
+    const hashedPassword = await hashPassword(password);
+    await db.update(users).set({ password: hashedPassword, updatedAt: new Date() }).where(eq(users.id, id));
+  }
+
+  async deleteUser(id: number): Promise<void> {
+    await db.delete(users).where(eq(users.id, id));
   }
 
   // Services operations

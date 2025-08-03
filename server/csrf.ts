@@ -59,7 +59,7 @@ export function csrfProtection() {
     }
     
     // Check for authentication first
-    if (!req.isAuthenticated() || !req.session) {
+    if (!req.isAuthenticated || !req.isAuthenticated() || !req.session) {
       return res.status(401).json({ message: 'Authentication required' });
     }
     
