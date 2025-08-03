@@ -70,7 +70,9 @@ const ContentManager = () => {
     homepage: 'الصفحة الرئيسية',
     contact: 'معلومات الاتصال',
     seo: 'السيو',
-    social: 'الشبكات الاجتماعية'
+    social: 'الشبكات الاجتماعية',
+    buttons: 'الأزرار والروابط',
+    images: 'الصور والوسائط'
   };
 
   if (isLoading) {
