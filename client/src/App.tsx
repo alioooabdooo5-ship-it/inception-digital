@@ -14,7 +14,7 @@ import Books from "./pages/Books";
 import AboutMe from "./pages/AboutMe";
 import Contact from "./pages/Contact";
 import Articles from "./pages/Articles";
-import AdminDashboard from "./pages/AdminDashboard";
+import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminArticles from "./pages/admin/AdminArticles";
 import AdminServices from "./pages/admin/AdminServices";
 import AdminIndustries from "./pages/admin/AdminIndustries";
