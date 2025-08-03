@@ -92,10 +92,22 @@ export function setupAuth(app: Express) {
   });
 }
 
-// Middleware to require authentication
+// Middleware to require authentication for API endpoints
 export function requireAuth(req: any, res: any, next: any) {
   if (!req.isAuthenticated()) {
     return res.status(401).json({ message: "Authentication required" });
+  }
+  next();
+}
+
+// Middleware to protect admin pages (redirect unauthorized users)
+export function requireAuthForPages(req: any, res: any, next: any) {
+  // Only protect admin routes
+  if (req.originalUrl.startsWith('/admin')) {
+    if (!req.isAuthenticated()) {
+      // Redirect to auth page instead of returning JSON
+      return res.redirect('/auth');
+    }
   }
   next();
 }
