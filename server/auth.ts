@@ -6,6 +6,8 @@ import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
 import { storage } from "./storage";
 import { User as SelectUser } from "@shared/schema";
+import { loginLimiter, loginSlowDown } from "./security";
+import { logAuditEvent } from "./audit";
 
 declare global {
   namespace Express {
@@ -34,6 +36,14 @@ export function setupAuth(app: Express) {
     resave: false,
     saveUninitialized: false,
     store: storage.sessionStore,
+    cookie: {
+      secure: process.env.NODE_ENV === 'production',
+      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      sameSite: 'strict',
+    },
+    rolling: true, // Reset expiration on activity
+    name: 'sessionId', // Change default session name
   };
 
   app.set("trust proxy", 1);
@@ -43,11 +53,35 @@ export function setupAuth(app: Express) {
 
   passport.use(
     new LocalStrategy(async (username, password, done) => {
-      const user = await storage.getUserByUsername(username);
-      if (!user || !(await comparePasswords(password, user.password))) {
-        return done(null, false);
-      } else {
-        return done(null, user);
+      try {
+        const user = await storage.getUserByUsername(username);
+        if (!user || !(await comparePasswords(password, user.password))) {
+          // Log failed login attempt
+          logAuditEvent({
+            action: 'LOGIN_FAILED',
+            resource: 'auth',
+            details: { username, reason: 'Invalid credentials' },
+            ipAddress: 'unknown', // Will be updated in route handler
+            userAgent: 'unknown',
+            success: false,
+            errorMessage: 'Invalid username or password'
+          });
+          return done(null, false);
+        } else {
+          // Log successful login
+          logAuditEvent({
+            userId: user.id,
+            action: 'LOGIN_SUCCESS',
+            resource: 'auth',
+            details: { username },
+            ipAddress: 'unknown',
+            userAgent: 'unknown',
+            success: true
+          });
+          return done(null, user);
+        }
+      } catch (error) {
+        return done(error);
       }
     }),
   );
@@ -75,14 +109,89 @@ export function setupAuth(app: Express) {
     });
   });
 
-  app.post("/api/login", passport.authenticate("local"), (req, res) => {
-    res.status(200).json(req.user);
+  app.post("/api/login", loginLimiter, loginSlowDown, (req, res, next) => {
+    passport.authenticate("local", (err: any, user: any, info: any) => {
+      if (err) {
+        logAuditEvent({
+          action: 'LOGIN_ERROR',
+          resource: 'auth',
+          details: { username: req.body.username, error: err.message },
+          ipAddress: req.ip || req.connection.remoteAddress || 'unknown',
+          userAgent: req.get('User-Agent') || 'unknown',
+          success: false,
+          errorMessage: err.message
+        });
+        return next(err);
+      }
+      
+      if (!user) {
+        logAuditEvent({
+          action: 'LOGIN_FAILED',
+          resource: 'auth',
+          details: { username: req.body.username, reason: 'Invalid credentials' },
+          ipAddress: req.ip || req.connection.remoteAddress || 'unknown',
+          userAgent: req.get('User-Agent') || 'unknown',
+          success: false,
+          errorMessage: 'Invalid username or password'
+        });
+        return res.status(401).json({ 
+          message: "اسم المستخدم أو كلمة المرور غير صحيحة" 
+        });
+      }
+      
+      req.logIn(user, (err: any) => {
+        if (err) {
+          return next(err);
+        }
+        
+        // Regenerate session ID for security
+        req.session.regenerate((err: any) => {
+          if (err) {
+            return next(err);
+          }
+          
+          logAuditEvent({
+            userId: user.id,
+            action: 'LOGIN_SUCCESS',
+            resource: 'auth',
+            details: { username: user.username },
+            ipAddress: req.ip || req.connection.remoteAddress || 'unknown',
+            userAgent: req.get('User-Agent') || 'unknown',
+            success: true
+          });
+          
+          res.status(200).json(user);
+        });
+      });
+    })(req, res, next);
   });
 
-  app.post("/api/logout", (req, res, next) => {
-    req.logout((err) => {
+  app.post("/api/logout", (req: any, res, next) => {
+    const userId = req.user?.id;
+    const username = req.user?.username;
+    
+    req.logout((err: any) => {
       if (err) return next(err);
-      res.sendStatus(200);
+      
+      // Destroy session completely
+      req.session.destroy((err: any) => {
+        if (err) {
+          console.error('Session destruction error:', err);
+        }
+        
+        logAuditEvent({
+          userId,
+          action: 'LOGOUT',
+          resource: 'auth',
+          details: { username },
+          ipAddress: req.ip || req.connection.remoteAddress || 'unknown',
+          userAgent: req.get('User-Agent') || 'unknown',
+          success: true
+        });
+        
+        res.clearCookie('sessionId');
+        res.sendStatus(200);
+      });
     });
   });
 
