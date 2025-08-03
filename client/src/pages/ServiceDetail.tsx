@@ -52,47 +52,56 @@ const ServiceDetail = () => {
     return iconName ? (imageMap[iconName as keyof typeof imageMap] || imageMap.video) : imageMap.video;
   };
 
-  const portfolioExamples = [
+  // استخدام البيانات الحقيقية من قاعدة البيانات أو fallback للتوافق
+  const portfolioItems = service?.portfolioItems || [
     {
       title: "شركة الابتكار التقني",
       description: "زيادة في المبيعات بنسبة 300% خلال 6 أشهر",
-      results: "+300% مبيعات",
-      image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80"
+      result: "+300% مبيعات",
+      image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80",
+      clientName: "شركة الابتكار التقني"
     },
     {
       title: "متجر الموضة العصري",
       description: "تحسين معدل التحويل وزيادة العملاء الجدد",
-      results: "+250% عملاء جدد",
-      image: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80"
+      result: "+250% عملاء جدد",
+      image: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80",
+      clientName: "متجر الموضة العصري"
     },
     {
       title: "مطعم الذواقة",
       description: "بناء هوية رقمية قوية وزيادة الطلبات عبر الإنترنت",
-      results: "+400% طلبات أونلاين",
-      image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80"
+      result: "+400% طلبات أونلاين",
+      image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80",
+      clientName: "مطعم الذواقة"
     }
   ];
 
-  const processSteps = [
+  const processSteps = service?.processSteps || [
     {
-      step: "01",
+      step: 1,
       title: "التحليل والاستراتيجية",
       description: "دراسة شاملة لوضع عملك الحالي والمنافسين في السوق",
-      icon: <TrendingUp className="w-6 h-6" />
+      icon: "TrendingUp"
     },
     {
-      step: "02", 
+      step: 2,
       title: "التخطيط والتصميم",
       description: "وضع خطة عمل مفصلة وتصميم الحلول المناسبة",
-      icon: <Users className="w-6 h-6" />
+      icon: "Users"
     },
     {
-      step: "03",
+      step: 3,
       title: "التنفيذ والمتابعة",
       description: "تطبيق الخطة مع المتابعة المستمرة وقياس النتائج",
-      icon: <Award className="w-6 h-6" />
+      icon: "Award"
     }
   ];
+
+  const features = service?.features || [];
+  const testimonials = service?.testimonials || [];
+  const packages = service?.packages || [];
+  const faqs = service?.faqs || [];
 
   if (isLoading) {
     return (
@@ -216,10 +225,13 @@ const ServiceDetail = () => {
                 <AnimatedSection key={index} delay={index * 150} className="text-center">
                   <div className="relative mb-8">
                     <div className="w-20 h-20 bg-gradient-to-br from-inception-purple to-inception-orange rounded-2xl flex items-center justify-center text-white mx-auto mb-4 shadow-lg">
-                      {step.icon}
+                      {step.icon === "TrendingUp" ? <TrendingUp className="w-6 h-6" /> :
+                       step.icon === "Users" ? <Users className="w-6 h-6" /> :
+                       step.icon === "Award" ? <Award className="w-6 h-6" /> :
+                       <TrendingUp className="w-6 h-6" />}
                     </div>
                     <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-12 h-12 bg-inception-orange/20 rounded-full flex items-center justify-center">
-                      <span className="text-inception-orange font-bold text-sm">{step.step}</span>
+                      <span className="text-inception-orange font-bold text-sm">{typeof step.step === 'string' ? step.step : `0${step.step}`}</span>
                     </div>
                   </div>
                   <h3 className="text-xl font-bold text-inception-purple mb-4">
@@ -247,26 +259,31 @@ const ServiceDetail = () => {
             </AnimatedSection>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {portfolioExamples.map((example, index) => (
+              {portfolioItems.map((item, index) => (
                 <AnimatedSection key={index} delay={index * 150}>
                   <div className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow">
                     <div className="relative h-48 overflow-hidden">
                       <img 
-                        src={example.image}
-                        alt={example.title}
+                        src={item.image}
+                        alt={item.title}
                         className="w-full h-full object-cover"
                       />
                       <div className="absolute top-4 right-4 bg-inception-orange text-white px-3 py-1 rounded-full text-sm font-semibold">
-                        {example.results}
+                        {item.result}
                       </div>
                     </div>
                     <div className="p-6">
                       <h3 className="text-xl font-bold text-inception-purple mb-3">
-                        {example.title}
+                        {item.title}
                       </h3>
-                      <p className="text-gray-600">
-                        {example.description}
+                      <p className="text-gray-600 mb-2">
+                        {item.description}
                       </p>
+                      {item.clientName && (
+                        <p className="text-sm text-inception-purple font-semibold">
+                          العميل: {item.clientName}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </AnimatedSection>
@@ -274,6 +291,170 @@ const ServiceDetail = () => {
             </div>
           </div>
         </section>
+
+        {/* Features Section */}
+        {features.length > 0 && (
+          <section className="py-20 bg-white">
+            <div className="container mx-auto px-4 md:px-6">
+              <AnimatedSection className="text-center mb-16">
+                <h2 className="text-4xl font-bold text-inception-purple mb-6">
+                  مميزات الخدمة
+                </h2>
+                <p className="text-xl text-gray-700 max-w-3xl mx-auto">
+                  مزايا حصرية تجعل خدمتنا الخيار الأمثل لمشروعك
+                </p>
+              </AnimatedSection>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {features.map((feature, index) => (
+                  <AnimatedSection key={index} delay={index * 100}>
+                    <div className="bg-gray-50 rounded-2xl p-6 text-center hover:shadow-lg transition-shadow">
+                      <div className="w-16 h-16 bg-inception-purple/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                        <CheckCircle className="w-8 h-8 text-inception-purple" />
+                      </div>
+                      <h3 className="text-xl font-bold text-inception-purple mb-3">
+                        {feature.title}
+                      </h3>
+                      <p className="text-gray-600">
+                        {feature.description}
+                      </p>
+                    </div>
+                  </AnimatedSection>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Testimonials Section */}
+        {testimonials.length > 0 && (
+          <section className="py-20 bg-gray-50">
+            <div className="container mx-auto px-4 md:px-6">
+              <AnimatedSection className="text-center mb-16">
+                <h2 className="text-4xl font-bold text-inception-purple mb-6">
+                  آراء عملائنا
+                </h2>
+                <p className="text-xl text-gray-700 max-w-3xl mx-auto">
+                  تجارب حقيقية من عملاء حققوا نجاحات مميزة معنا
+                </p>
+              </AnimatedSection>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {testimonials.map((testimonial, index) => (
+                  <AnimatedSection key={index} delay={index * 150}>
+                    <div className="bg-white rounded-2xl p-6 shadow-lg">
+                      <div className="flex items-center mb-4">
+                        {[...Array(testimonial.rating || 5)].map((_, i) => (
+                          <Star key={i} className="w-5 h-5 text-yellow-500 fill-current" />
+                        ))}
+                      </div>
+                      <p className="text-gray-700 mb-6 leading-relaxed">
+                        "{testimonial.content}"
+                      </p>
+                      <div className="flex items-center">
+                        {testimonial.image && (
+                          <img 
+                            src={testimonial.image} 
+                            alt={testimonial.name}
+                            className="w-12 h-12 rounded-full object-cover ml-4"
+                          />
+                        )}
+                        <div>
+                          <h4 className="font-bold text-inception-purple">
+                            {testimonial.name}
+                          </h4>
+                          <p className="text-gray-600 text-sm">
+                            {testimonial.position} - {testimonial.company}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </AnimatedSection>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Packages Section */}
+        {packages.length > 0 && (
+          <section className="py-20 bg-white">
+            <div className="container mx-auto px-4 md:px-6">
+              <AnimatedSection className="text-center mb-16">
+                <h2 className="text-4xl font-bold text-inception-purple mb-6">
+                  باقات الخدمة
+                </h2>
+                <p className="text-xl text-gray-700 max-w-3xl mx-auto">
+                  اختر الباقة المناسبة لاحتياجاتك وميزانيتك
+                </p>
+              </AnimatedSection>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {packages.map((pkg, index) => (
+                  <AnimatedSection key={index} delay={index * 150}>
+                    <div className={`rounded-2xl p-8 ${pkg.highlighted ? 'bg-gradient-to-br from-inception-purple to-inception-orange text-white shadow-2xl scale-105' : 'bg-gray-50 text-gray-800'} relative overflow-hidden`}>
+                      {pkg.highlighted && (
+                        <div className="absolute top-4 right-4 bg-white text-inception-purple px-3 py-1 rounded-full text-sm font-bold">
+                          الأكثر شعبية
+                        </div>
+                      )}
+                      <h3 className="text-2xl font-bold mb-4">
+                        {pkg.name}
+                      </h3>
+                      <div className="text-3xl font-bold mb-6">
+                        {pkg.price}
+                      </div>
+                      <p className={`mb-6 ${pkg.highlighted ? 'text-white/90' : 'text-gray-600'}`}>
+                        {pkg.description}
+                      </p>
+                      <Link 
+                        to="/contact" 
+                        className={`block text-center py-3 px-6 rounded-xl font-semibold transition-colors ${
+                          pkg.highlighted 
+                            ? 'bg-white text-inception-purple hover:bg-gray-100' 
+                            : 'bg-inception-purple text-white hover:bg-inception-orange'
+                        }`}
+                      >
+                        اختر هذه الباقة
+                      </Link>
+                    </div>
+                  </AnimatedSection>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* FAQs Section */}
+        {faqs.length > 0 && (
+          <section className="py-20 bg-gray-50">
+            <div className="container mx-auto px-4 md:px-6">
+              <AnimatedSection className="text-center mb-16">
+                <h2 className="text-4xl font-bold text-inception-purple mb-6">
+                  الأسئلة الشائعة
+                </h2>
+                <p className="text-xl text-gray-700 max-w-3xl mx-auto">
+                  إجابات على أهم الأسئلة حول هذه الخدمة
+                </p>
+              </AnimatedSection>
+
+              <div className="max-w-4xl mx-auto space-y-6">
+                {faqs.map((faq, index) => (
+                  <AnimatedSection key={index} delay={index * 100}>
+                    <div className="bg-white rounded-2xl p-6 shadow-sm">
+                      <h3 className="text-xl font-bold text-inception-purple mb-3">
+                        {faq.question}
+                      </h3>
+                      <p className="text-gray-700 leading-relaxed">
+                        {faq.answer}
+                      </p>
+                    </div>
+                  </AnimatedSection>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* CTA Section */}
         <section className="py-20 bg-gradient-to-br from-inception-purple to-inception-orange">
