@@ -127,7 +127,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
           color: "text-cyan-600 bg-cyan-50 hover:bg-cyan-100"
         },
         { 
-          name: "الإعدادات", 
+          name: "محتوى الهوم بيج", 
           href: "/admin/settings", 
           icon: Settings,
           color: "text-gray-600 bg-gray-50 hover:bg-gray-100"
