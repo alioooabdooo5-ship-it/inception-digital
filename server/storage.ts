@@ -41,7 +41,7 @@ export interface IStorage {
   createUser(user: InsertUser): Promise<User>;
   
   // Session store
-  sessionStore: session.SessionStore;
+  sessionStore: session.Store;
 
   // Services operations
   getServices(): Promise<Service[]>;
@@ -102,7 +102,7 @@ export interface IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
-  public sessionStore: session.SessionStore;
+  public sessionStore: session.Store;
 
   constructor() {
     const PostgresSessionStore = connectPg(session);

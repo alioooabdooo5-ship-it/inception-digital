@@ -14,6 +14,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import type { Service } from "@shared/schema";
 
 interface ServicesManagerProps {
   onEditService?: (serviceId: string) => void;
@@ -25,7 +26,7 @@ const ServicesManager: React.FC<ServicesManagerProps> = ({ onEditService, onCrea
   const { toast } = useToast();
 
   // جلب الخدمات من API
-  const { data: services = [], isLoading, error } = useQuery({
+  const { data: services = [], isLoading, error } = useQuery<Service[]>({
     queryKey: ["/api/services"],
   });
 
@@ -57,7 +58,7 @@ const ServicesManager: React.FC<ServicesManagerProps> = ({ onEditService, onCrea
 
   // فلترة الخدمات بناءً على البحث
   const filteredServices = services.filter(
-    (service: any) =>
+    (service: Service) =>
       service.title.includes(searchQuery) ||
       service.description.includes(searchQuery)
   );
@@ -68,7 +69,7 @@ const ServicesManager: React.FC<ServicesManagerProps> = ({ onEditService, onCrea
     }
   };
 
-  const handleEditService = (service: any) => {
+  const handleEditService = (service: Service) => {
     if (onEditService) {
       onEditService(service.id.toString());
     }

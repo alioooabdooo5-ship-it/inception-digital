@@ -1,345 +1,282 @@
 import React, { useState } from "react";
-import { 
-  MessageSquare, 
-  Mail, 
-  Phone, 
-  Calendar,
-  Clock,
-  User,
-  MapPin,
-  Search,
-  Filter,
-  Eye,
-  Trash2,
-  Reply,
-  Star,
-  AlertCircle,
-  CheckCircle,
-  Archive
-} from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
-import { ContactForm } from "@shared/schema";
+import { apiRequest } from "@/lib/queryClient";
+import { Plus, Edit, Trash2, Mail, Phone, Calendar, MessageCircle } from "lucide-react";
+import type { ContactForm } from "@shared/schema";
 
 const ContactFormsManager = () => {
-  const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterStatus, setFilterStatus] = useState("all");
-  const [selectedMessage, setSelectedMessage] = useState<ContactForm | null>(null);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [statusFilter, setStatusFilter] = useState("all");
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
-  const { data: messages = [], isLoading } = useQuery<ContactForm[]>({
-    queryKey: ['/api/contact-forms'],
+  // Fetch contact forms
+  const { data: contactForms = [], isLoading } = useQuery<ContactForm[]>({
+    queryKey: ['/api/contact-forms']
   });
 
-  const deleteMutation = useMutation({
-    mutationFn: async (id: number) => {
-      await apiRequest("DELETE", `/api/contact-forms/${id}`);
+  // Update status mutation
+  const updateStatusMutation = useMutation({
+    mutationFn: async ({ id, status }: { id: number; status: string }) => {
+      const response = await apiRequest("PATCH", `/api/contact-forms/${id}`, { status });
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/contact-forms'] });
-      toast({
-        title: "تم الحذف بنجاح",
-        description: "تم حذف الرسالة بنجاح",
-      });
+      toast({ title: "تم تحديث الحالة بنجاح" });
     },
-    onError: () => {
-      toast({
-        title: "خطأ في الحذف",
-        description: "حدث خطأ أثناء حذف الرسالة",
-        variant: "destructive",
+    onError: (error) => {
+      toast({ 
+        title: "خطأ في تحديث الحالة", 
+        description: error.message,
+        variant: "destructive" 
       });
-    },
+    }
   });
+
+  // Delete contact form mutation
+  const deleteContactFormMutation = useMutation({
+    mutationFn: async (id: number) => {
+      await apiRequest("DELETE", `/api/contact-forms/${id}`, {});
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/contact-forms'] });
+      toast({ title: "تم حذف الرسالة بنجاح" });
+    },
+    onError: (error) => {
+      toast({ 
+        title: "خطأ في حذف الرسالة", 
+        description: error.message,
+        variant: "destructive" 
+      });
+    }
+  });
+
+  const handleStatusChange = (id: number, status: string) => {
+    updateStatusMutation.mutate({ id, status });
+  };
 
   const handleDelete = (id: number) => {
-    if (window.confirm("هل أنت متأكد من حذف هذه الرسالة؟")) {
-      deleteMutation.mutate(id);
+    if (confirm("هل أنت متأكد من حذف هذه الرسالة؟")) {
+      deleteContactFormMutation.mutate(id);
     }
   };
 
-  const handleViewMessage = (message: ContactForm) => {
-    setSelectedMessage(message);
-    setIsDialogOpen(true);
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "new": return "bg-blue-100 text-blue-800";
-      case "replied": return "bg-green-100 text-green-800";
-      case "archived": return "bg-gray-100 text-gray-800";
-      default: return "bg-gray-100 text-gray-800";
-    }
-  };
-
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case "new": return "جديد";
-      case "replied": return "تم الرد";
-      case "archived": return "مؤرشف";
-      default: return status;
-    }
-  };
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case "high": return "text-red-600";
-      case "medium": return "text-yellow-600";
-      case "low": return "text-green-600";
-      default: return "text-gray-600";
-    }
-  };
-
-  const getPriorityText = (priority: string) => {
-    switch (priority) {
-      case "high": return "عالي";
-      case "medium": return "متوسط";
-      case "low": return "منخفض";
-      default: return priority;
-    }
-  };
-
-  const filteredMessages = messages.filter(message => {
-    const matchesSearch = message.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         message.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         (message.subject?.toLowerCase() || "").includes(searchQuery.toLowerCase());
-    const matchesFilter = filterStatus === "all" || message.status === filterStatus;
-    return matchesSearch && matchesFilter;
+  // Filter contact forms based on search and status
+  const filteredContactForms = contactForms.filter(form => {
+    const matchesSearch = form.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         form.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         form.message.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = statusFilter === "all" || form.status === statusFilter;
+    return matchesSearch && matchesStatus;
   });
 
-  const stats = [
-    { 
-      label: "الرسائل الجديدة", 
-      value: messages.filter(m => m.status === "new").length.toString(), 
-      color: "text-blue-600", 
-      icon: MessageSquare 
-    },
-    { 
-      label: "تم الرد عليها", 
-      value: messages.filter(m => m.status === "replied").length.toString(), 
-      color: "text-green-600", 
-      icon: CheckCircle 
-    },
-    { 
-      label: "مؤرشفة", 
-      value: messages.filter(m => m.status === "archived").length.toString(), 
-      color: "text-gray-600", 
-      icon: Archive 
-    },
-    { 
-      label: "إجمالي الرسائل", 
-      value: messages.length.toString(), 
-      color: "text-purple-600", 
-      icon: Mail 
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'new':
+        return <Badge className="bg-blue-100 text-blue-800">جديد</Badge>;
+      case 'replied':
+        return <Badge className="bg-green-100 text-green-800">تم الرد</Badge>;
+      case 'closed':
+        return <Badge className="bg-gray-100 text-gray-800">مغلق</Badge>;
+      default:
+        return <Badge variant="secondary">{status}</Badge>;
     }
-  ];
+  };
 
   if (isLoading) {
-    return <div className="text-center p-4">جاري التحميل...</div>;
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h1 className="text-3xl font-bold text-gray-900">إدارة رسائل التواصل</h1>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[1, 2, 3].map((i) => (
+            <Card key={i} className="animate-pulse">
+              <CardContent className="p-6">
+                <div className="h-6 bg-gray-200 rounded mb-4"></div>
+                <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                <div className="h-4 bg-gray-200 rounded"></div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <h2 className="text-2xl font-bold text-inception-purple">نماذج التواصل</h2>
-        <div className="flex flex-col md:flex-row gap-4">
-          <div className="relative">
-            <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
-            <Input
-              placeholder="بحث في الرسائل..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pr-10 w-full md:w-[250px]"
-            />
-          </div>
-          <select
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
-            className="px-4 py-2 border rounded-lg bg-white"
-          >
-            <option value="all">جميع الحالات</option>
-            <option value="new">جديد</option>
-            <option value="replied">تم الرد</option>
-            <option value="archived">مؤرشف</option>
-          </select>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">إدارة رسائل التواصل</h1>
+          <p className="text-gray-600 mt-2">إدارة وتتبع رسائل العملاء</p>
         </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat, index) => (
-          <Card key={index} className="hover:shadow-lg transition-shadow">
-            <CardContent className="p-6">
+      {/* Search and Filter */}
+      <div className="flex gap-4">
+        <div className="flex-1">
+          <Input
+            placeholder="البحث في الرسائل..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+        <select
+          className="px-3 py-2 border border-gray-300 rounded-md bg-white"
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+        >
+          <option value="all">جميع الحالات</option>
+          <option value="new">جديد</option>
+          <option value="replied">تم الرد</option>
+          <option value="closed">مغلق</option>
+        </select>
+      </div>
+
+      {/* Contact Forms Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                <Mail className="w-6 h-6 text-blue-600" />
+              </div>
+              <div>
+                <h3 className="text-2xl font-bold text-gray-900">{contactForms.length}</h3>
+                <p className="text-gray-600">إجمالي الرسائل</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
+                <MessageCircle className="w-6 h-6 text-orange-600" />
+              </div>
+              <div>
+                <h3 className="text-2xl font-bold text-gray-900">
+                  {contactForms.filter(f => f.status === 'new').length}
+                </h3>
+                <p className="text-gray-600">رسائل جديدة</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                <Phone className="w-6 h-6 text-green-600" />
+              </div>
+              <div>
+                <h3 className="text-2xl font-bold text-gray-900">
+                  {contactForms.filter(f => f.status === 'replied').length}
+                </h3>
+                <p className="text-gray-600">تم الرد عليها</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
+                <Calendar className="w-6 h-6 text-gray-600" />
+              </div>
+              <div>
+                <h3 className="text-2xl font-bold text-gray-900">
+                  {contactForms.filter(f => f.status === 'closed').length}
+                </h3>
+                <p className="text-gray-600">مغلقة</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Contact Forms List */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {filteredContactForms.map((form) => (
+          <Card key={form.id} className="group hover:shadow-lg transition-all duration-300">
+            <CardHeader className="bg-gradient-to-r from-teal-500 to-blue-600 text-white rounded-t-lg">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">{stat.label}</p>
-                  <p className={`text-2xl font-bold ${stat.color}`}>{stat.value}</p>
+                  <CardTitle className="text-lg font-bold">{form.name}</CardTitle>
+                  <p className="text-sm opacity-90">{form.email}</p>
                 </div>
-                <div className={`p-3 rounded-full bg-gray-50 ${stat.color}`}>
-                  <stat.icon size={24} />
+                {getStatusBadge(form.status)}
+              </div>
+            </CardHeader>
+            <CardContent className="p-4">
+              <div className="space-y-3">
+                {form.phone && (
+                  <div className="flex items-center gap-2">
+                    <Phone className="w-4 h-4 text-gray-500" />
+                    <span className="text-sm">{form.phone}</span>
+                  </div>
+                )}
+                
+                <div className="bg-gray-50 p-3 rounded-lg">
+                  <p className="text-sm text-gray-700 line-clamp-3">{form.message}</p>
                 </div>
+                
+                <div className="text-xs text-gray-500">
+                  {new Date(form.createdAt).toLocaleDateString('ar-SA', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}
+                </div>
+              </div>
+
+              <div className="flex gap-2 mt-4">
+                <select
+                  className="flex-1 px-2 py-1 text-xs border border-gray-300 rounded"
+                  value={form.status}
+                  onChange={(e) => handleStatusChange(form.id, e.target.value)}
+                  disabled={updateStatusMutation.isPending}
+                >
+                  <option value="new">جديد</option>
+                  <option value="replied">تم الرد</option>
+                  <option value="closed">مغلق</option>
+                </select>
+
+                <Button 
+                  variant="destructive" 
+                  size="sm" 
+                  onClick={() => handleDelete(form.id)}
+                  disabled={deleteContactFormMutation.isPending}
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
               </div>
             </CardContent>
           </Card>
         ))}
       </div>
 
-      {/* Messages Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <MessageSquare className="w-5 h-5" />
-            الرسائل ({filteredMessages.length})
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {filteredMessages.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              لا توجد رسائل
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>الاسم</TableHead>
-                    <TableHead>البريد الإلكتروني</TableHead>
-                    <TableHead>الموضوع</TableHead>
-                    <TableHead>الحالة</TableHead>
-                    <TableHead>الأولوية</TableHead>
-                    <TableHead>التاريخ</TableHead>
-                    <TableHead>الإجراءات</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredMessages.map((message) => (
-                    <TableRow key={message.id} className="hover:bg-gray-50">
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <User className="w-4 h-4 text-gray-400" />
-                          <span className="font-medium">{message.name}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Mail className="w-4 h-4 text-gray-400" />
-                          <span>{message.email}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <span className="text-sm">{message.subject || "بدون موضوع"}</span>
-                      </TableCell>
-                      <TableCell>
-                        <Badge className={getStatusColor(message.status)}>
-                          {getStatusText(message.status)}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <span className={`text-sm font-medium ${getPriorityColor(message.priority || "medium")}`}>
-                          {getPriorityText(message.priority || "medium")}
-                        </span>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-1 text-sm text-gray-500">
-                          <Calendar className="w-4 h-4" />
-                          <span>{new Date(message.createdAt).toLocaleDateString('ar-EG')}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleViewMessage(message)}
-                          >
-                            <Eye className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleDelete(message.id)}
-                            className="text-red-600 hover:text-red-700"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Message Detail Dialog */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>تفاصيل الرسالة</DialogTitle>
-          </DialogHeader>
-          {selectedMessage && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm font-medium text-gray-500">الاسم</p>
-                  <p className="text-lg">{selectedMessage.name}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-500">البريد الإلكتروني</p>
-                  <p className="text-lg">{selectedMessage.email}</p>
-                </div>
-                {selectedMessage.phone && (
-                  <div>
-                    <p className="text-sm font-medium text-gray-500">الهاتف</p>
-                    <p className="text-lg">{selectedMessage.phone}</p>
-                  </div>
-                )}
-                {selectedMessage.company && (
-                  <div>
-                    <p className="text-sm font-medium text-gray-500">الشركة</p>
-                    <p className="text-lg">{selectedMessage.company}</p>
-                  </div>
-                )}
-              </div>
-              {selectedMessage.subject && (
-                <div>
-                  <p className="text-sm font-medium text-gray-500">الموضوع</p>
-                  <p className="text-lg">{selectedMessage.subject}</p>
-                </div>
-              )}
-              <div>
-                <p className="text-sm font-medium text-gray-500">الرسالة</p>
-                <div className="bg-gray-50 p-4 rounded-lg mt-2">
-                  <p className="whitespace-pre-wrap">{selectedMessage.message}</p>
-                </div>
-              </div>
-              <div className="flex items-center justify-between pt-4 border-t">
-                <div className="flex items-center gap-4">
-                  <Badge className={getStatusColor(selectedMessage.status)}>
-                    {getStatusText(selectedMessage.status)}
-                  </Badge>
-                  <span className={`text-sm font-medium ${getPriorityColor(selectedMessage.priority || "medium")}`}>
-                    {getPriorityText(selectedMessage.priority || "medium")}
-                  </span>
-                </div>
-                <div className="text-sm text-gray-500">
-                  {new Date(selectedMessage.createdAt).toLocaleString('ar-EG')}
-                </div>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+      {filteredContactForms.length === 0 && !isLoading && (
+        <Card>
+          <CardContent className="p-12 text-center">
+            <Mail className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">لا توجد رسائل</h3>
+            <p className="text-gray-600 mb-6">لم يتم استلام أي رسائل تواصل بعد</p>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };

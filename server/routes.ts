@@ -43,20 +43,6 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  app.get('/api/services/:id', async (req, res) => {
-    try {
-      const id = parseInt(req.params.id);
-      const service = await storage.getService(id);
-      if (!service) {
-        return res.status(404).json({ message: "Service not found" });
-      }
-      res.json(service);
-    } catch (error) {
-      console.error("Error fetching service:", error);
-      res.status(500).json({ message: "Failed to fetch service" });
-    }
-  });
-
   app.post('/api/services', requireAuth, async (req, res) => {
     try {
       const validatedData = insertServiceSchema.parse(req.body);
@@ -80,18 +66,7 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  app.delete('/api/services/:id', requireAuth, async (req, res) => {
-    try {
-      const id = parseInt(req.params.id);
-      await storage.deleteService(id);
-      res.status(204).send();
-    } catch (error) {
-      console.error("Error deleting service:", error);
-      res.status(500).json({ message: "Failed to delete service" });
-    }
-  });
-
-  app.put('/api/services/:id', requireAuth, async (req, res) => {
+  app.patch('/api/services/:id', requireAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const validatedData = insertServiceSchema.partial().parse(req.body);

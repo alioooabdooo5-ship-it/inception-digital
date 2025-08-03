@@ -1,449 +1,230 @@
-
 import React, { useState } from "react";
-import { 
-  Pencil, 
-  Trash2, 
-  Plus, 
-  Search, 
-  User, 
-  Building, 
-  Star
-} from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Textarea } from "@/components/ui/textarea";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { useForm } from "react-hook-form";
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { queryClient } from "@/lib/queryClient";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
+import { Plus, Edit, Trash2, User, Building, Star } from "lucide-react";
+import type { Testimonial } from "@shared/schema";
 
 const TestimonialsManager = () => {
+  const [searchQuery, setSearchQuery] = useState("");
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
-  // جلب آراء العملاء من API
-  const { data: testimonials = [], isLoading, error } = useQuery({
-    queryKey: ["/api/testimonials"],
+  // Fetch testimonials
+  const { data: testimonials = [], isLoading } = useQuery<Testimonial[]>({
+    queryKey: ['/api/testimonials']
   });
 
-  // حذف شهادة
-  const deleteMutation = useMutation({
+  // Delete testimonial mutation
+  const deleteTestimonialMutation = useMutation({
     mutationFn: async (id: number) => {
-      const res = await fetch(`/api/testimonials/${id}`, {
-        method: "DELETE",
-      });
-      if (!res.ok) {
-        throw new Error("خطأ في حذف الشهادة");
-      }
+      await apiRequest("DELETE", `/api/testimonials/${id}`, {});
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/testimonials"] });
-      toast({
-        title: "تم بنجاح",
-        description: "تم حذف الشهادة بنجاح",
-      });
+      queryClient.invalidateQueries({ queryKey: ['/api/testimonials'] });
+      toast({ title: "تم حذف الشهادة بنجاح" });
     },
-    onError: () => {
-      toast({
-        title: "خطأ",
-        description: "حدث خطأ في حذف الشهادة",
-        variant: "destructive",
+    onError: (error) => {
+      toast({ 
+        title: "خطأ في حذف الشهادة", 
+        description: error.message,
+        variant: "destructive" 
       });
-    },
+    }
   });
 
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [currentTestimonial, setCurrentTestimonial] = useState(null);
+  const handleDelete = (id: number) => {
+    if (confirm("هل أنت متأكد من حذف هذه الشهادة؟")) {
+      deleteTestimonialMutation.mutate(id);
+    }
+  };
 
-  const form = useForm({
-    defaultValues: {
-      name: "",
-      position: "",
-      company: "",
-      image: "",
-      content: "",
-      rating: 5,
-    },
-  });
-
-  // فلترة الشهادات بناءً على البحث
-  const filteredTestimonials = testimonials.filter(
-    (testimonial: any) =>
-      testimonial.name.includes(searchQuery) ||
-      testimonial.company.includes(searchQuery) ||
-      testimonial.content.includes(searchQuery)
+  // Filter testimonials based on search
+  const filteredTestimonials = testimonials.filter(testimonial =>
+    testimonial.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    testimonial.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    testimonial.content.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleAddTestimonial = () => {
-    form.reset({
-      name: "",
-      position: "",
-      company: "",
-      image: "",
-      content: "",
-      rating: 5,
-    });
-    setIsAddDialogOpen(true);
+  // Helper function to render stars
+  const renderStars = (rating: number) => {
+    return Array.from({ length: 5 }, (_, i) => (
+      <Star
+        key={i}
+        className={`w-4 h-4 ${
+          i < rating ? 'text-yellow-400 fill-current' : 'text-gray-300'
+        }`}
+      />
+    ));
   };
 
-  const handleEditTestimonial = (testimonial) => {
-    setCurrentTestimonial(testimonial);
-    form.reset({
-      name: testimonial.name,
-      position: testimonial.position,
-      company: testimonial.company,
-      image: testimonial.image,
-      content: testimonial.content,
-      rating: testimonial.rating,
-    });
-    setIsEditDialogOpen(true);
-  };
-
-  const handleDeleteTestimonial = (id) => {
-    if (window.confirm("هل أنت متأكد من حذف هذه الشهادة؟")) {
-      setTestimonials(testimonials.filter((testimonial) => testimonial.id !== id));
-    }
-  };
-
-  const onSubmit = (data) => {
-    if (isEditDialogOpen && currentTestimonial) {
-      // تحديث شهادة موجودة
-      setTestimonials(
-        testimonials.map((testimonial) =>
-          testimonial.id === currentTestimonial.id
-            ? { ...testimonial, ...data }
-            : testimonial
-        )
-      );
-      setIsEditDialogOpen(false);
-    } else {
-      // إضافة شهادة جديدة
-      setTestimonials([
-        ...testimonials,
-        {
-          id: Date.now().toString(),
-          ...data,
-        },
-      ]);
-      setIsAddDialogOpen(false);
-    }
-    form.reset();
-  };
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h1 className="text-3xl font-bold text-gray-900">إدارة شهادات العملاء</h1>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[1, 2, 3].map((i) => (
+            <Card key={i} className="animate-pulse">
+              <CardContent className="p-6">
+                <div className="h-6 bg-gray-200 rounded mb-4"></div>
+                <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                <div className="h-4 bg-gray-200 rounded"></div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="bg-white rounded-lg border shadow-sm p-6">
-      <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
-        <h2 className="text-xl font-semibold text-inception-purple">إدارة الشهادات</h2>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">إدارة شهادات العملاء</h1>
+          <p className="text-gray-600 mt-2">إدارة وتعديل آراء وشهادات العملاء</p>
+        </div>
         
-        <div className="flex flex-col md:flex-row gap-4">
-          <div className="relative">
-            <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
-            <Input
-              placeholder="بحث عن شهادة..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pr-10 w-full md:w-[250px]"
-            />
-          </div>
-          
-          <Button onClick={handleAddTestimonial} className="bg-inception-purple hover:bg-inception-purple/90">
-            <Plus size={16} className="ml-1" />
-            إضافة شهادة جديدة
-          </Button>
+        <Button className="bg-inception-purple hover:bg-purple-700">
+          <Plus className="w-4 h-4 ml-2" />
+          إضافة شهادة جديدة
+        </Button>
+      </div>
+
+      {/* Search */}
+      <div className="flex gap-4">
+        <div className="flex-1">
+          <Input
+            placeholder="البحث في الشهادات..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
         </div>
       </div>
 
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>الصورة</TableHead>
-              <TableHead>الاسم</TableHead>
-              <TableHead className="hidden md:table-cell">المنصب والشركة</TableHead>
-              <TableHead className="hidden md:table-cell">المحتوى</TableHead>
-              <TableHead>التقييم</TableHead>
-              <TableHead>الإجراءات</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredTestimonials.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={6} className="text-center py-8 text-gray-500">
-                  لا توجد شهادات مطابقة للبحث
-                </TableCell>
-              </TableRow>
-            ) : (
-              filteredTestimonials.map((testimonial) => (
-                <TableRow key={testimonial.id}>
-                  <TableCell>
-                    <div className="w-10 h-10 rounded-full bg-gray-100 overflow-hidden">
-                      {testimonial.image ? (
-                        <img
-                          src={testimonial.image}
-                          alt={testimonial.name}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-gray-200">
-                          <User size={16} className="text-gray-400" />
-                        </div>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell className="font-medium">{testimonial.name}</TableCell>
-                  <TableCell className="hidden md:table-cell">
-                    <div>
-                      <span className="block">{testimonial.position}</span>
-                      <span className="text-gray-500 text-sm">{testimonial.company}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell className="hidden md:table-cell max-w-[300px] truncate">
-                    {testimonial.content}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex">
-                      {Array.from({ length: testimonial.rating }).map((_, i) => (
-                        <Star key={i} size={14} fill="#ff6600" className="text-inception-orange" />
-                      ))}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex space-x-2 space-x-reverse">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleEditTestimonial(testimonial)}
-                      >
-                        <Pencil size={16} className="text-blue-500" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleDeleteTestimonial(testimonial.id)}
-                      >
-                        <Trash2 size={16} className="text-red-500" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+      {/* Testimonials Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                <User className="w-6 h-6 text-blue-600" />
+              </div>
+              <div>
+                <h3 className="text-2xl font-bold text-gray-900">{testimonials.length}</h3>
+                <p className="text-gray-600">إجمالي الشهادات</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
+                <Star className="w-6 h-6 text-yellow-600" />
+              </div>
+              <div>
+                <h3 className="text-2xl font-bold text-gray-900">
+                  {testimonials.length > 0 
+                    ? (testimonials.reduce((acc, t) => acc + t.rating, 0) / testimonials.length).toFixed(1)
+                    : "0"
+                  }
+                </h3>
+                <p className="text-gray-600">متوسط التقييم</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                <Building className="w-6 h-6 text-green-600" />
+              </div>
+              <div>
+                <h3 className="text-2xl font-bold text-gray-900">
+                  {new Set(testimonials.map(t => t.company)).size}
+                </h3>
+                <p className="text-gray-600">الشركات المميزة</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
-      {/* نافذة إضافة شهادة جديدة */}
-      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-        <DialogContent className="sm:max-w-[600px]">
-          <DialogHeader>
-            <DialogTitle className="text-right">إضافة شهادة جديدة</DialogTitle>
-          </DialogHeader>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>الاسم</FormLabel>
-                    <FormControl>
-                      <Input placeholder="أدخل اسم العميل" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="position"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>المنصب</FormLabel>
-                      <FormControl>
-                        <Input placeholder="أدخل المنصب الوظيفي" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="company"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>الشركة</FormLabel>
-                      <FormControl>
-                        <Input placeholder="أدخل اسم الشركة" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+      {/* Testimonials List */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {filteredTestimonials.map((testimonial) => (
+          <Card key={testimonial.id} className="group hover:shadow-lg transition-all duration-300">
+            <CardHeader className="bg-gradient-to-r from-green-500 to-blue-600 text-white rounded-t-lg">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                  <User className="w-5 h-5" />
+                </div>
+                <div>
+                  <CardTitle className="text-lg font-bold">{testimonial.name}</CardTitle>
+                  <p className="text-sm opacity-90">{testimonial.position}</p>
+                </div>
               </div>
-              <FormField
-                control={form.control}
-                name="content"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>محتوى الشهادة</FormLabel>
-                    <FormControl>
-                      <Textarea placeholder="أدخل محتوى الشهادة" {...field} rows={4} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="image"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>رابط الصورة الشخصية</FormLabel>
-                    <FormControl>
-                      <Input placeholder="أدخل رابط الصورة" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="rating"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>التقييم (1-5)</FormLabel>
-                    <FormControl>
-                      <Input 
-                        type="number" 
-                        min="1" 
-                        max="5" 
-                        placeholder="أدخل التقييم" 
-                        {...field} 
-                        onChange={(e) => field.onChange(parseInt(e.target.value, 10))}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <DialogFooter>
-                <Button type="submit" className="bg-inception-purple hover:bg-inception-purple/90">
-                  إضافة الشهادة
-                </Button>
-              </DialogFooter>
-            </form>
-          </Form>
-        </DialogContent>
-      </Dialog>
+            </CardHeader>
+            <CardContent className="p-4">
+              <div className="mb-3">
+                <Badge variant="secondary" className="mb-2">
+                  {testimonial.company}
+                </Badge>
+                <div className="flex items-center gap-1">
+                  {renderStars(testimonial.rating)}
+                  <span className="text-sm text-gray-600 mr-2">{testimonial.rating}/5</span>
+                </div>
+              </div>
+              
+              <p className="text-gray-600 mb-4 line-clamp-3">{testimonial.content}</p>
 
-      {/* نافذة تعديل شهادة */}
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="sm:max-w-[600px]">
-          <DialogHeader>
-            <DialogTitle className="text-right">تعديل الشهادة</DialogTitle>
-          </DialogHeader>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>الاسم</FormLabel>
-                    <FormControl>
-                      <Input placeholder="أدخل اسم العميل" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="position"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>المنصب</FormLabel>
-                      <FormControl>
-                        <Input placeholder="أدخل المنصب الوظيفي" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="company"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>الشركة</FormLabel>
-                      <FormControl>
-                        <Input placeholder="أدخل اسم الشركة" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <FormField
-                control={form.control}
-                name="content"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>محتوى الشهادة</FormLabel>
-                    <FormControl>
-                      <Textarea placeholder="أدخل محتوى الشهادة" {...field} rows={4} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="image"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>رابط الصورة الشخصية</FormLabel>
-                    <FormControl>
-                      <Input placeholder="أدخل رابط الصورة" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="rating"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>التقييم (1-5)</FormLabel>
-                    <FormControl>
-                      <Input 
-                        type="number" 
-                        min="1" 
-                        max="5" 
-                        placeholder="أدخل التقييم" 
-                        {...field} 
-                        onChange={(e) => field.onChange(parseInt(e.target.value, 10))}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <DialogFooter>
-                <Button type="submit" className="bg-inception-purple hover:bg-inception-purple/90">
-                  حفظ التغييرات
+              <div className="flex gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="flex-1"
+                >
+                  <Edit className="w-4 h-4 ml-1" />
+                  تعديل
                 </Button>
-              </DialogFooter>
-            </form>
-          </Form>
-        </DialogContent>
-      </Dialog>
+
+                <Button 
+                  variant="destructive" 
+                  size="sm" 
+                  onClick={() => handleDelete(testimonial.id)}
+                  disabled={deleteTestimonialMutation.isPending}
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {filteredTestimonials.length === 0 && !isLoading && (
+        <Card>
+          <CardContent className="p-12 text-center">
+            <User className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">لا توجد شهادات</h3>
+            <p className="text-gray-600 mb-6">ابدأ بإضافة أول شهادة عميل</p>
+            <Button className="bg-inception-purple hover:bg-purple-700">
+              <Plus className="w-4 h-4 ml-2" />
+              إضافة شهادة جديدة
+            </Button>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };
