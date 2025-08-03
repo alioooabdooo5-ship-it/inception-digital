@@ -3,7 +3,7 @@ import { useLocation } from "wouter";
 import {
   Save, Eye, ArrowLeft, Image, Target, Globe, 
   Calendar, Clock, User, BarChart3, AlertCircle,
-  CheckCircle, Settings, Lightbulb, TrendingUp
+  CheckCircle, Settings, Lightbulb, TrendingUp, Plus
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -54,6 +54,14 @@ const EnhancedServiceEditor = () => {
   const [ogImage, setOgImage] = useState("");
   const [seoScore, setSeoScore] = useState(0);
   
+  // Enhanced Content states
+  const [portfolioItems, setPortfolioItems] = useState([]);
+  const [features, setFeatures] = useState([]);
+  const [processSteps, setProcessSteps] = useState([]);
+  const [testimonials, setTestimonials] = useState([]);
+  const [packages, setPackages] = useState([]);
+  const [faqs, setFaqs] = useState([]);
+  
   // UI states
   const [isPreview, setIsPreview] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -76,6 +84,16 @@ const EnhancedServiceEditor = () => {
       setCategory(existingService.category || "");
       setStats(existingService.stats || "");
       setGradient(existingService.gradient || "");
+      
+      // Enhanced Content fields
+      setPortfolioItems((existingService as any).portfolioItems || []);
+      setFeatures((existingService as any).features || []);
+      setProcessSteps((existingService as any).processSteps || []);
+      setTestimonials((existingService as any).testimonials || []);
+      setPackages((existingService as any).packages || []);
+      setFaqs((existingService as any).faqs || []);
+      
+      // SEO fields
       setMetaTitle((existingService as any).metaTitle || "");
       setMetaDescription((existingService as any).metaDescription || "");
       setFocusKeyword((existingService as any).focusKeyword || "");
@@ -169,6 +187,16 @@ const EnhancedServiceEditor = () => {
       category,
       stats,
       gradient,
+      
+      // Enhanced Content
+      portfolioItems,
+      features,
+      processSteps,
+      testimonials,
+      packages,
+      faqs,
+      
+      // SEO
       metaTitle: metaTitle || title,
       metaDescription: metaDescription || description,
       focusKeyword,
@@ -193,6 +221,68 @@ const EnhancedServiceEditor = () => {
     if (score >= 60) return "جيد";
     if (score >= 40) return "متوسط";
     return "يحتاج تحسين";
+  };
+
+  // Helper functions للعناصر الجديدة
+  const addPortfolioItem = () => {
+    setPortfolioItems([...portfolioItems, {
+      id: Date.now(),
+      title: "",
+      description: "",
+      image: "",
+      result: "",
+      clientName: ""
+    }]);
+  };
+
+  const addFeature = () => {
+    setFeatures([...features, {
+      id: Date.now(),
+      title: "",
+      description: "",
+      icon: ""
+    }]);
+  };
+
+  const addProcessStep = () => {
+    setProcessSteps([...processSteps, {
+      id: Date.now(),
+      step: processSteps.length + 1,
+      title: "",
+      description: "",
+      icon: ""
+    }]);
+  };
+
+  const addTestimonial = () => {
+    setTestimonials([...testimonials, {
+      id: Date.now(),
+      name: "",
+      position: "",
+      company: "",
+      content: "",
+      image: "",
+      rating: 5
+    }]);
+  };
+
+  const addPackage = () => {
+    setPackages([...packages, {
+      id: Date.now(),
+      name: "",
+      price: "",
+      description: "",
+      features: [],
+      highlighted: false
+    }]);
+  };
+
+  const addFaq = () => {
+    setFaqs([...faqs, {
+      id: Date.now(),
+      question: "",
+      answer: ""
+    }]);
   };
 
   return (
@@ -415,9 +505,11 @@ const EnhancedServiceEditor = () => {
               </CardHeader>
               <CardContent>
                 <Tabs defaultValue="basic" className="w-full">
-                  <TabsList className="grid w-full grid-cols-3">
+                  <TabsList className="grid w-full grid-cols-5 text-xs">
                     <TabsTrigger value="basic">أساسي</TabsTrigger>
-                    <TabsTrigger value="social">وسائل التواصل</TabsTrigger>
+                    <TabsTrigger value="content">المحتوى</TabsTrigger>
+                    <TabsTrigger value="portfolio">أعمالنا</TabsTrigger>
+                    <TabsTrigger value="social">التواصل</TabsTrigger>
                     <TabsTrigger value="analysis">التحليل</TabsTrigger>
                   </TabsList>
                   
@@ -471,6 +563,438 @@ const EnhancedServiceEditor = () => {
                         onChange={(e) => setCanonicalUrl(e.target.value)}
                         placeholder="https://example.com/service-url"
                       />
+                    </div>
+                  </TabsContent>
+
+                  {/* المحتوى المحسن */}
+                  <TabsContent value="content" className="space-y-4">
+                    <div>
+                      <div className="flex items-center justify-between mb-3">
+                        <Label className="text-lg font-semibold">المميزات</Label>
+                        <Button size="sm" variant="outline" onClick={addFeature}>
+                          <Plus className="w-4 h-4 ml-1" />
+                          إضافة ميزة
+                        </Button>
+                      </div>
+                      {features.length === 0 ? (
+                        <p className="text-gray-500 text-sm">لا توجد مميزات. اضغط لإضافة ميزة جديدة.</p>
+                      ) : (
+                        <div className="space-y-3">
+                          {features.map((feature, index) => (
+                            <div key={feature.id} className="border p-3 rounded bg-gray-50">
+                              <div className="grid grid-cols-2 gap-2 mb-2">
+                                <Input
+                                  placeholder="عنوان الميزة"
+                                  value={feature.title}
+                                  onChange={(e) => {
+                                    const updated = [...features];
+                                    updated[index] = { ...feature, title: e.target.value };
+                                    setFeatures(updated);
+                                  }}
+                                />
+                                <Input
+                                  placeholder="أيقونة (مثل: Star)"
+                                  value={feature.icon}
+                                  onChange={(e) => {
+                                    const updated = [...features];
+                                    updated[index] = { ...feature, icon: e.target.value };
+                                    setFeatures(updated);
+                                  }}
+                                />
+                              </div>
+                              <Textarea
+                                placeholder="وصف الميزة"
+                                value={feature.description}
+                                rows={2}
+                                onChange={(e) => {
+                                  const updated = [...features];
+                                  updated[index] = { ...feature, description: e.target.value };
+                                  setFeatures(updated);
+                                }}
+                              />
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                className="mt-2"
+                                onClick={() => setFeatures(features.filter((_, i) => i !== index))}
+                              >
+                                حذف
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    
+                    <Separator />
+                    
+                    <div>
+                      <div className="flex items-center justify-between mb-3">
+                        <Label className="text-lg font-semibold">خطوات العمل</Label>
+                        <Button size="sm" variant="outline" onClick={addProcessStep}>
+                          <Plus className="w-4 h-4 ml-1" />
+                          إضافة خطوة
+                        </Button>
+                      </div>
+                      {processSteps.length === 0 ? (
+                        <p className="text-gray-500 text-sm">لا توجد خطوات عمل. اضغط لإضافة خطوة جديدة.</p>
+                      ) : (
+                        <div className="space-y-3">
+                          {processSteps.map((step, index) => (
+                            <div key={step.id} className="border p-3 rounded bg-gray-50">
+                              <div className="grid grid-cols-3 gap-2 mb-2">
+                                <Input
+                                  placeholder="رقم الخطوة"
+                                  value={step.step}
+                                  type="number"
+                                  onChange={(e) => {
+                                    const updated = [...processSteps];
+                                    updated[index] = { ...step, step: parseInt(e.target.value) || 1 };
+                                    setProcessSteps(updated);
+                                  }}
+                                />
+                                <Input
+                                  placeholder="عنوان الخطوة"
+                                  value={step.title}
+                                  onChange={(e) => {
+                                    const updated = [...processSteps];
+                                    updated[index] = { ...step, title: e.target.value };
+                                    setProcessSteps(updated);
+                                  }}
+                                />
+                                <Input
+                                  placeholder="أيقونة"
+                                  value={step.icon}
+                                  onChange={(e) => {
+                                    const updated = [...processSteps];
+                                    updated[index] = { ...step, icon: e.target.value };
+                                    setProcessSteps(updated);
+                                  }}
+                                />
+                              </div>
+                              <Textarea
+                                placeholder="وصف الخطوة"
+                                value={step.description}
+                                rows={2}
+                                onChange={(e) => {
+                                  const updated = [...processSteps];
+                                  updated[index] = { ...step, description: e.target.value };
+                                  setProcessSteps(updated);
+                                }}
+                              />
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                className="mt-2"
+                                onClick={() => setProcessSteps(processSteps.filter((_, i) => i !== index))}
+                              >
+                                حذف
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    
+                    <Separator />
+                    
+                    <div>
+                      <div className="flex items-center justify-between mb-3">
+                        <Label className="text-lg font-semibold">الباقات والأسعار</Label>
+                        <Button size="sm" variant="outline" onClick={addPackage}>
+                          <Plus className="w-4 h-4 ml-1" />
+                          إضافة باقة
+                        </Button>
+                      </div>
+                      {packages.length === 0 ? (
+                        <p className="text-gray-500 text-sm">لا توجد باقات. اضغط لإضافة باقة جديدة.</p>
+                      ) : (
+                        <div className="space-y-3">
+                          {packages.map((pkg, index) => (
+                            <div key={pkg.id} className="border p-3 rounded bg-gray-50">
+                              <div className="grid grid-cols-2 gap-2 mb-2">
+                                <Input
+                                  placeholder="اسم الباقة"
+                                  value={pkg.name}
+                                  onChange={(e) => {
+                                    const updated = [...packages];
+                                    updated[index] = { ...pkg, name: e.target.value };
+                                    setPackages(updated);
+                                  }}
+                                />
+                                <Input
+                                  placeholder="السعر (مثل: 500 ريال)"
+                                  value={pkg.price}
+                                  onChange={(e) => {
+                                    const updated = [...packages];
+                                    updated[index] = { ...pkg, price: e.target.value };
+                                    setPackages(updated);
+                                  }}
+                                />
+                              </div>
+                              <Textarea
+                                placeholder="وصف الباقة"
+                                value={pkg.description}
+                                rows={2}
+                                onChange={(e) => {
+                                  const updated = [...packages];
+                                  updated[index] = { ...pkg, description: e.target.value };
+                                  setPackages(updated);
+                                }}
+                              />
+                              <div className="flex items-center mt-2 space-x-2 space-x-reverse">
+                                <Switch
+                                  checked={pkg.highlighted}
+                                  onCheckedChange={(checked) => {
+                                    const updated = [...packages];
+                                    updated[index] = { ...pkg, highlighted: checked };
+                                    setPackages(updated);
+                                  }}
+                                />
+                                <Label className="text-sm">باقة مميزة</Label>
+                              </div>
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                className="mt-2"
+                                onClick={() => setPackages(packages.filter((_, i) => i !== index))}
+                              >
+                                حذف
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    
+                    <Separator />
+                    
+                    <div>
+                      <div className="flex items-center justify-between mb-3">
+                        <Label className="text-lg font-semibold">الأسئلة الشائعة</Label>
+                        <Button size="sm" variant="outline" onClick={addFaq}>
+                          <Plus className="w-4 h-4 ml-1" />
+                          إضافة سؤال
+                        </Button>
+                      </div>
+                      {faqs.length === 0 ? (
+                        <p className="text-gray-500 text-sm">لا توجد أسئلة شائعة. اضغط لإضافة سؤال جديد.</p>
+                      ) : (
+                        <div className="space-y-3">
+                          {faqs.map((faq, index) => (
+                            <div key={faq.id} className="border p-3 rounded bg-gray-50">
+                              <Input
+                                placeholder="السؤال"
+                                value={faq.question}
+                                className="mb-2"
+                                onChange={(e) => {
+                                  const updated = [...faqs];
+                                  updated[index] = { ...faq, question: e.target.value };
+                                  setFaqs(updated);
+                                }}
+                              />
+                              <Textarea
+                                placeholder="الإجابة"
+                                value={faq.answer}
+                                rows={3}
+                                onChange={(e) => {
+                                  const updated = [...faqs];
+                                  updated[index] = { ...faq, answer: e.target.value };
+                                  setFaqs(updated);
+                                }}
+                              />
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                className="mt-2"
+                                onClick={() => setFaqs(faqs.filter((_, i) => i !== index))}
+                              >
+                                حذف
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </TabsContent>
+
+                  {/* سابقة الأعمال والشهادات */}
+                  <TabsContent value="portfolio" className="space-y-4">
+                    <div>
+                      <div className="flex items-center justify-between mb-3">
+                        <Label className="text-lg font-semibold">سابقة الأعمال</Label>
+                        <Button size="sm" variant="outline" onClick={addPortfolioItem}>
+                          <Plus className="w-4 h-4 ml-1" />
+                          إضافة مشروع
+                        </Button>
+                      </div>
+                      {portfolioItems.length === 0 ? (
+                        <p className="text-gray-500 text-sm">لا توجد مشاريع. اضغط لإضافة مشروع جديد.</p>
+                      ) : (
+                        <div className="space-y-3">
+                          {portfolioItems.map((item, index) => (
+                            <div key={item.id} className="border p-3 rounded bg-gray-50">
+                              <div className="grid grid-cols-2 gap-2 mb-2">
+                                <Input
+                                  placeholder="عنوان المشروع"
+                                  value={item.title}
+                                  onChange={(e) => {
+                                    const updated = [...portfolioItems];
+                                    updated[index] = { ...item, title: e.target.value };
+                                    setPortfolioItems(updated);
+                                  }}
+                                />
+                                <Input
+                                  placeholder="اسم العميل"
+                                  value={item.clientName}
+                                  onChange={(e) => {
+                                    const updated = [...portfolioItems];
+                                    updated[index] = { ...item, clientName: e.target.value };
+                                    setPortfolioItems(updated);
+                                  }}
+                                />
+                              </div>
+                              <div className="grid grid-cols-2 gap-2 mb-2">
+                                <Input
+                                  placeholder="رابط الصورة"
+                                  value={item.image}
+                                  onChange={(e) => {
+                                    const updated = [...portfolioItems];
+                                    updated[index] = { ...item, image: e.target.value };
+                                    setPortfolioItems(updated);
+                                  }}
+                                />
+                                <Input
+                                  placeholder="النتيجة المحققة"
+                                  value={item.result}
+                                  onChange={(e) => {
+                                    const updated = [...portfolioItems];
+                                    updated[index] = { ...item, result: e.target.value };
+                                    setPortfolioItems(updated);
+                                  }}
+                                />
+                              </div>
+                              <Textarea
+                                placeholder="وصف المشروع"
+                                value={item.description}
+                                rows={2}
+                                onChange={(e) => {
+                                  const updated = [...portfolioItems];
+                                  updated[index] = { ...item, description: e.target.value };
+                                  setPortfolioItems(updated);
+                                }}
+                              />
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                className="mt-2"
+                                onClick={() => setPortfolioItems(portfolioItems.filter((_, i) => i !== index))}
+                              >
+                                حذف
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    
+                    <Separator />
+                    
+                    <div>
+                      <div className="flex items-center justify-between mb-3">
+                        <Label className="text-lg font-semibold">آراء العملاء</Label>
+                        <Button size="sm" variant="outline" onClick={addTestimonial}>
+                          <Plus className="w-4 h-4 ml-1" />
+                          إضافة رأي
+                        </Button>
+                      </div>
+                      {testimonials.length === 0 ? (
+                        <p className="text-gray-500 text-sm">لا توجد آراء عملاء. اضغط لإضافة رأي جديد.</p>
+                      ) : (
+                        <div className="space-y-3">
+                          {testimonials.map((testimonial, index) => (
+                            <div key={testimonial.id} className="border p-3 rounded bg-gray-50">
+                              <div className="grid grid-cols-3 gap-2 mb-2">
+                                <Input
+                                  placeholder="اسم العميل"
+                                  value={testimonial.name}
+                                  onChange={(e) => {
+                                    const updated = [...testimonials];
+                                    updated[index] = { ...testimonial, name: e.target.value };
+                                    setTestimonials(updated);
+                                  }}
+                                />
+                                <Input
+                                  placeholder="المنصب"
+                                  value={testimonial.position}
+                                  onChange={(e) => {
+                                    const updated = [...testimonials];
+                                    updated[index] = { ...testimonial, position: e.target.value };
+                                    setTestimonials(updated);
+                                  }}
+                                />
+                                <Input
+                                  placeholder="الشركة"
+                                  value={testimonial.company}
+                                  onChange={(e) => {
+                                    const updated = [...testimonials];
+                                    updated[index] = { ...testimonial, company: e.target.value };
+                                    setTestimonials(updated);
+                                  }}
+                                />
+                              </div>
+                              <div className="grid grid-cols-2 gap-2 mb-2">
+                                <Input
+                                  placeholder="رابط صورة العميل"
+                                  value={testimonial.image}
+                                  onChange={(e) => {
+                                    const updated = [...testimonials];
+                                    updated[index] = { ...testimonial, image: e.target.value };
+                                    setTestimonials(updated);
+                                  }}
+                                />
+                                <Select 
+                                  value={testimonial.rating?.toString()} 
+                                  onValueChange={(value) => {
+                                    const updated = [...testimonials];
+                                    updated[index] = { ...testimonial, rating: parseInt(value) };
+                                    setTestimonials(updated);
+                                  }}
+                                >
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="التقييم" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="5">⭐⭐⭐⭐⭐ (5)</SelectItem>
+                                    <SelectItem value="4">⭐⭐⭐⭐ (4)</SelectItem>
+                                    <SelectItem value="3">⭐⭐⭐ (3)</SelectItem>
+                                    <SelectItem value="2">⭐⭐ (2)</SelectItem>
+                                    <SelectItem value="1">⭐ (1)</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              <Textarea
+                                placeholder="محتوى الرأي أو الشهادة"
+                                value={testimonial.content}
+                                rows={3}
+                                onChange={(e) => {
+                                  const updated = [...testimonials];
+                                  updated[index] = { ...testimonial, content: e.target.value };
+                                  setTestimonials(updated);
+                                }}
+                              />
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                className="mt-2"
+                                onClick={() => setTestimonials(testimonials.filter((_, i) => i !== index))}
+                              >
+                                حذف
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </TabsContent>
 

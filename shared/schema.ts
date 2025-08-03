@@ -49,6 +49,26 @@ export const services = pgTable("services", {
   category: text("category"),
   stats: text("stats"),
   gradient: text("gradient"),
+  
+  // Portfolio/Case Studies
+  portfolioItems: jsonb("portfolio_items"), // Array of portfolio examples
+  
+  // Features
+  features: jsonb("features"), // Array of service features
+  
+  // Process Steps
+  processSteps: jsonb("process_steps"), // Array of process steps
+  
+  // Client Testimonials
+  testimonials: jsonb("testimonials"), // Array of client testimonials
+  
+  // Pricing & Packages
+  packages: jsonb("packages"), // Service packages/pricing tiers
+  
+  // FAQ
+  faqs: jsonb("faqs"), // Frequently asked questions
+  
+  // SEO Fields
   metaTitle: text("meta_title"),
   metaDescription: text("meta_description"),
   focusKeyword: text("focus_keyword"),
