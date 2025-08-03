@@ -273,6 +273,64 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
+  // Media files routes
+  app.get('/api/media-files', async (req, res) => {
+    try {
+      const files = await storage.getMediaFiles();
+      res.json(files);
+    } catch (error) {
+      console.error("Error fetching media files:", error);
+      res.status(500).json({ message: "Failed to fetch media files" });
+    }
+  });
+
+  app.get('/api/media-files/:id', async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const file = await storage.getMediaFile(id);
+      if (!file) {
+        return res.status(404).json({ message: "Media file not found" });
+      }
+      res.json(file);
+    } catch (error) {
+      console.error("Error fetching media file:", error);
+      res.status(500).json({ message: "Failed to fetch media file" });
+    }
+  });
+
+  app.post('/api/media-files/upload', requireAuth, async (req, res) => {
+    try {
+      // في مشروع حقيقي، هنا ستكون معالجة رفع الملف
+      // للآن سنحاكي رفع الملف بتوليد بيانات وهمية
+      const mockFile = {
+        name: `uploaded-file-${Date.now()}.jpg`,
+        type: 'image/jpeg',
+        size: '2.5 MB',
+        url: `https://images.unsplash.com/photo-${Date.now()}?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600&q=80`,
+        dimensions: '800x600',
+        description: 'ملف تم رفعه حديثاً',
+        tags: ['جديد']
+      };
+      
+      const newFile = await storage.createMediaFile(mockFile);
+      res.status(201).json(newFile);
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      res.status(500).json({ message: "Failed to upload file" });
+    }
+  });
+
+  app.delete('/api/media-files/:id', requireAuth, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      await storage.deleteMediaFile(id);
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting media file:", error);
+      res.status(500).json({ message: "Failed to delete media file" });
+    }
+  });
+
   app.post('/api/contact-forms', async (req, res) => {
     try {
       const validatedData = insertContactFormSchema.parse(req.body);
