@@ -50,7 +50,7 @@ export default function AuthPage() {
 
   // Redirect if user is already authenticated (after all hooks)
   if (user) {
-    return <Redirect to="/" />;
+    return <Redirect to="/admin" />;
   }
 
   const onLogin = (data: any) => {

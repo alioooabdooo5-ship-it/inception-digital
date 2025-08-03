@@ -27,13 +27,36 @@ Preferred communication style: Simple, everyday language.
 ## Database Design
 - **ORM**: Drizzle ORM with PostgreSQL dialect
 - **Schema**: Centralized schema definition in `shared/schema.ts`
-- **Migrations**: Database migrations stored in `./migrations` directory
-- **Current Tables**: Users table with authentication fields (username, password)
+- **Migrations**: Database migrations managed via `npm run db:push`
+- **Current Tables**: 
+  - users (authentication with username/password)
+  - articles (content management)
+  - services (business services)
+  - industries (business sectors)
+  - books (digital publications)
+  - testimonials (client feedback)
+  - contact_forms (user inquiries)
+  - media_files (file management)
+  - settings (site configuration)
 
-## Content Management
-- **Admin Dashboard**: Comprehensive CMS for managing all site content
-- **Content Types**: Services, industries, testimonials, books, articles, media files
-- **SEO Management**: Built-in SEO optimization tools and meta tag management
+## Content Management & Admin System
+- **Admin Dashboard**: Comprehensive CMS with independent authentication system (username: admin, password: admin123)
+- **Modular Structure**: Each admin section has its own protected route and dedicated page component
+- **Admin Routes**: 
+  - `/admin` - Main dashboard with overview
+  - `/admin/articles` - Article management
+  - `/admin/services` - Service management  
+  - `/admin/industries` - Industry management
+  - `/admin/books` - Book management
+  - `/admin/testimonials` - Testimonial management
+  - `/admin/users` - User management
+  - `/admin/contact-forms` - Contact form management
+  - `/admin/media` - Media file management
+  - `/admin/seo` - SEO management tools
+  - `/admin/analytics` - Site analytics
+  - `/admin/settings` - Site configuration
+- **Authentication Flow**: Login redirects to `/admin` dashboard instead of home page
+- **Route Protection**: All admin routes require authentication before access
 - **Rich Content**: Support for rich text editing with images, tables, and formatting
 
 ## Development Workflow
