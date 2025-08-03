@@ -8,7 +8,9 @@ import {
   insertBookSchema,
   insertTestimonialSchema,
   insertArticleSchema,
-  insertContactFormSchema 
+  insertContactFormSchema,
+  insertMediaFileSchema,
+  insertSettingSchema
 } from "@shared/schema";
 import { seedDatabase } from "./seedData";
 
@@ -304,6 +306,84 @@ export function registerRoutes(app: Express): Server {
     } catch (error) {
       console.error("Error creating contact form:", error);
       res.status(500).json({ message: "Failed to create contact form" });
+    }
+  });
+
+  app.delete('/api/contact-forms/:id', requireAuth, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      await storage.deleteContactForm(id);
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting contact form:", error);
+      res.status(500).json({ message: "Failed to delete contact form" });
+    }
+  });
+
+  // Media files routes
+  app.get('/api/media-files', requireAuth, async (req, res) => {
+    try {
+      const mediaFiles = await storage.getMediaFiles();
+      res.json(mediaFiles);
+    } catch (error) {
+      console.error("Error fetching media files:", error);
+      res.status(500).json({ message: "Failed to fetch media files" });
+    }
+  });
+
+  app.post('/api/media-files', requireAuth, async (req, res) => {
+    try {
+      const validatedData = insertMediaFileSchema.parse(req.body);
+      const mediaFile = await storage.createMediaFile(validatedData);
+      res.status(201).json(mediaFile);
+    } catch (error) {
+      console.error("Error creating media file:", error);
+      res.status(500).json({ message: "Failed to create media file" });
+    }
+  });
+
+  app.delete('/api/media-files/:id', requireAuth, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      await storage.deleteMediaFile(id);
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting media file:", error);
+      res.status(500).json({ message: "Failed to delete media file" });
+    }
+  });
+
+  // Settings routes
+  app.get('/api/settings', requireAuth, async (req, res) => {
+    try {
+      const settings = await storage.getSettings();
+      res.json(settings);
+    } catch (error) {
+      console.error("Error fetching settings:", error);
+      res.status(500).json({ message: "Failed to fetch settings" });
+    }
+  });
+
+  app.post('/api/settings', requireAuth, async (req, res) => {
+    try {
+      const validatedData = insertSettingSchema.parse(req.body);
+      const setting = await storage.createSetting(validatedData);
+      res.status(201).json(setting);
+    } catch (error) {
+      console.error("Error creating setting:", error);
+      res.status(500).json({ message: "Failed to create setting" });
+    }
+  });
+
+  app.put('/api/settings/:id', requireAuth, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const validatedData = insertSettingSchema.partial().parse(req.body);
+      const setting = await storage.updateSetting(id, validatedData);
+      res.json(setting);
+    } catch (error) {
+      console.error("Error updating setting:", error);
+      res.status(500).json({ message: "Failed to update setting" });
     }
   });
 
