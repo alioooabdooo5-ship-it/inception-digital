@@ -3,6 +3,9 @@ import express from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, requireAuth } from "./auth";
+import { setupSecurity, sensitiveOperationLimiter } from "./security";
+import { setupAuditLogging } from "./audit";
+import { setupCSRF } from "./csrf";
 import { 
   upload, 
   processImage, 
@@ -25,6 +28,15 @@ import {
 import { seedDatabase } from "./seedData";
 
 export function registerRoutes(app: Express): Server {
+  // Setup security middleware first
+  setupSecurity(app);
+  
+  // Setup audit logging
+  setupAuditLogging(app);
+  
+  // Setup CSRF protection
+  setupCSRF(app);
+  
   // sets up /api/register, /api/login, /api/logout, /api/user
   setupAuth(app);
 
@@ -53,7 +65,7 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  app.post('/api/services', requireAuth, async (req, res) => {
+  app.post('/api/services', requireAuth, sensitiveOperationLimiter, async (req, res) => {
     try {
       const validatedData = insertServiceSchema.parse(req.body);
       const service = await storage.createService(validatedData);
@@ -88,7 +100,7 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  app.delete('/api/services/:id', requireAuth, async (req, res) => {
+  app.delete('/api/services/:id', requireAuth, sensitiveOperationLimiter, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       await storage.deleteService(id);

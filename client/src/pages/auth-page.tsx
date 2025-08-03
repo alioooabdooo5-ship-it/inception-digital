@@ -10,14 +10,21 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { insertUserSchema } from "@shared/schema";
 import { z } from "zod";
 import { Redirect } from "wouter";
+import { Eye, EyeOff } from "lucide-react";
 
 const loginSchema = z.object({
   username: z.string().min(1, "اسم المستخدم مطلوب"),
-  password: z.string().min(6, "كلمة المرور يجب أن تكون 6 أحرف على الأقل"),
+  password: z.string().min(8, "كلمة المرور يجب أن تكون 8 أحرف على الأقل")
+    .regex(/[A-Z]/, "يجب أن تحتوي على حرف كبير واحد على الأقل")
+    .regex(/[a-z]/, "يجب أن تحتوي على حرف صغير واحد على الأقل")
+    .regex(/[0-9]/, "يجب أن تحتوي على رقم واحد على الأقل"),
 });
 
 const registerSchema = insertUserSchema.extend({
-  password: z.string().min(6, "كلمة المرور يجب أن تكون 6 أحرف على الأقل"),
+  password: z.string().min(8, "كلمة المرور يجب أن تكون 8 أحرف على الأقل")
+    .regex(/[A-Z]/, "يجب أن تحتوي على حرف كبير واحد على الأقل")
+    .regex(/[a-z]/, "يجب أن تحتوي على حرف صغير واحد على الأقل")
+    .regex(/[0-9]/, "يجب أن تحتوي على رقم واحد على الأقل"),
   confirmPassword: z.string(),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "كلمات المرور غير متطابقة",
@@ -27,6 +34,8 @@ const registerSchema = insertUserSchema.extend({
 export default function AuthPage() {
   const { user, loginMutation, registerMutation } = useAuth();
   const [activeTab, setActiveTab] = useState("login");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const loginForm = useForm({
     resolver: zodResolver(loginSchema),
@@ -106,12 +115,26 @@ export default function AuthPage() {
 
                     <div className="space-y-2">
                       <Label htmlFor="password">كلمة المرور</Label>
-                      <Input
-                        id="password"
-                        type="password"
-                        {...loginForm.register("password")}
-                        disabled={loginMutation.isPending}
-                      />
+                      <div className="relative">
+                        <Input
+                          id="password"
+                          type={showPassword ? "text" : "password"}
+                          {...loginForm.register("password")}
+                          disabled={loginMutation.isPending}
+                          className="pr-10"
+                        />
+                        <button
+                          type="button"
+                          className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                          onClick={() => setShowPassword(!showPassword)}
+                        >
+                          {showPassword ? (
+                            <EyeOff className="h-4 w-4 text-gray-400" />
+                          ) : (
+                            <Eye className="h-4 w-4 text-gray-400" />
+                          )}
+                        </button>
+                      </div>
                       {loginForm.formState.errors.password && (
                         <p className="text-sm text-red-500">
                           {loginForm.formState.errors.password.message}
@@ -186,12 +209,26 @@ export default function AuthPage() {
 
                     <div className="space-y-2">
                       <Label htmlFor="regPassword">كلمة المرور</Label>
-                      <Input
-                        id="regPassword"
-                        type="password"
-                        {...registerForm.register("password")}
-                        disabled={registerMutation.isPending}
-                      />
+                      <div className="relative">
+                        <Input
+                          id="regPassword"
+                          type={showPassword ? "text" : "password"}
+                          {...registerForm.register("password")}
+                          disabled={registerMutation.isPending}
+                          className="pr-10"
+                        />
+                        <button
+                          type="button"
+                          className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                          onClick={() => setShowPassword(!showPassword)}
+                        >
+                          {showPassword ? (
+                            <EyeOff className="h-4 w-4 text-gray-400" />
+                          ) : (
+                            <Eye className="h-4 w-4 text-gray-400" />
+                          )}
+                        </button>
+                      </div>
                       {registerForm.formState.errors.password && (
                         <p className="text-sm text-red-500">
                           {registerForm.formState.errors.password.message}
@@ -201,12 +238,26 @@ export default function AuthPage() {
 
                     <div className="space-y-2">
                       <Label htmlFor="confirmPassword">تأكيد كلمة المرور</Label>
-                      <Input
-                        id="confirmPassword"
-                        type="password"
-                        {...registerForm.register("confirmPassword")}
-                        disabled={registerMutation.isPending}
-                      />
+                      <div className="relative">
+                        <Input
+                          id="confirmPassword"
+                          type={showConfirmPassword ? "text" : "password"}
+                          {...registerForm.register("confirmPassword")}
+                          disabled={registerMutation.isPending}
+                          className="pr-10"
+                        />
+                        <button
+                          type="button"
+                          className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        >
+                          {showConfirmPassword ? (
+                            <EyeOff className="h-4 w-4 text-gray-400" />
+                          ) : (
+                            <Eye className="h-4 w-4 text-gray-400" />
+                          )}
+                        </button>
+                      </div>
                       {registerForm.formState.errors.confirmPassword && (
                         <p className="text-sm text-red-500">
                           {registerForm.formState.errors.confirmPassword.message}
