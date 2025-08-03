@@ -1,11 +1,11 @@
 import React from "react";
 import AdminLayout from "@/components/AdminLayout";
-import SettingsManager from "@/components/dashboard/SettingsManager";
+import ContentManager from "@/components/dashboard/ContentManager";
 
 const AdminSettings = () => {
   return (
     <AdminLayout>
-      <SettingsManager />
+      <ContentManager />
     </AdminLayout>
   );
 };

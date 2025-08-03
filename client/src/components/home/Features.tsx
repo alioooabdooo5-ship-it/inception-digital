@@ -2,8 +2,10 @@
 import React from "react";
 import { Check, Zap, Target, TrendingUp } from "lucide-react";
 import AnimatedSection from "@/components/common/AnimatedSection";
+import { useSettings } from "@/hooks/useSettings";
 
 const Features: React.FC = () => {
+  const { getSetting } = useSettings('homepage');
   const features = [
     {
       icon: <Target size={26} />,
@@ -39,10 +41,10 @@ const Features: React.FC = () => {
       <div className="container mx-auto px-4 md:px-6">
         <AnimatedSection className="text-center max-w-3xl mx-auto mb-12">
           <h2 className="headline-medium text-inception-purple mb-4">
-            طيب، إيه اللي بيميزنا؟ <span className="text-inception-orange">ليه إنسيبشن مختلفة؟</span>
+            {getSetting('features_title') || 'طيب، إيه اللي بيميزنا؟ ليه إنسيبشن مختلفة؟'}
           </h2>
           <p className="body-medium text-gray-700">
-            لأن إحنا مش بنمشي على القوالب الجاهزة، ومش بنعتمد على "نجرب ونشوف". إحنا بنشتغل بتكتيكات تسويقية مجربة ومبنية على أرقام حقيقية.
+            {getSetting('features_description') || 'لأن إحنا مش بنمشي على القوالب الجاهزة، ومش بنعتمد على "نجرب ونشوف". إحنا بنشتغل بتكتيكات تسويقية مجربة ومبنية على أرقام حقيقية.'}
           </p>
         </AnimatedSection>
 

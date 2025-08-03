@@ -5,11 +5,13 @@ import IndustryCard from "@/components/ui/IndustryCard";
 import AnimatedSection from "@/components/common/AnimatedSection";
 import { useQuery } from "@tanstack/react-query";
 import type { Industry } from "@shared/schema";
+import { useSettings } from "@/hooks/useSettings";
 
 const Industries: React.FC = () => {
   const { data: industries = [], isLoading } = useQuery<Industry[]>({
     queryKey: ['/api/industries']
   });
+  const { getSetting } = useSettings('homepage');
 
   if (isLoading) {
     return (
@@ -32,10 +34,10 @@ const Industries: React.FC = () => {
       <div className="container mx-auto px-4 md:px-6">
         <AnimatedSection className="text-center max-w-3xl mx-auto mb-12">
           <h2 className="headline-medium text-inception-purple mb-4">
-            الصناعات اللي اشتغلنا فيها
+            {getSetting('industries_title') || 'الصناعات اللي اشتغلنا فيها'}
           </h2>
           <p className="body-medium text-gray-700">
-            هدفنا المبيعات، مش مجرد تسويق! كل صناعة ليها طريقتها الخاصة في البيع، ونجاح أي حملة تسويقية بيعتمد على إننا نعرف العميل بيقرر إزاي.
+            {getSetting('industries_description') || 'هدفنا المبيعات، مش مجرد تسويق! كل صناعة ليها طريقتها الخاصة في البيع، ونجاح أي حملة تسويقية بيعتمد على إننا نعرف العميل بيقرر إزاي.'}
           </p>
         </AnimatedSection>
 

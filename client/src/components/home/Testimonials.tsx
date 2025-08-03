@@ -4,11 +4,13 @@ import TestimonialCard from "@/components/ui/TestimonialCard";
 import AnimatedSection from "@/components/common/AnimatedSection";
 import { useQuery } from "@tanstack/react-query";
 import type { Testimonial } from "@shared/schema";
+import { useSettings } from "@/hooks/useSettings";
 
 const Testimonials: React.FC = () => {
   const { data: testimonials = [], isLoading } = useQuery<Testimonial[]>({
     queryKey: ['/api/testimonials']
   });
+  const { getSetting } = useSettings('homepage');
 
   if (isLoading) {
     return (
@@ -31,10 +33,10 @@ const Testimonials: React.FC = () => {
       <div className="container mx-auto px-4 md:px-6">
         <AnimatedSection className="text-center max-w-3xl mx-auto mb-12">
           <h2 className="headline-medium text-inception-purple mb-4">
-            آراء العملاء
+            {getSetting('testimonials_title') || 'آراء العملاء'}
           </h2>
           <p className="body-medium text-gray-700">
-            نحن نفخر بالنتائج التي نحققها لعملائنا، وهذه بعض آرائهم في تجربتهم معنا
+            {getSetting('testimonials_description') || 'نحن نفخر بالنتائج التي نحققها لعملائنا، وهذه بعض آرائهم في تجربتهم معنا'}
           </p>
         </AnimatedSection>
 

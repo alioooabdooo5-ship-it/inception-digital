@@ -15,11 +15,13 @@ import ServiceCard from "@/components/ui/ServiceCard";
 import AnimatedSection from "@/components/common/AnimatedSection";
 import { useQuery } from "@tanstack/react-query";
 import type { Service } from "@shared/schema";
+import { useSettings } from "@/hooks/useSettings";
 
 const Services: React.FC = () => {
   const { data: services = [], isLoading } = useQuery<Service[]>({
     queryKey: ['/api/services']
   });
+  const { getSetting } = useSettings('homepage');
 
   const getIconComponent = (iconName: string | null) => {
     if (!iconName) return <FontAwesomeIcon icon={faVideo} className="w-8 h-8" />;
@@ -56,10 +58,10 @@ const Services: React.FC = () => {
       <div className="container mx-auto px-4 md:px-6">
         <AnimatedSection className="text-center max-w-3xl mx-auto mb-12">
           <h2 className="headline-medium text-inception-purple mb-4">
-            الخدمات اللي بنقدمها
+            {getSetting('services_title') || 'الخدمات اللي بنقدمها'}
           </h2>
           <p className="body-medium text-gray-700">
-            مش مجرد تسويق، إحنا بنبني لك خطه توصلك لـــمبيعات حقيقية!
+            {getSetting('services_description') || 'مش مجرد تسويق، إحنا بنبني لك خطه توصلك لـــمبيعات حقيقية!'}
           </p>
         </AnimatedSection>
 

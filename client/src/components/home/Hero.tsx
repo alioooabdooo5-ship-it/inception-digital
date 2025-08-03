@@ -11,8 +11,23 @@ import {
   faRocket
 } from '@fortawesome/free-solid-svg-icons';
 import AnimatedSection from "@/components/common/AnimatedSection";
+import { useSettings } from "@/hooks/useSettings";
 
 const Hero: React.FC = () => {
+  const { getSetting, isLoading } = useSettings('homepage');
+
+  if (isLoading) {
+    return (
+      <section className="pt-32 pb-16 relative overflow-hidden">
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="flex items-center justify-center min-h-[400px]">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-inception-purple"></div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="pt-32 pb-16 relative overflow-hidden">
       {/* Background Pattern */}
@@ -24,10 +39,10 @@ const Hero: React.FC = () => {
           <div className="w-full lg:w-1/2 order-2 lg:order-1">
             <AnimatedSection variant="fade-in-right">
               <h1 className="headline-large text-inception-purple mb-6">
-                نحول <span className="text-inception-orange">التسويق</span> إلى <span className="text-inception-orange">مبيعات</span> حقيقية
+                {getSetting('hero_title') || 'نحول التسويق إلى مبيعات حقيقية'}
               </h1>
               <p className="body-large text-gray-700 mb-8">
-                لو بتدور على شركة مش بس بتعملك إعلانات، لكن بتديلك مبيعات فعلية، يبقى إنت في المكان الصح! إحنا في إنسيبشن مش بنشتغل تسويق تقليدي، إحنا بنبني لك نظام بيعي متكامل يجيب لك عملاء حقيقيين مستعدين يدفعوا.
+                {getSetting('hero_description') || 'لو بتدور على شركة مش بس بتعملك إعلانات، لكن بتديلك مبيعات فعلية، يبقى إنت في المكان الصح!'}
               </p>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
@@ -35,19 +50,19 @@ const Hero: React.FC = () => {
                   <div className="mt-1 w-6 h-6 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center flex-shrink-0 shadow-lg">
                     <FontAwesomeIcon icon={faCheckCircle} className="w-3 h-3 text-white" />
                   </div>
-                  <p className="text-gray-700">بنحط خطط تسويق بتركّز على تحقيق أعلى عائد استثماري (ROI)</p>
+                  <p className="text-gray-700">{getSetting('hero_feature_1') || 'بنحط خطط تسويق بتركّز على تحقيق أعلى عائد استثماري (ROI)'}</p>
                 </div>
                 <div className="flex items-start space-x-3 space-x-reverse">
                   <div className="mt-1 w-6 h-6 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center flex-shrink-0 shadow-lg">
                     <FontAwesomeIcon icon={faRocket} className="w-3 h-3 text-white" />
                   </div>
-                  <p className="text-gray-700">بنشتغل بمفاهيم البيع الحديث، اللي بتحول اهتمام العميل لإجراء شراء حقيقي</p>
+                  <p className="text-gray-700">{getSetting('hero_feature_2') || 'بنشتغل بمفاهيم البيع الحديث، اللي بتحول اهتمام العميل لإجراء شراء حقيقي'}</p>
                 </div>
                 <div className="flex items-start space-x-3 space-x-reverse">
                   <div className="mt-1 w-6 h-6 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center flex-shrink-0 shadow-lg">
                     <FontAwesomeIcon icon={faStar} className="w-3 h-3 text-white" />
                   </div>
-                  <p className="text-gray-700">بنقدم استراتيجيات متخصصة لكل مجال، مش حلول عامة وخلاص</p>
+                  <p className="text-gray-700">{getSetting('hero_feature_3') || 'بنقدم استراتيجيات متخصصة لكل مجال، مش حلول عامة وخلاص'}</p>
                 </div>
               </div>
 

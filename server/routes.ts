@@ -331,11 +331,34 @@ export function registerRoutes(app: Express): Server {
   // Settings routes
   app.get('/api/settings', requireAuth, async (req, res) => {
     try {
-      const settings = await storage.getSettings();
-      res.json(settings);
+      const { category } = req.query;
+      if (category) {
+        const settings = await storage.getSettingsByCategory(category as string);
+        res.json(settings);
+      } else {
+        const settings = await storage.getSettings();
+        res.json(settings);
+      }
     } catch (error) {
       console.error("Error fetching settings:", error);
       res.status(500).json({ message: "Failed to fetch settings" });
+    }
+  });
+
+  // Public settings endpoint for frontend
+  app.get('/api/public-settings', async (req, res) => {
+    try {
+      const { category } = req.query;
+      if (category) {
+        const settings = await storage.getSettingsByCategory(category as string);
+        res.json(settings);
+      } else {
+        const settings = await storage.getSettings();
+        res.json(settings);
+      }
+    } catch (error) {
+      console.error("Error fetching public settings:", error);
+      res.status(500).json({ message: "Failed to fetch public settings" });
     }
   });
 
