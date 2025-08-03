@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useLocation } from "wouter";
 import { 
   FileText, 
   Plus, 
@@ -32,8 +33,9 @@ const ArticlesManager = () => {
   const [filterStatus, setFilterStatus] = useState("all");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [currentArticle, setCurrentArticle] = useState<Article | null>(null);
+  const [currentArticle, setCurrentArticle] = useState<any>(null);
   const { toast } = useToast();
+  const [location, navigate] = useLocation();
 
   const form = useForm({
     resolver: zodResolver(insertArticleSchema),
@@ -48,7 +50,7 @@ const ArticlesManager = () => {
   });
 
   // جلب المقالات من API
-  const { data: articles = [], isLoading, error } = useQuery<Article[]>({
+  const { data: articles = [], isLoading, error } = useQuery<any[]>({
     queryKey: ["/api/articles"],
   });
 
@@ -121,6 +123,12 @@ const ArticlesManager = () => {
     },
   });
 
+  // فتح المحرر المتقدم للإضافة أو التعديل
+  const openAdvancedEditor = (article: any = null) => {
+    const url = article ? `/admin/article-editor?id=${article.id}` : '/admin/article-editor';
+    navigate(url);
+  };
+
   // حساب الإحصائيات من البيانات الحقيقية
   const stats = React.useMemo(() => {
     const totalArticles = articles.length;
@@ -169,13 +177,13 @@ const ArticlesManager = () => {
   };
 
   const handleAddArticle = () => {
-    // التوجه مباشرة لصفحة المحرر
-    window.location.href = '/admin/article-editor';
+    // استخدام المحرر المتقدم للإضافة
+    openAdvancedEditor();
   };
 
-  const handleEditArticle = (article: Article) => {
-    // التوجه لصفحة المحرر مع معرف المقال
-    window.location.href = `/admin/article-editor?id=${article.id}`;
+  const handleEditArticle = (article: any) => {
+    // استخدام المحرر المتقدم للتعديل
+    openAdvancedEditor(article);
   };
 
   const handleDeleteArticle = (id: number) => {
@@ -295,7 +303,7 @@ const ArticlesManager = () => {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  filteredArticles.map((article: Article) => (
+                  filteredArticles.map((article: any) => (
                     <TableRow key={article.id} className="hover:bg-gray-50">
                       <TableCell>
                         <div>
