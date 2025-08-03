@@ -14,6 +14,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useLocation } from "wouter";
 import type { Service } from "@shared/schema";
 
 interface ServicesManagerProps {
@@ -24,6 +25,7 @@ interface ServicesManagerProps {
 const ServicesManager: React.FC<ServicesManagerProps> = ({ onEditService, onCreateService }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const { toast } = useToast();
+  const [location, navigate] = useLocation();
 
   // جلب الخدمات من API
   const { data: services = [], isLoading, error } = useQuery<Service[]>({
@@ -66,12 +68,16 @@ const ServicesManager: React.FC<ServicesManagerProps> = ({ onEditService, onCrea
   const handleAddService = () => {
     if (onCreateService) {
       onCreateService();
+    } else {
+      navigate("/admin/enhanced-service-editor");
     }
   };
 
   const handleEditService = (service: Service) => {
     if (onEditService) {
       onEditService(service.id.toString());
+    } else {
+      navigate(`/admin/enhanced-service-editor?id=${service.id}`);
     }
   };
 

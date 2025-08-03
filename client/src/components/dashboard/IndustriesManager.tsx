@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
+import { useLocation } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
 import { Plus, Edit, Trash2, Building, TrendingUp } from "lucide-react";
 import type { Industry } from "@shared/schema";
@@ -13,6 +14,7 @@ const IndustriesManager = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [location, navigate] = useLocation();
 
   // Fetch industries
   const { data: industries = [], isLoading } = useQuery<Industry[]>({
@@ -78,7 +80,10 @@ const IndustriesManager = () => {
           <p className="text-gray-600 mt-2">إدارة وتعديل القطاعات والصناعات المستهدفة</p>
         </div>
         
-        <Button className="bg-inception-purple hover:bg-purple-700">
+        <Button 
+          onClick={() => navigate("/admin/enhanced-industry-editor")}
+          className="bg-inception-purple hover:bg-purple-700"
+        >
           <Plus className="w-4 h-4 ml-2" />
           إضافة صناعة جديدة
         </Button>
@@ -193,6 +198,7 @@ const IndustriesManager = () => {
                   variant="outline" 
                   size="sm" 
                   className="flex-1"
+                  onClick={() => navigate(`/admin/enhanced-industry-editor?id=${industry.id}`)}
                 >
                   <Edit className="w-4 h-4 ml-1" />
                   تعديل
@@ -218,7 +224,10 @@ const IndustriesManager = () => {
             <Building className="w-16 h-16 text-gray-400 mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-gray-900 mb-2">لا توجد صناعات</h3>
             <p className="text-gray-600 mb-6">ابدأ بإضافة أول صناعة مستهدفة</p>
-            <Button className="bg-inception-purple hover:bg-purple-700">
+            <Button 
+              onClick={() => navigate("/admin/enhanced-industry-editor")}
+              className="bg-inception-purple hover:bg-purple-700"
+            >
               <Plus className="w-4 h-4 ml-2" />
               إضافة صناعة جديدة
             </Button>
