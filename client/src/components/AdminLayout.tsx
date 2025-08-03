@@ -148,7 +148,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex">
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div 
@@ -159,11 +159,11 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
 
       {/* Sidebar */}
       <div className={`
-        fixed inset-y-0 right-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out
+        fixed inset-y-0 right-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out flex flex-col
         ${sidebarOpen ? 'translate-x-0' : 'translate-x-full'}
-        lg:translate-x-0 lg:static lg:inset-0
+        lg:relative lg:translate-x-0 lg:flex-shrink-0
       `}>
-        <div className="flex items-center justify-between h-16 px-6 border-b bg-gradient-to-r from-inception-purple to-purple-700">
+        <div className="flex items-center justify-between h-16 px-6 border-b bg-gradient-to-r from-inception-purple to-purple-700 flex-shrink-0">
           <h1 className="text-xl font-bold text-white">إنسيبشن</h1>
           <Button
             variant="ghost"
@@ -175,7 +175,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
           </Button>
         </div>
 
-        <nav className="mt-6 px-3">
+        <nav className="flex-1 mt-6 px-3 overflow-y-auto">
           {navigation.map((item) => (
             <div key={item.name} className="mb-2">
               {item.children ? (
@@ -223,7 +223,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
         </nav>
 
         {/* User info and logout */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t bg-gradient-to-r from-gray-50 to-gray-100">
+        <div className="p-4 border-t bg-gradient-to-r from-gray-50 to-gray-100 flex-shrink-0">
           <div className="flex items-center mb-4 p-3 bg-white rounded-lg shadow-sm">
             <div className="w-10 h-10 bg-gradient-to-r from-inception-purple to-purple-700 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-md">
               {user?.username.charAt(0).toUpperCase()}
@@ -247,9 +247,9 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
       </div>
 
       {/* Main content */}
-      <div className="lg:mr-64">
+      <div className="flex-1 flex flex-col min-w-0">
         {/* Top bar */}
-        <div className="bg-white shadow-lg border-b h-16 flex items-center justify-between px-6">
+        <div className="bg-white shadow-lg border-b h-16 flex items-center justify-between px-4 lg:px-6 flex-shrink-0">
           <Button
             variant="ghost"
             size="sm"
@@ -270,7 +270,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
         </div>
 
         {/* Page content */}
-        <main className="p-2 lg:p-4">
+        <main className="flex-1 p-3 lg:p-6 overflow-auto">
           {children}
         </main>
       </div>
