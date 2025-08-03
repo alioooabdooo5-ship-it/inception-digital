@@ -5,7 +5,9 @@ import ContentManager from "@/components/dashboard/ContentManager";
 const AdminSettings = () => {
   return (
     <AdminLayout>
-      <ContentManager />
+      <div className="min-h-screen bg-gray-50/30">
+        <ContentManager />
+      </div>
     </AdminLayout>
   );
 };
