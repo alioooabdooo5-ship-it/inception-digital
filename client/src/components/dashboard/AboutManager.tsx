@@ -6,20 +6,19 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Home, Save, Edit3 } from "lucide-react";
+import { Info, Target, Eye, Save } from "lucide-react";
 import type { Setting } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 
-const HeroManager = () => {
+const AboutManager = () => {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [editingSettings, setEditingSettings] = useState<{[key: string]: string}>({});
 
   // Fetch all settings
   const { data: settings = [], isLoading } = useQuery<Setting[]>({
     queryKey: ['/api/settings']
   });
-  
-  const queryClient = useQueryClient();
 
   // Update setting mutation
   const updateSettingMutation = useMutation({
@@ -36,7 +35,7 @@ const HeroManager = () => {
       queryClient.invalidateQueries({ queryKey: ['/api/public-settings'] });
       toast({
         title: "تم الحفظ",
-        description: "تم حفظ محتوى Hero بنجاح",
+        description: "تم حفظ محتوى صفحة من نحن بنجاح",
       });
     },
     onError: (error) => {
@@ -60,64 +59,69 @@ const HeroManager = () => {
     updateSettingMutation.mutate({ id: setting.id, value: newValue });
   };
 
-  // فلترة إعدادات Hero
-  const heroSettings = settings.filter(s => 
-    s.key.includes('hero_title') || 
-    s.key.includes('hero_description') || 
-    s.key.includes('hero_feature')
-  );
+  // فلترة إعدادات About
+  const aboutSettings = settings.filter(s => s.category === 'about');
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-inception-purple mx-auto"></div>
-          <p className="mt-4 text-gray-600">جاري تحميل إعدادات Hero...</p>
+          <p className="mt-4 text-gray-600">جاري تحميل إعدادات صفحة من نحن...</p>
         </div>
       </div>
     );
   }
 
+  const getIcon = (key: string) => {
+    if (key.includes('vision')) return <Eye className="w-5 h-5" />;
+    if (key.includes('mission')) return <Target className="w-5 h-5" />;
+    return <Info className="w-5 h-5" />;
+  };
+
   return (
     <div className="space-y-6">
       {/* رأس الصفحة */}
-      <div className="bg-gradient-to-r from-inception-purple to-inception-purple/80 rounded-xl p-6 text-white">
+      <div className="bg-gradient-to-r from-blue-600 to-blue-500 rounded-xl p-6 text-white">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold mb-2 flex items-center gap-3">
-              <Home className="w-8 h-8" />
-              إدارة قسم Hero الرئيسي
+              <Info className="w-8 h-8" />
+              إدارة صفحة من نحن
             </h1>
-            <p className="text-inception-purple-100 opacity-90">
-              العنوان الرئيسي، الوصف، والميزات الثلاث في أعلى الصفحة
+            <p className="text-blue-100 opacity-90">
+              تحكم في محتوى صفحة من نحن، الرؤية، المهمة، وقصة الشركة
             </p>
           </div>
           
           <Badge variant="secondary" className="bg-white/20 text-white border-0">
-            {heroSettings.length} عنصر
+            {aboutSettings.length} عنصر
           </Badge>
         </div>
       </div>
 
-      {/* إعدادات Hero */}
+      {/* إعدادات About */}
       <div className="space-y-4">
-        {heroSettings.length === 0 ? (
+        {aboutSettings.length === 0 ? (
           <Card className="border-dashed">
             <CardContent className="text-center py-12">
-              <Home className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">لا توجد إعدادات Hero</h3>
-              <p className="text-gray-600">قم بإضافة إعدادات Hero من قاعدة البيانات</p>
+              <Info className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">لا توجد إعدادات لصفحة من نحن</h3>
+              <p className="text-gray-600">قم بإضافة إعدادات صفحة من نحن من قاعدة البيانات</p>
             </CardContent>
           </Card>
         ) : (
-          heroSettings.map((setting) => (
-            <Card key={setting.id} className="border-l-4 border-l-inception-purple/20 hover:border-l-inception-purple transition-colors">
+          aboutSettings.map((setting) => (
+            <Card key={setting.id} className="border-l-4 border-l-blue-500/20 hover:border-l-blue-500 transition-colors">
               <CardContent className="p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
-                    <h3 className="font-medium text-gray-900 mb-1">
-                      {setting.description ?? setting.key}
-                    </h3>
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className="text-blue-600">{getIcon(setting.key)}</div>
+                      <h3 className="font-medium text-gray-900">
+                        {setting.description ?? setting.key}
+                      </h3>
+                    </div>
                     <Badge variant="outline" className="text-xs text-gray-500">
                       {setting.key}
                     </Badge>
@@ -126,7 +130,7 @@ const HeroManager = () => {
                     onClick={() => handleSave(setting)}
                     disabled={updateSettingMutation.isPending}
                     size="sm"
-                    className="bg-inception-purple hover:bg-inception-purple/90 text-white shrink-0"
+                    className="bg-blue-600 hover:bg-blue-700 text-white shrink-0"
                   >
                     <Save className="w-4 h-4 ml-2" />
                     {updateSettingMutation.isPending ? 'جاري الحفظ...' : 'حفظ'}
@@ -138,7 +142,7 @@ const HeroManager = () => {
                   <Textarea
                     value={editingSettings[setting.id] ?? setting.value}
                     onChange={(e) => handleValueChange(setting.id, e.target.value)}
-                    className="min-h-[120px] focus:border-inception-purple"
+                    className="min-h-[120px] focus:border-blue-500"
                     placeholder={setting.description ?? setting.key}
                   />
                 ) : (
@@ -146,7 +150,7 @@ const HeroManager = () => {
                     value={editingSettings[setting.id] ?? setting.value}
                     onChange={(e) => handleValueChange(setting.id, e.target.value)}
                     placeholder={setting.description ?? setting.key}
-                    className="focus:border-inception-purple"
+                    className="focus:border-blue-500"
                   />
                 )}
               </CardContent>
@@ -158,12 +162,12 @@ const HeroManager = () => {
       {/* نصائح */}
       <Card className="bg-blue-50/50 border-blue-200">
         <CardContent className="p-4">
-          <h3 className="font-semibold text-blue-900 mb-2">💡 نصائح لقسم Hero:</h3>
+          <h3 className="font-semibold text-blue-900 mb-2">💡 نصائح لصفحة من نحن:</h3>
           <ul className="text-sm text-blue-800 space-y-1">
-            <li>• العنوان الرئيسي يجب أن يكون جذاب ومختصر</li>
-            <li>• الوصف يوضح قيمة الشركة للعميل</li>
-            <li>• الميزات الثلاث تركز على نقاط القوة الأساسية</li>
-            <li>• استخدم HTML tags مثل &lt;span&gt; للتلوين</li>
+            <li>• اجعل قصة الشركة ملهمة وشخصية</li>
+            <li>• الرؤية تعبر عن الطموح المستقبلي</li>
+            <li>• المهمة توضح الهدف الحالي للشركة</li>
+            <li>• استخدم لغة تبني الثقة مع العميل</li>
           </ul>
         </CardContent>
       </Card>
@@ -171,4 +175,4 @@ const HeroManager = () => {
   );
 };
 
-export default HeroManager;
+export default AboutManager;

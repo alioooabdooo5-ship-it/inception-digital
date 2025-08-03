@@ -26,6 +26,9 @@ import AdminMedia from "./pages/admin/AdminMedia";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminSEO from "./pages/admin/AdminSEO";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
+import AdminHomeContent from "./pages/admin/AdminHomeContent";
+import AdminContactContent from "./pages/admin/AdminContactContent";
+import AdminAboutContent from "./pages/admin/AdminAboutContent";
 import AdminArticleEditor from "./pages/admin/AdminArticleEditor";
 import AdminServiceEditor from "./pages/admin/AdminServiceEditor";
 import AdminIndustryEditor from "./pages/admin/AdminIndustryEditor";
@@ -90,6 +93,9 @@ const App = () => {
               <ProtectedRoute path="/admin/seo" component={AdminSEO} />
               <ProtectedRoute path="/admin/analytics" component={AdminAnalytics} />
               <ProtectedRoute path="/admin/settings" component={AdminSettings} />
+              <ProtectedRoute path="/admin/content/home" component={AdminHomeContent} />
+              <ProtectedRoute path="/admin/content/contact" component={AdminContactContent} />
+              <ProtectedRoute path="/admin/content/about" component={AdminAboutContent} />
               
               {/* Catch-all route for 404 */}
               <Route component={NotFound} />
