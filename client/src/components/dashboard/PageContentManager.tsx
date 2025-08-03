@@ -2,8 +2,16 @@ import React, { useState, useEffect } from "react";
 import {
   Save, Eye, Edit3, Image, Link, Type, Layout, 
   Globe, Phone, Mail, Calendar, MapPin, Star,
-  Plus, Trash2, Move, Settings, Lightbulb, Target
+  Plus, Trash2, Move, Settings, Lightbulb, Target,
+  Wand2, Sparkles
 } from "lucide-react";
+import LivePreview from "./LivePreview";
+import AdvancedSectionEditor from "./AdvancedSectionEditor";
+import AutoSEOAnalyzer from "./AutoSEOAnalyzer";
+import ContentVersionManager from "./ContentVersionManager";
+import SmartNotificationCenter from "./SmartNotificationCenter";
+import ContentTemplateManager from "./ContentTemplateManager";
+import AIContentOptimizer from "./AIContentOptimizer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -75,6 +83,8 @@ const PageContentManager: React.FC<PageContentManagerProps> = ({ pageType }) => 
   const [selectedSection, setSelectedSection] = useState<string | null>(null);
   const [showMediaManager, setShowMediaManager] = useState(false);
   const [selectedImageField, setSelectedImageField] = useState<string>("");
+  const [showLivePreview, setShowLivePreview] = useState(false);
+  const [useAdvancedEditor, setUseAdvancedEditor] = useState(false);
 
   // Auto-save timer
   useEffect(() => {
@@ -372,9 +382,21 @@ const PageContentManager: React.FC<PageContentManagerProps> = ({ pageType }) => 
         </div>
         
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => setUseAdvancedEditor(!useAdvancedEditor)}
+          >
+            <Wand2 className="h-4 w-4 mr-2" />
+            {useAdvancedEditor ? 'محرر عادي' : 'محرر متطور'}
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => setShowLivePreview(true)}
+          >
             <Eye className="h-4 w-4 mr-2" />
-            معاينة
+            معاينة مباشرة
           </Button>
           <Button onClick={handleSave} disabled={saveMutation.isPending}>
             <Save className="h-4 w-4 mr-2" />
@@ -385,11 +407,16 @@ const PageContentManager: React.FC<PageContentManagerProps> = ({ pageType }) => 
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-4 lg:grid-cols-9">
           <TabsTrigger value="content">المحتوى</TabsTrigger>
           <TabsTrigger value="seo">السيو</TabsTrigger>
-          <TabsTrigger value="contact">بيانات الاتصال</TabsTrigger>
-          <TabsTrigger value="social">وسائل التواصل</TabsTrigger>
+          <TabsTrigger value="analysis">تحليل SEO</TabsTrigger>
+          <TabsTrigger value="ai-optimizer">AI محسن</TabsTrigger>
+          <TabsTrigger value="templates">القوالب</TabsTrigger>
+          <TabsTrigger value="versions">الإصدارات</TabsTrigger>
+          <TabsTrigger value="notifications">الإشعارات</TabsTrigger>
+          <TabsTrigger value="contact">الاتصال</TabsTrigger>
+          <TabsTrigger value="social">التواصل</TabsTrigger>
         </TabsList>
 
         {/* Content Tab */}
@@ -421,31 +448,53 @@ const PageContentManager: React.FC<PageContentManagerProps> = ({ pageType }) => 
                 <CardTitle className="flex items-center gap-2">
                   <Type className="h-5 w-5" />
                   أقسام الصفحة
+                  {useAdvancedEditor && (
+                    <Badge variant="secondary" className="text-xs">
+                      <Sparkles className="w-3 h-3 mr-1" />
+                      محرر متطور
+                    </Badge>
+                  )}
                 </CardTitle>
-                <div className="flex gap-2">
-                  <Button variant="outline" size="sm" onClick={() => addSection('hero')}>
-                    <Plus className="h-4 w-4 mr-1" />
-                    قسم رئيسي
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={() => addSection('text')}>
-                    <Plus className="h-4 w-4 mr-1" />
-                    نص
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={() => addSection('image')}>
-                    <Plus className="h-4 w-4 mr-1" />
-                    صورة
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={() => addSection('cta')}>
-                    <Plus className="h-4 w-4 mr-1" />
-                    دعوة للعمل
-                  </Button>
-                </div>
+                {!useAdvancedEditor && (
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" onClick={() => addSection('hero')}>
+                      <Plus className="h-4 w-4 mr-1" />
+                      قسم رئيسي
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => addSection('text')}>
+                      <Plus className="h-4 w-4 mr-1" />
+                      نص
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => addSection('image')}>
+                      <Plus className="h-4 w-4 mr-1" />
+                      صورة
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => addSection('cta')}>
+                      <Plus className="h-4 w-4 mr-1" />
+                      دعوة للعمل
+                    </Button>
+                  </div>
+                )}
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              {pageContent.sections
-                .sort((a, b) => a.order - b.order)
-                .map(renderSectionEditor)}
+              {useAdvancedEditor ? (
+                <AdvancedSectionEditor
+                  sections={pageContent.sections}
+                  onChange={(sections) => {
+                    setPageContent({ ...pageContent, sections });
+                    setIsEditing(true);
+                  }}
+                  onPreview={(section) => {
+                    console.log('Preview section:', section);
+                    setShowLivePreview(true);
+                  }}
+                />
+              ) : (
+                pageContent.sections
+                  .sort((a, b) => a.order - b.order)
+                  .map(renderSectionEditor)
+              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -492,6 +541,63 @@ const PageContentManager: React.FC<PageContentManagerProps> = ({ pageType }) => 
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* SEO Analysis Tab */}
+        <TabsContent value="analysis" className="space-y-6">
+          <AutoSEOAnalyzer
+            title={pageContent.title}
+            metaTitle={pageContent.metaTitle}
+            metaDescription={pageContent.metaDescription}
+            content={pageContent.sections.map(s => s.content).join(' ')}
+            sections={pageContent.sections}
+          />
+        </TabsContent>
+
+        {/* AI Content Optimizer Tab */}
+        <TabsContent value="ai-optimizer" className="space-y-6">
+          <AIContentOptimizer
+            content={pageContent.sections.map(s => s.content).join(' ')}
+            pageType={pageType}
+            onOptimize={(optimizations) => {
+              console.log('Applying AI optimizations:', optimizations);
+              toast({
+                title: "تم تطبيق تحسينات الذكاء الاصطناعي",
+                description: `تم تطبيق ${optimizations.length} تحسين`
+              });
+            }}
+          />
+        </TabsContent>
+
+        {/* Content Templates Tab */}
+        <TabsContent value="templates" className="space-y-6">
+          <ContentTemplateManager
+            onSelectTemplate={(template) => {
+              // تطبيق القالب على المحتوى الحالي
+              setPageContent(prev => ({
+                ...prev,
+                sections: template.structure.sections || prev.sections
+              }));
+              setIsEditing(true);
+            }}
+          />
+        </TabsContent>
+
+        {/* Versions Management Tab */}
+        <TabsContent value="versions" className="space-y-6">
+          <ContentVersionManager
+            pageType={pageType}
+            currentContent={pageContent}
+            onRestore={(content) => {
+              setPageContent(content);
+              setIsEditing(true);
+            }}
+          />
+        </TabsContent>
+
+        {/* Smart Notifications Tab */}
+        <TabsContent value="notifications" className="space-y-6">
+          <SmartNotificationCenter />
         </TabsContent>
 
         {/* Contact Tab */}
@@ -633,6 +739,15 @@ const PageContentManager: React.FC<PageContentManagerProps> = ({ pageType }) => 
           />
         </DialogContent>
       </Dialog>
+
+      {/* Live Preview */}
+      {pageContent && (
+        <LivePreview
+          pageContent={pageContent}
+          isVisible={showLivePreview}
+          onToggle={() => setShowLivePreview(!showLivePreview)}
+        />
+      )}
     </div>
   );
 };
