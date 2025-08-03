@@ -1,11 +1,11 @@
 import React from "react";
 import AdminLayout from "@/components/AdminLayout";
-import MediaManager from "@/components/dashboard/MediaManager";
+import EnhancedMediaManager from "@/components/dashboard/EnhancedMediaManager";
 
 const AdminMedia = () => {
   return (
     <AdminLayout>
-      <MediaManager />
+      <EnhancedMediaManager />
     </AdminLayout>
   );
 };

@@ -94,8 +94,7 @@ const MediaManager: React.FC<MediaManagerProps> = ({
   // حذف ملف
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
-      const response = await apiRequest('DELETE', `/api/media-files/${id}`);
-      return response;
+      return await apiRequest('DELETE', `/api/media-files/${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/media-files"] });

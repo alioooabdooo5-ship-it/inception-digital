@@ -1,7 +1,16 @@
 import type { Express } from "express";
+import express from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, requireAuth } from "./auth";
+import { 
+  upload, 
+  processImage, 
+  processFile, 
+  createThumbnail, 
+  formatFileSize, 
+  getFileType 
+} from "./upload";
 import { 
   insertServiceSchema,
   insertIndustrySchema,
@@ -298,25 +307,65 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  app.post('/api/media-files/upload', requireAuth, async (req, res) => {
+  app.post('/api/media-files/upload', requireAuth, upload.single('file'), async (req, res) => {
     try {
-      // في مشروع حقيقي، هنا ستكون معالجة رفع الملف
-      // للآن سنحاكي رفع الملف بتوليد بيانات وهمية
-      const mockFile = {
-        name: `uploaded-file-${Date.now()}.jpg`,
-        type: 'image/jpeg',
-        size: '2.5 MB',
-        url: `https://images.unsplash.com/photo-${Date.now()}?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600&q=80`,
-        dimensions: '800x600',
-        description: 'ملف تم رفعه حديثاً',
-        tags: ['جديد']
-      };
-      
-      const newFile = await storage.createMediaFile(mockFile);
+      if (!req.file) {
+        return res.status(400).json({ message: "لم يتم اختيار ملف" });
+      }
+
+      const { originalname, mimetype, buffer } = req.file;
+      const fileType = getFileType(mimetype);
+      let fileData: any;
+
+      if (fileType === 'image') {
+        // معالجة الصورة
+        const processed = await processImage(buffer, originalname);
+        const thumbnailFilename = await createThumbnail(buffer, processed.filename);
+        
+        fileData = {
+          name: originalname,
+          type: fileType,
+          size: formatFileSize(processed.size),
+          url: `/uploads/images/${processed.filename}`,
+          dimensions: processed.dimensions,
+          description: '',
+          tags: [],
+          thumbnail: `/uploads/thumbnails/${thumbnailFilename}`
+        };
+      } else {
+        // معالجة ملف عادي
+        const processed = await processFile(buffer, originalname, mimetype);
+        const folder = fileType === 'video' ? 'videos' : 'documents';
+        
+        fileData = {
+          name: originalname,
+          type: fileType,
+          size: formatFileSize(processed.size),
+          url: `/uploads/${folder}/${processed.filename}`,
+          dimensions: null,
+          description: '',
+          tags: []
+        };
+      }
+
+      const newFile = await storage.createMediaFile(fileData);
       res.status(201).json(newFile);
     } catch (error) {
       console.error("Error uploading file:", error);
-      res.status(500).json({ message: "Failed to upload file" });
+      res.status(500).json({ 
+        message: error instanceof Error ? error.message : "فشل في رفع الملف" 
+      });
+    }
+  });
+
+  app.put('/api/media-files/:id', requireAuth, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const updatedFile = await storage.updateMediaFile(id, req.body);
+      res.json(updatedFile);
+    } catch (error) {
+      console.error("Error updating media file:", error);
+      res.status(500).json({ message: "Failed to update media file" });
     }
   });
 
@@ -330,6 +379,9 @@ export function registerRoutes(app: Express): Server {
       res.status(500).json({ message: "Failed to delete media file" });
     }
   });
+
+  // تقديم الملفات المرفوعة
+  app.use('/uploads', express.static('uploads'));
 
   app.post('/api/contact-forms', async (req, res) => {
     try {
