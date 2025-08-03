@@ -55,17 +55,15 @@ const Index = () => {
     <div className="min-h-screen bg-white">
       <Header />
       <main>
-        {/* Dynamic content sections (if available) */}
-        {hasData && dynamicSections.length > 0 && (
-          <DynamicPageContent sections={dynamicSections} />
-        )}
+        {/* Always show original beautiful design with dynamic content integration */}
+        <Hero />
+        <Features />
         
-        {/* Fallback to default components if no dynamic content */}
-        {(!hasData || dynamicSections.length === 0) && (
-          <>
-            <Hero />
-            <Features />
-          </>
+        {/* Additional dynamic content sections (if available) */}
+        {hasData && dynamicSections.length > 0 && (
+          <div className="py-8">
+            <DynamicPageContent sections={dynamicSections.filter(s => s.type !== 'hero')} />
+          </div>
         )}
         
         {/* Always show these sections */}
