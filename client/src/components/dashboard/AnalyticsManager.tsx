@@ -1,230 +1,235 @@
 import React from "react";
-import { 
-  BarChart3, 
-  TrendingUp, 
-  Users, 
-  Eye, 
-  MousePointer,
-  Globe,
-  Smartphone,
-  Monitor,
-  Clock,
-  Calendar
-} from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
+import { TrendingUp, TrendingDown, Eye, Users, ArrowUpRight, ArrowDownRight } from "lucide-react";
 
 const AnalyticsManager = () => {
-  const stats = [
-    { 
-      label: "إجمالي الزيارات", 
-      value: "24,652", 
-      change: "+12.5%", 
-      trend: "up", 
-      color: "text-blue-600",
-      icon: Eye 
-    },
-    { 
-      label: "المستخدمين الفريدين", 
-      value: "8,431", 
-      change: "+8.2%", 
-      trend: "up", 
-      color: "text-green-600",
-      icon: Users 
-    },
-    { 
-      label: "معدل الارتداد", 
-      value: "24.3%", 
-      change: "-3.1%", 
-      trend: "down", 
-      color: "text-green-600",
-      icon: MousePointer 
-    },
-    { 
-      label: "متوسط وقت الجلسة", 
-      value: "4:32", 
-      change: "+15.4%", 
-      trend: "up", 
-      color: "text-purple-600",
-      icon: Clock 
-    }
-  ];
-
-  const topPages = [
-    { page: "/", views: 8432, percentage: 34.2 },
-    { page: "/services", views: 5621, percentage: 22.8 },
-    { page: "/industries", views: 3456, percentage: 14.0 },
-    { page: "/articles", views: 2843, percentage: 11.5 },
-    { page: "/contact", views: 2134, percentage: 8.7 },
-    { page: "/about", views: 1876, percentage: 7.6 },
-    { page: "/books", views: 290, percentage: 1.2 }
-  ];
-
-  const trafficSources = [
-    { source: "البحث المباشر", visitors: 9875, percentage: 40.1, color: "bg-blue-500" },
-    { source: "شبكات التواصل الاجتماعي", visitors: 6234, percentage: 25.3, color: "bg-pink-500" },
-    { source: "المواقع المرجعية", visitors: 4321, percentage: 17.5, color: "bg-green-500" },
-    { source: "الحملات الإعلانية", visitors: 2876, percentage: 11.7, color: "bg-orange-500" },
-    { source: "البريد الإلكتروني", visitors: 1346, percentage: 5.4, color: "bg-purple-500" }
-  ];
-
-  const deviceStats = [
-    { device: "الجوال", count: 14789, percentage: 60.0, icon: Smartphone },
-    { device: "سطح المكتب", count: 7396, percentage: 30.0, icon: Monitor },
-    { device: "التابلت", count: 2467, percentage: 10.0, icon: Globe }
-  ];
-
-  const recentActivity = [
-    { action: "زيارة جديدة", page: "/services", time: "منذ دقيقتين", location: "القاهرة، مصر" },
-    { action: "تحميل ملف", page: "/books", time: "منذ 5 دقائق", location: "الإسكندرية، مصر" },
-    { action: "إرسال نموذج", page: "/contact", time: "منذ 8 دقائق", location: "الجيزة، مصر" },
-    { action: "مشاركة مقال", page: "/articles", time: "منذ 12 دقيقة", location: "المنيا، مصر" },
-    { action: "زيارة جديدة", page: "/industries", time: "منذ 15 دقيقة", location: "أسوان، مصر" }
-  ];
-
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-inception-purple">التحليلات والإحصائيات</h2>
-        <div className="flex items-center space-x-2 space-x-reverse">
-          <Calendar className="w-5 h-5 text-gray-500" />
-          <span className="text-sm text-gray-600">آخر 30 يوم</span>
-        </div>
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900">إحصائيات الموقع</h1>
+        <p className="text-gray-600 mt-2">تتبع أداء الموقع والزيارات</p>
       </div>
 
-      {/* Main Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat, index) => (
-          <Card key={index} className="hover:shadow-lg transition-shadow">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <stat.icon className={`w-8 h-8 ${stat.color} opacity-70`} />
-                <div className={`flex items-center text-sm ${stat.trend === 'up' ? 'text-green-600' : 'text-red-600'}`}>
-                  {stat.trend === 'up' ? (
-                    <TrendingUp className="w-4 h-4 ml-1" />
-                  ) : (
-                    <TrendingUp className="w-4 h-4 ml-1 rotate-180" />
-                  )}
-                  {stat.change}
-                </div>
-              </div>
+      {/* Key Metrics */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">{stat.label}</p>
-                <p className={`text-2xl font-bold ${stat.color}`}>{stat.value}</p>
+                <p className="text-gray-600 text-sm font-medium">الزيارات اليوم</p>
+                <p className="text-2xl font-bold text-gray-900">2,847</p>
               </div>
-            </CardContent>
-          </Card>
-        ))}
+              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                <Eye className="w-6 h-6 text-blue-600" />
+              </div>
+            </div>
+            <div className="flex items-center mt-4 text-sm">
+              <ArrowUpRight className="w-4 h-4 text-green-500 mr-1" />
+              <span className="text-green-500 font-medium">+12.5%</span>
+              <span className="text-gray-600 mr-2">عن أمس</span>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-600 text-sm font-medium">زوار جدد</p>
+                <p className="text-2xl font-bold text-gray-900">1,234</p>
+              </div>
+              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                <Users className="w-6 h-6 text-green-600" />
+              </div>
+            </div>
+            <div className="flex items-center mt-4 text-sm">
+              <ArrowUpRight className="w-4 h-4 text-green-500 mr-1" />
+              <span className="text-green-500 font-medium">+8.2%</span>
+              <span className="text-gray-600 mr-2">عن أمس</span>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-600 text-sm font-medium">متوسط الوقت</p>
+                <p className="text-2xl font-bold text-gray-900">3:45</p>
+              </div>
+              <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                <TrendingUp className="w-6 h-6 text-purple-600" />
+              </div>
+            </div>
+            <div className="flex items-center mt-4 text-sm">
+              <ArrowDownRight className="w-4 h-4 text-red-500 mr-1" />
+              <span className="text-red-500 font-medium">-2.1%</span>
+              <span className="text-gray-600 mr-2">عن أمس</span>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-600 text-sm font-medium">معدل التحويل</p>
+                <p className="text-2xl font-bold text-gray-900">3.2%</p>
+              </div>
+              <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
+                <TrendingDown className="w-6 h-6 text-orange-600" />
+              </div>
+            </div>
+            <div className="flex items-center mt-4 text-sm">
+              <ArrowUpRight className="w-4 h-4 text-green-500 mr-1" />
+              <span className="text-green-500 font-medium">+0.5%</span>
+              <span className="text-gray-600 mr-2">عن أمس</span>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
+      {/* Top Pages */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Top Pages */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-xl font-bold text-inception-purple">أكثر الصفحات زيارة</CardTitle>
+            <CardTitle>الصفحات الأكثر زيارة</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {topPages.map((page, index) => (
-                <div key={index} className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="font-medium text-gray-900">{page.page}</span>
-                      <span className="text-sm text-gray-600">{page.views.toLocaleString()}</span>
-                    </div>
-                    <Progress value={page.percentage} className="h-2" />
-                  </div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-medium">الصفحة الرئيسية</p>
+                  <p className="text-sm text-gray-600">/</p>
                 </div>
-              ))}
+                <div className="text-right">
+                  <p className="font-bold">1,234</p>
+                  <p className="text-sm text-green-600">+12%</p>
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-medium">خدماتنا</p>
+                  <p className="text-sm text-gray-600">/services</p>
+                </div>
+                <div className="text-right">
+                  <p className="font-bold">892</p>
+                  <p className="text-sm text-green-600">+8%</p>
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-medium">من نحن</p>
+                  <p className="text-sm text-gray-600">/about</p>
+                </div>
+                <div className="text-right">
+                  <p className="font-bold">654</p>
+                  <p className="text-sm text-red-600">-3%</p>
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-medium">اتصل بنا</p>
+                  <p className="text-sm text-gray-600">/contact</p>
+                </div>
+                <div className="text-right">
+                  <p className="font-bold">432</p>
+                  <p className="text-sm text-green-600">+15%</p>
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Traffic Sources */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-xl font-bold text-inception-purple">مصادر الزيارات</CardTitle>
+            <CardTitle>مصادر الزيارات</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {trafficSources.map((source, index) => (
-                <div key={index} className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3 space-x-reverse flex-1">
-                    <div className={`w-3 h-3 rounded-full ${source.color}`}></div>
-                    <span className="font-medium text-gray-900">{source.source}</span>
-                  </div>
-                  <div className="text-left">
-                    <div className="font-semibold text-inception-purple">{source.visitors.toLocaleString()}</div>
-                    <div className="text-sm text-gray-600">{source.percentage}%</div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-medium">بحث جوجل</p>
+                  <p className="text-sm text-gray-600">البحث المجاني</p>
+                </div>
+                <div className="text-right">
+                  <p className="font-bold">45%</p>
+                  <div className="w-20 bg-gray-200 rounded-full h-2 mt-1">
+                    <div className="bg-blue-600 h-2 rounded-full" style={{ width: '45%' }}></div>
                   </div>
                 </div>
-              ))}
+              </div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-medium">زيارات مباشرة</p>
+                  <p className="text-sm text-gray-600">رابط مباشر</p>
+                </div>
+                <div className="text-right">
+                  <p className="font-bold">32%</p>
+                  <div className="w-20 bg-gray-200 rounded-full h-2 mt-1">
+                    <div className="bg-green-600 h-2 rounded-full" style={{ width: '32%' }}></div>
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-medium">وسائل التواصل</p>
+                  <p className="text-sm text-gray-600">فيسبوك، إنستغرام</p>
+                </div>
+                <div className="text-right">
+                  <p className="font-bold">18%</p>
+                  <div className="w-20 bg-gray-200 rounded-full h-2 mt-1">
+                    <div className="bg-purple-600 h-2 rounded-full" style={{ width: '18%' }}></div>
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-medium">أخرى</p>
+                  <p className="text-sm text-gray-600">مراجع أخرى</p>
+                </div>
+                <div className="text-right">
+                  <p className="font-bold">5%</p>
+                  <div className="w-20 bg-gray-200 rounded-full h-2 mt-1">
+                    <div className="bg-orange-600 h-2 rounded-full" style={{ width: '5%' }}></div>
+                  </div>
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Device Statistics */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-xl font-bold text-inception-purple">إحصائيات الأجهزة</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-6">
-              {deviceStats.map((device, index) => (
-                <div key={index} className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3 space-x-reverse">
-                    <device.icon className="w-6 h-6 text-inception-purple" />
-                    <span className="font-medium text-gray-900">{device.device}</span>
-                  </div>
-                  <div className="text-left">
-                    <div className="font-semibold text-inception-purple">{device.count.toLocaleString()}</div>
-                    <div className="text-sm text-gray-600">{device.percentage}%</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Recent Activity */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-xl font-bold text-inception-purple">النشاط الأخير</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {recentActivity.map((activity, index) => (
-                <div key={index} className="flex items-start space-x-3 space-x-reverse">
-                  <div className="w-2 h-2 bg-inception-orange rounded-full mt-2 flex-shrink-0"></div>
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between">
-                      <span className="font-medium text-gray-900">{activity.action}</span>
-                      <span className="text-xs text-gray-500">{activity.time}</span>
-                    </div>
-                    <div className="text-sm text-gray-600">{activity.page}</div>
-                    <div className="text-xs text-gray-500">{activity.location}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Performance Charts Placeholder */}
+      {/* Recent Activity */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-xl font-bold text-inception-purple">أداء الموقع عبر الوقت</CardTitle>
+          <CardTitle>النشاط الأخير</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="h-64 bg-gradient-to-br from-inception-purple/5 to-inception-orange/5 rounded-lg flex items-center justify-center">
-            <div className="text-center">
-              <BarChart3 className="w-16 h-16 text-inception-purple/50 mx-auto mb-4" />
-              <p className="text-gray-600">سيتم إضافة الرسوم البيانية هنا</p>
-              <p className="text-sm text-gray-500">بعد تكامل أدوات التحليل</p>
+          <div className="space-y-4">
+            <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
+              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+              <div className="flex-1">
+                <p className="font-medium">رسالة تواصل جديدة</p>
+                <p className="text-sm text-gray-600">من أحمد محمد - طلب عرض سعر</p>
+              </div>
+              <span className="text-sm text-gray-500">قبل 5 دقائق</span>
+            </div>
+            <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
+              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+              <div className="flex-1">
+                <p className="font-medium">زائر جديد من الرياض</p>
+                <p className="text-sm text-gray-600">تصفح صفحة الخدمات</p>
+              </div>
+              <span className="text-sm text-gray-500">قبل 12 دقيقة</span>
+            </div>
+            <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
+              <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+              <div className="flex-1">
+                <p className="font-medium">تحديث محتوى جديد</p>
+                <p className="text-sm text-gray-600">تم نشر مقال جديد</p>
+              </div>
+              <span className="text-sm text-gray-500">قبل ساعة</span>
             </div>
           </div>
         </CardContent>
