@@ -37,13 +37,11 @@ export function setupAuth(app: Express) {
     saveUninitialized: false,
     store: storage.sessionStore,
     cookie: {
-      secure: false, // Set to true only in production with HTTPS
+      secure: false,
       httpOnly: true,
-      maxAge: 24 * 60 * 60 * 1000, // 24 hours
-      sameSite: 'lax', // Allow cookies to be sent with navigation
-    },
-    rolling: true, // Reset expiration on activity
-    name: 'sessionId', // Change default session name
+      maxAge: 24 * 60 * 60 * 1000,
+      sameSite: 'lax'
+    }
   };
 
   app.set("trust proxy", 1);
@@ -87,18 +85,14 @@ export function setupAuth(app: Express) {
   );
 
   passport.serializeUser((user, done) => {
-    console.log('Serializing user:', user.id);
     done(null, user.id);
   });
   
   passport.deserializeUser(async (id: number, done) => {
     try {
-      console.log('Deserializing user ID:', id);
       const user = await storage.getUser(id);
-      console.log('Found user:', user ? 'Yes' : 'No');
       done(null, user);
     } catch (error) {
-      console.error('Error deserializing user:', error);
       done(error);
     }
   });
@@ -155,30 +149,23 @@ export function setupAuth(app: Express) {
           return next(err);
         }
         
-        // Regenerate session after successful login for security
-        req.session.regenerate((err: any) => {
+        // Save the session without regenerating to preserve passport data
+        req.session.save((err: any) => {
           if (err) {
             return next(err);
           }
           
-          // Save the session
-          req.session.save((err: any) => {
-            if (err) {
-              return next(err);
-            }
-            
-            logAuditEvent({
-              userId: user.id,
-              action: 'LOGIN_SUCCESS',
-              resource: 'auth',
-              details: { username: user.username },
-              ipAddress: req.ip || req.connection.remoteAddress || 'unknown',
-              userAgent: req.get('User-Agent') || 'unknown',
-              success: true
-            });
-            
-            res.status(200).json(user);
+          logAuditEvent({
+            userId: user.id,
+            action: 'LOGIN_SUCCESS',
+            resource: 'auth',
+            details: { username: user.username },
+            ipAddress: req.ip || req.connection.remoteAddress || 'unknown',
+            userAgent: req.get('User-Agent') || 'unknown',
+            success: true
           });
+          
+          res.status(200).json(user);
         });
       });
     })(req, res, next);
@@ -214,10 +201,6 @@ export function setupAuth(app: Express) {
   });
 
   app.get("/api/user", (req, res) => {
-    console.log('User route - isAuthenticated:', req.isAuthenticated());
-    console.log('User route - req.user:', req.user ? 'exists' : 'null');
-    console.log('User route - session:', req.session.passport);
-    
     if (!req.isAuthenticated()) {
       return res.sendStatus(401);
     }
