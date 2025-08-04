@@ -22,6 +22,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import type { Service } from "@shared/schema";
+import MediaUploader from "@/components/MediaUploader";
 
 // أنواع البيانات المحسنة
 interface PortfolioItem {
@@ -619,22 +620,16 @@ const EnhancedServiceEditor = () => {
                   <CardHeader>
                     <CardTitle>الوسائط والروابط</CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div>
-                      <Label>الصورة الرئيسية</Label>
-                      <Input
-                        value={image}
-                        onChange={(e) => setImage(e.target.value)}
-                        placeholder="رابط الصورة الرئيسية"
-                      />
-                      {image && (
-                        <img 
-                          src={image} 
-                          alt="معاينة" 
-                          className="w-full h-48 object-cover rounded-lg mt-2"
-                        />
-                      )}
-                    </div>
+                  <CardContent className="space-y-6">
+                    {/* محرر الوسائط المتقدم */}
+                    <MediaUploader
+                      label="الصورة الرئيسية للخدمة"
+                      currentImageUrl={image}
+                      currentVideoUrl={videoUrl}
+                      onImageUploaded={(url) => setImage(url)}
+                      onVideoUrlSet={(url) => setVideoUrl(url)}
+                      className="mb-4"
+                    />
 
                     <div>
                       <Label>الأيقونة</Label>
@@ -655,20 +650,11 @@ const EnhancedServiceEditor = () => {
                     </div>
 
                     <div>
-                      <Label>رابط الفيديو التوضيحي</Label>
-                      <Input
-                        value={videoUrl}
-                        onChange={(e) => setVideoUrl(e.target.value)}
-                        placeholder="رابط يوتيوب أو فيميو"
-                      />
-                    </div>
-
-                    <div>
-                      <Label>صورة مصغرة للفيديو</Label>
+                      <Label>صورة مصغرة للفيديو (اختيارية)</Label>
                       <Input
                         value={videoThumbnail}
                         onChange={(e) => setVideoThumbnail(e.target.value)}
-                        placeholder="رابط صورة الفيديو المصغرة"
+                        placeholder="رابط صورة الفيديو المصغرة أو سيتم انشاؤها تلقائياً"
                       />
                     </div>
                   </CardContent>
