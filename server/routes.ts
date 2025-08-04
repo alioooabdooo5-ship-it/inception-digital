@@ -40,10 +40,25 @@ export function registerRoutes(app: Express): Server {
   // Setup CSRF protection
   setupCSRF(app);
 
-  // Services routes
+  // Services routes with caching
+  let servicesCache: any = null;
+  let cacheTime = 0;
+  const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
   app.get('/api/services', async (req, res) => {
     try {
+      const now = Date.now();
+      
+      // Return cached data if still valid
+      if (servicesCache && (now - cacheTime) < CACHE_TTL) {
+        return res.json(servicesCache);
+      }
+      
+      // Fetch fresh data
       const services = await storage.getServices();
+      servicesCache = services;
+      cacheTime = now;
+      
       res.json(services);
     } catch (error) {
       console.error("Error fetching services:", error);
@@ -69,6 +84,10 @@ export function registerRoutes(app: Express): Server {
     try {
       const validatedData = insertServiceSchema.parse(req.body);
       const service = await storage.createService(validatedData);
+      
+      // Clear cache when creating
+      servicesCache = null;
+      
       res.status(201).json(service);
     } catch (error) {
       console.error("Error creating service:", error);
@@ -81,6 +100,10 @@ export function registerRoutes(app: Express): Server {
       const id = parseInt(req.params.id);
       const validatedData = insertServiceSchema.partial().parse(req.body);
       const service = await storage.updateService(id, validatedData);
+      
+      // Clear cache when updating
+      servicesCache = null;
+      
       res.json(service);
     } catch (error) {
       console.error("Error updating service:", error);
@@ -93,6 +116,10 @@ export function registerRoutes(app: Express): Server {
       const id = parseInt(req.params.id);
       const validatedData = insertServiceSchema.partial().parse(req.body);
       const service = await storage.updateService(id, validatedData);
+      
+      // Clear cache when updating
+      servicesCache = null;
+      
       res.json(service);
     } catch (error) {
       console.error("Error updating service:", error);
@@ -104,6 +131,10 @@ export function registerRoutes(app: Express): Server {
     try {
       const id = parseInt(req.params.id);
       await storage.deleteService(id);
+      
+      // Clear cache when deleting
+      servicesCache = null;
+      
       res.status(204).send();
     } catch (error) {
       console.error("Error deleting service:", error);
