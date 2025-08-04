@@ -39,128 +39,128 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
       name: "لوحة التحكم", 
       href: "/admin", 
       icon: LayoutDashboard,
-      color: "text-blue-600 bg-blue-50 hover:bg-blue-100"
+      color: "text-slate-700 bg-slate-50 hover:bg-slate-100"
     },
     { 
       name: "إدارة المحتوى",
       icon: FileText,
-      color: "text-purple-600",
+      color: "text-slate-600",
       children: [
         { 
           name: "المقالات", 
           href: "/admin/articles", 
           icon: FileText,
-          color: "text-blue-600 bg-blue-50 hover:bg-blue-100"
+          color: "text-slate-600 bg-slate-50 hover:bg-slate-100"
         },
         { 
           name: "محرر المقالات", 
           href: "/admin/article-editor", 
           icon: FileText,
-          color: "text-blue-700 bg-blue-100 hover:bg-blue-200"
+          color: "text-slate-700 bg-slate-100 hover:bg-slate-150"
         },
         { 
           name: "الخدمات", 
           href: "/admin/services", 
           icon: Briefcase,
-          color: "text-green-600 bg-green-50 hover:bg-green-100"
+          color: "text-slate-600 bg-slate-50 hover:bg-slate-100"
         },
         { 
           name: "محرر الخدمات", 
           href: "/admin/service-editor", 
           icon: Briefcase,
-          color: "text-green-700 bg-green-100 hover:bg-green-200"
+          color: "text-slate-700 bg-slate-100 hover:bg-slate-150"
         },
         { 
           name: "الصناعات", 
           href: "/admin/industries", 
           icon: Building,
-          color: "text-orange-600 bg-orange-50 hover:bg-orange-100"
+          color: "text-slate-600 bg-slate-50 hover:bg-slate-100"
         },
         { 
           name: "محرر الصناعات", 
           href: "/admin/industry-editor", 
           icon: Building,
-          color: "text-orange-700 bg-orange-100 hover:bg-orange-200"
+          color: "text-slate-700 bg-slate-100 hover:bg-slate-150"
         },
         { 
           name: "الكتب", 
           href: "/admin/books", 
           icon: BookOpen,
-          color: "text-pink-600 bg-pink-50 hover:bg-pink-100"
+          color: "text-slate-600 bg-slate-50 hover:bg-slate-100"
         },
         { 
           name: "آراء العملاء", 
           href: "/admin/testimonials", 
           icon: Star,
-          color: "text-yellow-600 bg-yellow-50 hover:bg-yellow-100"
+          color: "text-slate-600 bg-slate-50 hover:bg-slate-100"
         },
       ]
     },
     {
       name: "الصفحات",
       icon: FileText,
-      color: "text-purple-600",
+      color: "text-slate-600",
       children: [
         { 
           name: "محتوى الهوم بيج", 
           href: "/admin/content/home", 
           icon: Home,
-          color: "text-purple-600 bg-purple-50 hover:bg-purple-100"
+          color: "text-slate-600 bg-slate-50 hover:bg-slate-100"
         },
         { 
           name: "محتوى صفحة التواصل", 
           href: "/admin/content/contact", 
           icon: Phone,
-          color: "text-green-600 bg-green-50 hover:bg-green-100"
+          color: "text-slate-600 bg-slate-50 hover:bg-slate-100"
         },
         { 
           name: "محتوى صفحة من نحن", 
           href: "/admin/content/about", 
           icon: Info,
-          color: "text-blue-600 bg-blue-50 hover:bg-blue-100"
+          color: "text-slate-600 bg-slate-50 hover:bg-slate-100"
         },
       ]
     },
     {
       name: "إدارة النظام",
       icon: Settings,
-      color: "text-gray-600",
+      color: "text-slate-600",
       children: [
         { 
           name: "المستخدمين", 
           href: "/admin/users", 
           icon: Users,
-          color: "text-indigo-600 bg-indigo-50 hover:bg-indigo-100"
+          color: "text-slate-600 bg-slate-50 hover:bg-slate-100"
         },
         { 
           name: "نماذج التواصل", 
           href: "/admin/contact-forms", 
           icon: MessageSquare,
-          color: "text-purple-600 bg-purple-50 hover:bg-purple-100"
+          color: "text-slate-600 bg-slate-50 hover:bg-slate-100"
         },
         { 
           name: "إدارة الوسائط", 
           href: "/admin/media", 
           icon: Image,
-          color: "text-teal-600 bg-teal-50 hover:bg-teal-100"
+          color: "text-slate-600 bg-slate-50 hover:bg-slate-100"
         },
         { 
           name: "SEO المتطور", 
           href: "/admin/seo", 
           icon: Search,
-          color: "text-emerald-600 bg-emerald-50 hover:bg-emerald-100"
+          color: "text-slate-600 bg-slate-50 hover:bg-slate-100"
         },
         { 
           name: "التحليلات", 
           href: "/admin/analytics", 
           icon: BarChart3,
-          color: "text-cyan-600 bg-cyan-50 hover:bg-cyan-100"
+          color: "text-slate-600 bg-slate-50 hover:bg-slate-100"
         },
         { 
           name: "الإعدادات العامة", 
           href: "/admin/settings", 
           icon: Settings,
-          color: "text-gray-600 bg-gray-50 hover:bg-gray-100"
+          color: "text-slate-600 bg-slate-50 hover:bg-slate-100"
         },
       ]
     }
@@ -193,12 +193,12 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
         ${sidebarOpen ? 'translate-x-0' : 'translate-x-full'}
         lg:relative lg:translate-x-0 lg:flex-shrink-0
       `}>
-        <div className="flex items-center justify-between h-16 px-6 border-b bg-gradient-to-r from-inception-purple to-purple-700 flex-shrink-0">
+        <div className="flex items-center justify-between h-16 px-6 border-b bg-gradient-to-r from-slate-800 to-slate-700 flex-shrink-0">
           <h1 className="text-xl font-bold text-white">إنسيبشن</h1>
           <Button
             variant="ghost"
             size="sm"
-            className="lg:hidden text-white hover:bg-white/20"
+            className="lg:hidden text-white hover:bg-white/10"
             onClick={() => setSidebarOpen(false)}
           >
             <X className="w-5 h-5" />
@@ -210,7 +210,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
             <div key={item.name} className="mb-2">
               {item.children ? (
                 <div>
-                  <div className="flex items-center px-3 py-2 text-sm font-medium text-gray-700">
+                  <div className="flex items-center px-3 py-2 text-sm font-medium text-slate-600">
                     <item.icon className="ml-3 w-5 h-5" />
                     {item.name}
                   </div>
@@ -222,8 +222,8 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
                         className={`
                           flex items-center px-3 py-2 mx-2 text-sm rounded-lg transition-all duration-200
                           ${isActive(child.href) 
-                            ? 'bg-inception-purple text-white shadow-md transform scale-105' 
-                            : `${child.color} transition-all duration-200 hover:shadow-sm hover:transform hover:scale-105`
+                            ? 'bg-slate-700 text-white shadow-sm' 
+                            : `${child.color} transition-all duration-200 hover:shadow-sm`
                           }
                         `}
                       >
@@ -239,8 +239,8 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
                   className={`
                     flex items-center px-4 py-3 mx-2 text-sm font-medium rounded-lg transition-all duration-200
                     ${isActive(item.href) 
-                      ? 'bg-inception-purple text-white shadow-lg transform scale-105' 
-                      : `${item.color} transition-all duration-200 hover:shadow-md hover:transform hover:scale-105`
+                      ? 'bg-slate-700 text-white shadow-sm' 
+                      : `${item.color} transition-all duration-200 hover:shadow-sm`
                     }
                   `}
                 >
@@ -253,20 +253,20 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
         </nav>
 
         {/* User info and logout */}
-        <div className="p-4 border-t bg-gradient-to-r from-gray-50 to-gray-100 flex-shrink-0">
-          <div className="flex items-center mb-4 p-3 bg-white rounded-lg shadow-sm">
-            <div className="w-10 h-10 bg-gradient-to-r from-inception-purple to-purple-700 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-md">
+        <div className="p-4 border-t bg-slate-50 flex-shrink-0">
+          <div className="flex items-center mb-4 p-3 bg-white rounded-lg shadow-sm border border-slate-200">
+            <div className="w-10 h-10 bg-slate-600 rounded-full flex items-center justify-center text-white text-sm font-bold">
               {user?.username.charAt(0).toUpperCase()}
             </div>
             <div className="mr-3">
-              <p className="text-sm font-semibold text-gray-800">{user?.username}</p>
-              <p className="text-xs text-inception-purple font-medium">مدير النظام</p>
+              <p className="text-sm font-semibold text-slate-700">{user?.username}</p>
+              <p className="text-xs text-slate-500 font-medium">مدير النظام</p>
             </div>
           </div>
           <Button
             variant="outline"
             size="sm"
-            className="w-full border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 transition-all duration-200"
+            className="w-full border-slate-200 text-slate-600 hover:bg-slate-50 hover:border-slate-300 transition-all duration-200"
             onClick={handleLogout}
             disabled={logoutMutation.isPending}
           >
@@ -279,22 +279,22 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
       {/* Main content */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top bar */}
-        <div className="bg-white shadow-lg border-b h-16 flex items-center justify-between px-4 lg:px-6 flex-shrink-0">
+        <div className="bg-white shadow-sm border-b h-16 flex items-center justify-between px-4 lg:px-6 flex-shrink-0">
           <Button
             variant="ghost"
             size="sm"
-            className="lg:hidden text-inception-purple hover:bg-purple-50"
+            className="lg:hidden text-slate-600 hover:bg-slate-50"
             onClick={() => setSidebarOpen(true)}
           >
             <Menu className="w-5 h-5" />
           </Button>
           
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-3 bg-gradient-to-r from-inception-purple/10 to-purple-100 px-4 py-2 rounded-full">
-              <div className="w-8 h-8 bg-gradient-to-r from-inception-purple to-purple-700 rounded-full flex items-center justify-center text-white text-xs font-bold">
+            <div className="flex items-center gap-3 bg-slate-50 px-4 py-2 rounded-lg border border-slate-200">
+              <div className="w-8 h-8 bg-slate-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
                 {user?.username.charAt(0).toUpperCase()}
               </div>
-              <span className="text-sm font-medium text-inception-purple">مرحباً، {user?.username}</span>
+              <span className="text-sm font-medium text-slate-700">مرحباً، {user?.username}</span>
             </div>
           </div>
         </div>
