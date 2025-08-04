@@ -230,8 +230,12 @@ const EnhancedServiceEditor = () => {
         return res;
       }
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      // Invalidate both services list and specific service query
       queryClient.invalidateQueries({ queryKey: ["/api/services"] });
+      if (isEditing && serviceId) {
+        queryClient.invalidateQueries({ queryKey: ["/api/services", serviceId] });
+      }
       toast({
         title: "تم الحفظ بنجاح",
         description: isEditing ? "تم تحديث الخدمة" : "تم إنشاء الخدمة الجديدة",
