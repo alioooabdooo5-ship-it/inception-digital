@@ -275,64 +275,62 @@ const Articles = () => {
                   <p className="text-xl text-gray-600">لا توجد مقالات مطابقة للبحث</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div className="space-y-8">
                   {regularArticles.map((article) => (
-                    <Card key={article.id} className="overflow-hidden shadow-lg hover:shadow-xl transition-all duration-500 group hover:-translate-y-2">
-                      <div className="relative h-48 overflow-hidden">
-                        <img 
-                          src={article.image || 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600&q=80'}
-                          alt={article.title}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                        />
-                        <div className="absolute top-4 right-4">
-                          <Badge className="bg-inception-purple/90 text-white text-xs">
-                            {article.categoryName || 'نصائح'}
-                          </Badge>
-                        </div>
-                        <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg px-3 py-1">
-                          <div className="flex items-center text-xs text-gray-600">
-                            <Eye className="w-3 h-3 ml-1" />
-                            {article.views || Math.floor(Math.random() * 1000) + 100} مشاهدة
+                    <Link key={article.id} to={`/articles/${article.id}`} className="block">
+                      <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 group cursor-pointer">
+                        <div className="flex flex-col md:flex-row">
+                          {/* صورة المقال */}
+                          <div className="md:w-1/3 relative h-64 md:h-48 overflow-hidden">
+                            <img 
+                              src={article.image || 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600&q=80'}
+                              alt={article.title}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            />
+                            <div className="absolute top-4 right-4">
+                              <Badge className="bg-inception-orange text-white text-xs">
+                                {article.categoryName || 'مقالات تقنية'}
+                              </Badge>
+                            </div>
                           </div>
+                          
+                          {/* محتوى المقال */}
+                          <CardContent className="md:w-2/3 p-6 flex flex-col justify-between">
+                            <div>
+                              <h3 className="text-2xl font-bold text-inception-purple mb-3 group-hover:text-inception-orange transition-colors duration-300 line-clamp-2">
+                                {article.title}
+                              </h3>
+                              
+                              <p className="text-gray-600 mb-4 leading-relaxed line-clamp-3 text-base">
+                                {article.excerpt || 'اكتشف أحدث الاستراتيجيات والنصائح في عالم التسويق الرقمي والتطوير التقني من خبراء إنسيبشن'}
+                              </p>
+                            </div>
+                            
+                            <div className="flex items-center justify-between text-sm text-gray-500">
+                              <div className="flex items-center space-x-4 space-x-reverse">
+                                <div className="flex items-center">
+                                  <User className="w-4 h-4 ml-1" />
+                                  <span>{article.author || 'فريق إنسيبشن'}</span>
+                                </div>
+                                <div className="flex items-center">
+                                  <Clock className="w-4 h-4 ml-1" />
+                                  <span>{article.readTime || '5 دقائق قراءة'}</span>
+                                </div>
+                                <div className="flex items-center">
+                                  <Eye className="w-4 h-4 ml-1" />
+                                  <span>{article.views || Math.floor(Math.random() * 1000) + 100} مشاهدة</span>
+                                </div>
+                              </div>
+                              
+                              <div className="flex items-center text-inception-purple group-hover:text-inception-orange transition-colors">
+                                <span className="ml-2 font-medium">تفاصيل المقال</span>
+                                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                              </div>
+                            </div>
+                          </CardContent>
                         </div>
-                      </div>
-                      
-                      <CardContent className="p-6">
-                        <h3 className="text-xl font-bold text-inception-purple mb-3 group-hover:text-inception-orange transition-colors leading-tight line-clamp-2">
-                          {article.title}
-                        </h3>
-                        
-                        <p className="text-gray-700 mb-4 leading-relaxed line-clamp-3">
-                          {article.excerpt}
-                        </p>
-                        
-                        <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
-                          <div className="flex items-center">
-                            <User className="w-4 h-4 ml-1" />
-                            {article.author || 'إنسيبشن'}
-                          </div>
-                          <div className="flex items-center">
-                            <Clock className="w-4 h-4 ml-1" />
-                            {article.readTime || '3 دقائق'}
-                          </div>
-                        </div>
-                        
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs text-gray-500">
-                            {new Date(article.createdAt || Date.now()).toLocaleDateString('ar-EG')}
-                          </span>
-                          <Link to={`/articles/${article.id}`}>
-                            <Button 
-                              variant="ghost"
-                              className="text-inception-purple hover:text-inception-orange hover:bg-inception-purple/5 p-0 h-auto font-semibold group/link"
-                            >
-                              <span className="ml-1">اقرأ المزيد</span>
-                              <ArrowRight className="w-4 h-4 transition-transform group-hover/link:translate-x-1" />
-                            </Button>
-                          </Link>
-                        </div>
-                      </CardContent>
-                    </Card>
+                      </Card>
+                    </Link>
                   ))}
                 </div>
               )}

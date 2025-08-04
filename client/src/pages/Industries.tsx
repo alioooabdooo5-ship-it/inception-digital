@@ -202,11 +202,15 @@ const Industries = () => {
                   delay={index * 200}
                   className="group"
                 >
-                  <div 
-                    className="relative overflow-hidden rounded-3xl bg-white shadow-xl hover:shadow-2xl transition-all duration-700 hover:-translate-y-3 cursor-pointer"
-                    onMouseEnter={() => setActiveCard(industry.id)}
-                    onMouseLeave={() => setActiveCard(null)}
+                  <Link 
+                    to={`/industries/${industry.id}`}
+                    className="block cursor-pointer"
                   >
+                    <div 
+                      className="relative overflow-hidden rounded-3xl bg-white shadow-xl hover:shadow-2xl transition-all duration-700 hover:-translate-y-3"
+                      onMouseEnter={() => setActiveCard(industry.id)}
+                      onMouseLeave={() => setActiveCard(null)}
+                    >
                     {/* Image Section with Fixed Size */}
                     <div className="relative h-80 overflow-hidden">
                       <div className={`absolute inset-0 bg-gradient-to-br ${industry.gradient} ${activeCard === industry.id ? 'opacity-90' : 'opacity-75'} transition-opacity duration-500`} />
@@ -268,23 +272,21 @@ const Industries = () => {
                       </div>
                       
                       <div className="flex items-center justify-between">
-                        <Link 
-                          to={`/industries/${industry.id}`}
-                          className="inline-flex items-center text-inception-purple hover:text-inception-orange font-semibold transition-all duration-300 group/link"
-                        >
+                        <div className="inline-flex items-center text-inception-purple group-hover:text-inception-orange font-semibold transition-all duration-300">
                           <span className="ml-2">تفاصيل الصناعة</span>
-                          <ArrowUpRight className="w-5 h-5 transition-transform group-hover/link:translate-x-1 group-hover/link:-translate-y-1" />
-                        </Link>
+                          <ArrowUpRight className="w-5 h-5 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
+                        </div>
                         
-                        <button className="p-2 text-gray-400 hover:text-inception-purple transition-colors">
+                        <div className="p-2 text-gray-400 group-hover:text-inception-purple transition-colors">
                           <ExternalLink className="w-5 h-5" />
-                        </button>
+                        </div>
                       </div>
                     </div>
 
                     {/* Gradient Border Effect */}
                     <div className={`absolute inset-0 rounded-3xl transition-all duration-500 ${activeCard === industry.id ? `bg-gradient-to-r ${industry.bgGradient} opacity-20` : 'opacity-0'} pointer-events-none`} />
-                  </div>
+                    </div>
+                  </Link>
                 </AnimatedSection>
               ))}
             </div>

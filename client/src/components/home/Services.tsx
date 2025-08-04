@@ -73,48 +73,50 @@ const Services: React.FC = () => {
               delay={index * 100}
               className="group"
             >
-              <div className="relative overflow-hidden rounded-2xl bg-white shadow-lg hover:shadow-xl transition-all duration-500 hover:-translate-y-2">
-                {/* Image Section with Fixed Size */}
-                <div className="relative h-48 overflow-hidden">
-                  <div className={`absolute inset-0 bg-gradient-to-br ${service.gradient} opacity-80`} />
-                  <img 
-                    src={service.image || "/lovable-uploads/6b7d5f55-0ca7-45cb-9463-f8a6eb07d7d4.png"}
-                    alt={service.title}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                  />
-                  
-                  {/* Floating Icon */}
-                  <div className="absolute top-4 right-4 w-12 h-12 bg-white/90 backdrop-blur-sm rounded-xl flex items-center justify-center text-inception-purple shadow-lg">
-                    {getIconComponent(service.icon)}
+              <Link 
+                to="/contact"
+                className="block cursor-pointer"
+              >
+                <div className="relative overflow-hidden rounded-2xl bg-white shadow-lg hover:shadow-xl transition-all duration-500 hover:-translate-y-2">
+                  {/* Image Section with Fixed Size */}
+                  <div className="relative h-48 overflow-hidden">
+                    <div className={`absolute inset-0 bg-gradient-to-br ${service.gradient} opacity-80`} />
+                    <img 
+                      src={service.image || "/lovable-uploads/6b7d5f55-0ca7-45cb-9463-f8a6eb07d7d4.png"}
+                      alt={service.title}
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    />
+                    
+                    {/* Floating Icon */}
+                    <div className="absolute top-4 right-4 w-12 h-12 bg-white/90 backdrop-blur-sm rounded-xl flex items-center justify-center text-inception-purple shadow-lg">
+                      {getIconComponent(service.icon)}
+                    </div>
+                    
+                    {/* Stats Badge */}
+                    <div className="absolute bottom-4 left-4 bg-white/95 backdrop-blur-sm rounded-lg px-3 py-2 shadow-sm">
+                      <div className="flex items-center">
+                        <FontAwesomeIcon icon={faChartLine} className="w-3 h-3 text-inception-orange ml-2" />
+                        <span className="text-xs font-semibold text-inception-purple">{service.stats || 'نتائج مميزة'}</span>
+                      </div>
+                    </div>
                   </div>
                   
-                  {/* Stats Badge */}
-                  <div className="absolute bottom-4 left-4 bg-white/95 backdrop-blur-sm rounded-lg px-3 py-2 shadow-sm">
-                    <div className="flex items-center">
-                      <FontAwesomeIcon icon={faChartLine} className="w-3 h-3 text-inception-orange ml-2" />
-                      <span className="text-xs font-semibold text-inception-purple">{service.stats || 'نتائج مميزة'}</span>
+                  {/* Content Section */}
+                  <div className="p-6">
+                    <h3 className="text-lg font-bold text-inception-purple mb-3 group-hover:text-inception-orange transition-colors leading-tight">
+                      {service.title}
+                    </h3>
+                    <p className="text-gray-700 text-sm leading-relaxed mb-4">
+                      {service.description || service.longDescription || 'خدمة متميزة من شركة إنسيبشن'}
+                    </p>
+                    
+                    <div className="inline-flex items-center text-inception-purple group-hover:text-inception-orange font-semibold text-sm transition-all duration-300">
+                      <span className="ml-2">اطلب الخدمة</span>
+                      <ArrowUpRight className="w-4 h-4 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
                     </div>
                   </div>
                 </div>
-                
-                {/* Content Section */}
-                <div className="p-6">
-                  <h3 className="text-lg font-bold text-inception-purple mb-3 group-hover:text-inception-orange transition-colors leading-tight">
-                    {service.title}
-                  </h3>
-                  <p className="text-gray-700 text-sm leading-relaxed mb-4">
-                    {service.description || service.longDescription || 'خدمة متميزة من شركة إنسيبشن'}
-                  </p>
-                  
-                  <Link 
-                    to="/contact"
-                    className="inline-flex items-center text-inception-purple hover:text-inception-orange font-semibold text-sm transition-all duration-300 group/link"
-                  >
-                    <span className="ml-2">اطلب الخدمة</span>
-                    <ArrowUpRight className="w-4 h-4 transition-transform group-hover/link:translate-x-1 group-hover/link:-translate-y-1" />
-                  </Link>
-                </div>
-              </div>
+              </Link>
             </AnimatedSection>
           ))}
         </div>

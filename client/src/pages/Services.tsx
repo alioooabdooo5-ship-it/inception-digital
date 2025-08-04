@@ -194,48 +194,50 @@ const Services = () => {
                     delay={index * 150}
                     className="group"
                   >
-                    <div className="relative overflow-hidden rounded-3xl bg-white shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2">
-                      {/* Image Section */}
-                      <div className="relative h-64 overflow-hidden">
-                        <div className={`absolute inset-0 bg-gradient-to-br ${service.gradient} opacity-90`} />
-                        <img 
-                          src={service.image || defaultImage}
-                          alt={service.title}
-                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                        />
-                        
-                        {/* Floating Icon */}
-                        <div className="absolute top-6 right-6 w-16 h-16 bg-white/98 backdrop-blur-sm rounded-2xl flex items-center justify-center text-inception-purple shadow-lg border border-white/50">
-                          {service.icon && getIconComponent(typeof service.icon === 'string' ? service.icon : 'video')}
+                    <Link 
+                      to={`/services/${service.id}`}
+                      className="block cursor-pointer"
+                    >
+                      <div className="relative overflow-hidden rounded-3xl bg-white shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2">
+                        {/* Image Section */}
+                        <div className="relative h-64 overflow-hidden">
+                          <div className={`absolute inset-0 bg-gradient-to-br ${service.gradient} opacity-90`} />
+                          <img 
+                            src={service.image || defaultImage}
+                            alt={service.title}
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                          />
+                          
+                          {/* Floating Icon */}
+                          <div className="absolute top-6 right-6 w-16 h-16 bg-white/98 backdrop-blur-sm rounded-2xl flex items-center justify-center text-inception-purple shadow-lg border border-white/50">
+                            {service.icon && getIconComponent(typeof service.icon === 'string' ? service.icon : 'video')}
+                          </div>
+                          
+                          {/* Stats Badge */}
+                          <div className="absolute bottom-6 left-6 bg-white/98 backdrop-blur-sm rounded-xl px-4 py-2 shadow-lg border border-white/50">
+                            <div className="flex items-center">
+                              <FontAwesomeIcon icon={faChartLine} className="w-4 h-4 text-inception-orange ml-2" />
+                              <span className="text-sm font-bold text-inception-purple">{service.stats}</span>
+                            </div>
+                          </div>
                         </div>
                         
-                        {/* Stats Badge */}
-                        <div className="absolute bottom-6 left-6 bg-white/98 backdrop-blur-sm rounded-xl px-4 py-2 shadow-lg border border-white/50">
-                          <div className="flex items-center">
-                            <FontAwesomeIcon icon={faChartLine} className="w-4 h-4 text-inception-orange ml-2" />
-                            <span className="text-sm font-bold text-inception-purple">{service.stats}</span>
+                        {/* Content Section */}
+                        <div className="p-8">
+                          <h3 className="text-2xl font-bold text-inception-purple mb-4 group-hover:text-inception-orange transition-colors">
+                            {service.title}
+                          </h3>
+                          <p className="text-gray-800 leading-relaxed mb-6">
+                            {service.description}
+                          </p>
+                          
+                          <div className="inline-flex items-center text-inception-purple group-hover:text-inception-orange font-semibold transition-all duration-300">
+                            <span className="ml-2">تفاصيل الخدمة</span>
+                            <ArrowUpRight className="w-5 h-5 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
                           </div>
                         </div>
                       </div>
-                      
-                      {/* Content Section */}
-                      <div className="p-8">
-                        <h3 className="text-2xl font-bold text-inception-purple mb-4 group-hover:text-inception-orange transition-colors">
-                          {service.title}
-                        </h3>
-                        <p className="text-gray-800 leading-relaxed mb-6">
-                          {service.description}
-                        </p>
-                        
-                        <Link 
-                          to={`/services/${service.id}`}
-                          className="inline-flex items-center text-inception-purple hover:text-inception-orange font-semibold transition-all duration-300 group/link"
-                        >
-                          <span className="ml-2">تفاصيل الخدمة</span>
-                          <ArrowUpRight className="w-5 h-5 transition-transform group-hover/link:translate-x-1 group-hover/link:-translate-y-1" />
-                        </Link>
-                      </div>
-                    </div>
+                    </Link>
                   </AnimatedSection>
                 );
               })}
