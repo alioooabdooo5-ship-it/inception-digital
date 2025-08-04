@@ -4,7 +4,7 @@ import {
   Save, Eye, ArrowLeft, Image, Tag, Star, Globe, 
   Calendar, Clock, User, BarChart3, AlertCircle,
   CheckCircle, Settings, Lightbulb, Target, HelpCircle, 
-  Navigation, Plus, X, Link
+  Navigation, Plus, X, Link, Facebook, Twitter
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
