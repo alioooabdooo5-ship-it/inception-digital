@@ -150,6 +150,7 @@ export const articles = pgTable("articles", {
   metaTitle: text("meta_title"),
   metaDescription: text("meta_description"),
   focusKeyword: text("focus_keyword"),
+  urlSlug: text("url_slug").unique(),
   canonicalUrl: text("canonical_url"),
   robotsIndex: boolean("robots_index").default(true),
   robotsFollow: boolean("robots_follow").default(true),

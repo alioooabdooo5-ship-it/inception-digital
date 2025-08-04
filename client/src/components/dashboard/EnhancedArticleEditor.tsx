@@ -52,6 +52,7 @@ const EnhancedArticleEditor = () => {
   const [metaTitle, setMetaTitle] = useState("");
   const [metaDescription, setMetaDescription] = useState("");
   const [focusKeyword, setFocusKeyword] = useState("");
+  const [urlSlug, setUrlSlug] = useState("");
   const [canonicalUrl, setCanonicalUrl] = useState("");
   const [robotsIndex, setRobotsIndex] = useState(true);
   const [robotsFollow, setRobotsFollow] = useState(true);
@@ -131,6 +132,7 @@ const EnhancedArticleEditor = () => {
       setMetaTitle((existingArticle as any).metaTitle || "");
       setMetaDescription((existingArticle as any).metaDescription || "");
       setFocusKeyword((existingArticle as any).focusKeyword || "");
+      setUrlSlug((existingArticle as any).urlSlug || "");
       setCanonicalUrl((existingArticle as any).canonicalUrl || "");
       setRobotsIndex((existingArticle as any).robotsIndex !== false);
       setRobotsFollow((existingArticle as any).robotsFollow !== false);
@@ -182,6 +184,7 @@ const EnhancedArticleEditor = () => {
         metaTitle: metaTitle || title,
         metaDescription: metaDescription || excerpt,
         focusKeyword,
+        urlSlug: urlSlug || generateSlugFromTitle(title),
         canonicalUrl,
         robotsIndex,
         robotsFollow,
@@ -220,7 +223,7 @@ const EnhancedArticleEditor = () => {
   // Track changes for auto-save
   useEffect(() => {
     setHasUnsavedChanges(true);
-  }, [title, content, excerpt, category, tags, featuredImage, author, readTime, featured, status, metaTitle, metaDescription, focusKeyword, canonicalUrl, robotsIndex, robotsFollow, ogTitle, ogDescription, ogImage, twitterTitle, twitterDescription, twitterImage, schemaType, h1Tag, h2Tags, h3Tags, internalLinks, externalLinks, altTexts]);
+  }, [title, content, excerpt, category, tags, featuredImage, author, readTime, featured, status, metaTitle, metaDescription, focusKeyword, urlSlug, canonicalUrl, robotsIndex, robotsFollow, ogTitle, ogDescription, ogImage, twitterTitle, twitterDescription, twitterImage, schemaType, h1Tag, h2Tags, h3Tags, internalLinks, externalLinks, altTexts]);
 
   // Auto-save every 30 seconds if there are unsaved changes
   useEffect(() => {
@@ -358,6 +361,28 @@ const EnhancedArticleEditor = () => {
     setTags(tags.filter(tag => tag !== tagToRemove));
   };
 
+  // إنشاء البيرما لينك من العنوان
+  const generateSlugFromTitle = (title: string) => {
+    return title
+      .toLowerCase()
+      .replace(/[أإآ]/g, 'ا')
+      .replace(/[ؤ]/g, 'و')
+      .replace(/[ئي]/g, 'ي')
+      .replace(/[ة]/g, 'ه')
+      .replace(/[^\u0600-\u06FFa-zA-Z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '')
+      .slice(0, 100);
+  };
+
+  // تحديث البيرما لينك تلقائياً عند تغيير العنوان
+  useEffect(() => {
+    if (title && !isEditing && !urlSlug) {
+      setUrlSlug(generateSlugFromTitle(title));
+    }
+  }, [title, isEditing, urlSlug]);
+
 
 
   // حفظ المقال
@@ -389,6 +414,7 @@ const EnhancedArticleEditor = () => {
       metaTitle: metaTitle || title,
       metaDescription: metaDescription || excerpt,
       focusKeyword,
+      urlSlug: urlSlug || generateSlugFromTitle(title),
       canonicalUrl,
       robotsIndex,
       robotsFollow,
@@ -775,6 +801,34 @@ const EnhancedArticleEditor = () => {
                         onChange={(e) => setFocusKeyword(e.target.value)}
                         placeholder="الكلمة المفتاحية الرئيسية"
                       />
+                    </div>
+
+                    <div>
+                      <Label>البيرما لينك (URL Slug)</Label>
+                      <div className="space-y-2">
+                        <Input
+                          value={urlSlug}
+                          onChange={(e) => setUrlSlug(e.target.value)}
+                          placeholder="url-slug-here"
+                          dir="ltr"
+                          className="text-left"
+                        />
+                        <div className="text-sm text-gray-500 bg-gray-50 p-2 rounded border">
+                          <strong>معاينة الرابط:</strong><br />
+                          <span className="text-inception-purple font-mono" dir="ltr">
+                            https://inception.com/articles/{urlSlug || generateSlugFromTitle(title) || "article-url"}
+                          </span>
+                        </div>
+                        <Button 
+                          type="button" 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => setUrlSlug(generateSlugFromTitle(title))}
+                          className="w-full"
+                        >
+                          إنشاء تلقائي من العنوان
+                        </Button>
+                      </div>
                     </div>
 
                     <div>
