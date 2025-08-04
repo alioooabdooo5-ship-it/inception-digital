@@ -50,6 +50,22 @@ export const services = pgTable("services", {
   stats: text("stats"),
   gradient: text("gradient"),
   
+  // Video & Media
+  videoUrl: text("video_url"), // YouTube/Vimeo video URL
+  videoThumbnail: text("video_thumbnail"), // Video thumbnail image
+  
+  // Value Proposition & Competitive Advantages
+  valueProposition: text("value_proposition"), // Main value proposition
+  competitiveAdvantages: jsonb("competitive_advantages"), // Array of unique advantages
+  
+  // Success Stories & Social Proof
+  successStories: jsonb("success_stories"), // Array of success stories
+  socialProof: jsonb("social_proof"), // Array of social proof elements
+  
+  // Guarantees & Trust Elements
+  guarantees: jsonb("guarantees"), // Array of guarantees offered
+  urgencyElements: jsonb("urgency_elements"), // Limited time offers, etc.
+  
   // Portfolio/Case Studies
   portfolioItems: jsonb("portfolio_items"), // Array of portfolio examples
   
