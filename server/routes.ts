@@ -438,6 +438,79 @@ export function registerRoutes(app: Express): Server {
   // تقديم الملفات المرفوعة
   app.use('/uploads', express.static('uploads'));
 
+  // Object storage media upload endpoints
+  app.post('/api/objects/upload', requireAuth, async (req, res) => {
+    try {
+      // Generate a unique filename
+      const filename = `uploads/${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      
+      // For development, return a mock upload URL
+      const uploadURL = `http://localhost:5000/api/mock-upload/${filename}`;
+      
+      res.json({ uploadURL });
+    } catch (error) {
+      console.error("Error generating upload URL:", error);
+      res.status(500).json({ message: "Failed to generate upload URL" });
+    }
+  });
+
+  // Mock upload endpoint (temporary - for development)
+  app.put('/api/mock-upload/:filename', async (req, res) => {
+    try {
+      // In a real implementation, this would save to object storage
+      // For now, we'll just return success
+      res.status(200).end();
+    } catch (error) {
+      console.error("Error in mock upload:", error);
+      res.status(500).json({ message: "Upload failed" });
+    }
+  });
+
+  // Finalize media upload and set ACL
+  app.post('/api/media-upload', requireAuth, async (req, res) => {
+    try {
+      const { uploadUrl, fileName, fileType, fileSize } = req.body;
+      
+      // Extract filename from upload URL
+      const urlParts = uploadUrl.split('/');
+      const filename = urlParts[urlParts.length - 1];
+      
+      // Generate object path
+      const objectPath = `/objects/${filename}`;
+      
+      // Save media file record to database
+      const mediaFile = await storage.createMediaFile({
+        filename: fileName,
+        originalName: fileName,
+        mimeType: fileType,
+        size: fileSize,
+        path: objectPath,
+        url: objectPath,
+        uploadedBy: req.user?.id || 1, // Default to admin for now
+      });
+
+      res.json({ 
+        objectPath,
+        mediaFile 
+      });
+    } catch (error) {
+      console.error("Error finalizing upload:", error);
+      res.status(500).json({ message: "Failed to finalize upload" });
+    }
+  });
+
+  // Serve uploaded files (temporary - for development)
+  app.get('/objects/:filename', async (req, res) => {
+    try {
+      // In a real implementation, this would serve from object storage
+      // For now, we'll return a placeholder
+      res.status(404).json({ message: "File not found" });
+    } catch (error) {
+      console.error("Error serving file:", error);
+      res.status(500).json({ message: "Failed to serve file" });
+    }
+  });
+
   app.post('/api/contact-forms', async (req, res) => {
     try {
       const validatedData = insertContactFormSchema.parse(req.body);
