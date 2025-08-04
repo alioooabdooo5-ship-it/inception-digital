@@ -83,8 +83,6 @@ const EnhancedServiceEditor = () => {
   const serviceId = urlParams.get('id');
   const isEditing = !!serviceId;
   
-  console.log('EnhancedServiceEditor - serviceId:', serviceId, 'isEditing:', isEditing);
-
   // خدمة content states
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -133,15 +131,11 @@ const EnhancedServiceEditor = () => {
 
   // جلب الخدمة للتعديل
   const { data: existingService, isLoading, error } = useQuery<Service>({
-    queryKey: ["/api/services", serviceId],
+    queryKey: [`/api/services/${serviceId}`],
     enabled: !!isEditing && !!serviceId,
   });
-  
-  console.log('Query state:', { existingService, isLoading, error, serviceId });
-
   // تحديث البيانات عند تحميل الخدمة للتعديل
   useEffect(() => {
-    console.log('UseEffect triggered:', { existingService, isEditing });
     if (existingService && isEditing) {
       setTitle(existingService.title || "");
       setDescription(existingService.description || "");
@@ -180,7 +174,7 @@ const EnhancedServiceEditor = () => {
       setOgDescription((existingService as any).ogDescription || "");
       setOgImage((existingService as any).ogImage || "");
     }
-  }, [existingService, isEditing]);
+  }, [existingService, isEditing, serviceId]);
 
   // حساب نقاط SEO
   useEffect(() => {
@@ -239,7 +233,7 @@ const EnhancedServiceEditor = () => {
       // Invalidate both services list and specific service query
       queryClient.invalidateQueries({ queryKey: ["/api/services"] });
       if (isEditing && serviceId) {
-        queryClient.invalidateQueries({ queryKey: ["/api/services", serviceId] });
+        queryClient.invalidateQueries({ queryKey: [`/api/services/${serviceId}`] });
       }
       toast({
         title: "تم الحفظ بنجاح",
