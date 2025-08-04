@@ -165,8 +165,6 @@ const EnhancedServiceEditor = () => {
       setSocialProof((existingService as any).socialProof || []);
       setGuarantees((existingService as any).guarantees || []);
       setUrgencyElements((existingService as any).urgencyElements || []);
-      setPackages((existingService as any).packages || []);
-      setFaqs((existingService as any).faqs || []);
       
       // SEO fields
       setMetaTitle((existingService as any).metaTitle || "");
@@ -217,11 +215,19 @@ const EnhancedServiceEditor = () => {
   const saveMutation = useMutation({
     mutationFn: async (serviceData: any) => {
       if (isEditing) {
-        const res = await apiRequest("PUT", `/api/services/${serviceId}`, serviceData);
-        return res.json();
+        const res = await apiRequest(`/api/services/${serviceId}`, {
+          method: "PUT",
+          body: JSON.stringify(serviceData),
+          headers: { "Content-Type": "application/json" }
+        });
+        return res;
       } else {
-        const res = await apiRequest("POST", "/api/services", serviceData);
-        return res.json();
+        const res = await apiRequest("/api/services", {
+          method: "POST",
+          body: JSON.stringify(serviceData),
+          headers: { "Content-Type": "application/json" }
+        });
+        return res;
       }
     },
     onSuccess: () => {
@@ -454,8 +460,11 @@ const EnhancedServiceEditor = () => {
       };
 
       if (isEditing && serviceId) {
-        const res = await apiRequest('PUT', `/api/services/${serviceId}`, serviceData);
-        await res.json();
+        await apiRequest(`/api/services/${serviceId}`, {
+          method: "PUT",
+          body: JSON.stringify(serviceData),
+          headers: { "Content-Type": "application/json" }
+        });
       }
       
       setAutoSaveStatus('saved');
