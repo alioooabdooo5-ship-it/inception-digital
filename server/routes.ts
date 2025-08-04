@@ -236,6 +236,17 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
+  app.get('/api/articles/check-slug', async (req, res) => {
+    try {
+      const { slug, excludeId } = req.query;
+      const isAvailable = await storage.checkSlugAvailability(slug as string, excludeId as string);
+      res.json({ available: isAvailable });
+    } catch (error) {
+      console.error("Error checking slug availability:", error);
+      res.status(500).json({ message: "Failed to check slug availability" });
+    }
+  });
+
   app.get('/api/articles/:id', async (req, res) => {
     try {
       const id = parseInt(req.params.id);

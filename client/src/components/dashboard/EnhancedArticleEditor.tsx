@@ -3,7 +3,8 @@ import { useLocation } from "wouter";
 import {
   Save, Eye, ArrowLeft, Image, Tag, Star, Globe, 
   Calendar, Clock, User, BarChart3, AlertCircle,
-  CheckCircle, Settings, Lightbulb, Target
+  CheckCircle, Settings, Lightbulb, Target, HelpCircle, 
+  Navigation, Plus, X, Link
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -69,6 +70,37 @@ const EnhancedArticleEditor = () => {
   
   // Schema.org
   const [schemaType, setSchemaType] = useState("Article");
+  
+  // Additional Schema fields
+  const [authorName, setAuthorName] = useState("فريق إنسيبشن");
+  const [authorUrl, setAuthorUrl] = useState("");
+  const [publishDate, setPublishDate] = useState(new Date().toISOString().split('T')[0]);
+  const [modifiedDate, setModifiedDate] = useState(new Date().toISOString().split('T')[0]);
+  
+  // FAQ Schema
+  const [faqs, setFaqs] = useState<{question: string, answer: string}[]>([]);
+  const [currentFaq, setCurrentFaq] = useState({question: "", answer: ""});
+  
+  // Breadcrumbs
+  const [breadcrumbs, setBreadcrumbs] = useState<{name: string, url: string}[]>([
+    {name: "الرئيسية", url: "/"},
+    {name: "المقالات", url: "/articles"}
+  ]);
+  const [currentBreadcrumb, setCurrentBreadcrumb] = useState({name: "", url: ""});
+  
+  // Related Articles
+  const [relatedArticles, setRelatedArticles] = useState<{id: number, title: string, url: string}[]>([]);
+  const [currentRelated, setCurrentRelated] = useState({id: 0, title: "", url: ""});
+  
+  // Advanced SEO Analysis
+  const [keywordDensity, setKeywordDensity] = useState(0);
+  const [suggestedKeywords, setSuggestedKeywords] = useState<string[]>([]);
+  const [urlSlugAvailable, setUrlSlugAvailable] = useState(true);
+  
+  // Preview states
+  const [showGooglePreview, setShowGooglePreview] = useState(false);
+  const [showFacebookPreview, setShowFacebookPreview] = useState(false);
+  const [showTwitterPreview, setShowTwitterPreview] = useState(false);
   
   // SEO التقني
   const [h1Tag, setH1Tag] = useState("");
@@ -151,6 +183,18 @@ const EnhancedArticleEditor = () => {
       setAltTexts((existingArticle as any).altTexts || []);
       setWordCount((existingArticle as any).wordCount || 0);
       setReadingTime((existingArticle as any).readingTime || 0);
+      
+      // New advanced fields
+      setAuthorName((existingArticle as any).authorName || "فريق إنسيبشن");
+      setAuthorUrl((existingArticle as any).authorUrl || "");
+      setPublishDate((existingArticle as any).publishDate || new Date().toISOString().split('T')[0]);
+      setModifiedDate((existingArticle as any).modifiedDate || new Date().toISOString().split('T')[0]);
+      setFaqs((existingArticle as any).faqs || []);
+      setBreadcrumbs((existingArticle as any).breadcrumbs || [
+        {name: "الرئيسية", url: "/"},
+        {name: "المقالات", url: "/articles"}
+      ]);
+      setRelatedArticles((existingArticle as any).relatedArticles || []);
     }
   }, [existingArticle, isEditing]);
 
@@ -204,6 +248,13 @@ const EnhancedArticleEditor = () => {
         wordCount,
         readingTime,
         seoScore,
+        authorName,
+        authorUrl,
+        publishDate,
+        modifiedDate,
+        faqs,
+        breadcrumbs,
+        relatedArticles,
       };
 
       await apiRequest(`/api/articles/${articleId}`, {
@@ -243,40 +294,52 @@ const EnhancedArticleEditor = () => {
     let score = 0;
     const maxScore = 100;
     
-    // عنوان الصفحة (20 نقطة)
-    if (title.length >= 30 && title.length <= 60) score += 20;
-    else if (title.length > 10) score += 10;
+    // عنوان الصفحة (15 نقطة)
+    if (title.length >= 30 && title.length <= 60) score += 15;
+    else if (title.length > 10) score += 8;
     
-    // وصف الصفحة (20 نقطة)
-    if (metaDescription.length >= 120 && metaDescription.length <= 160) score += 20;
-    else if (metaDescription.length > 50) score += 10;
+    // وصف الصفحة (15 نقطة)
+    if (metaDescription.length >= 120 && metaDescription.length <= 160) score += 15;
+    else if (metaDescription.length > 50) score += 8;
     
-    // الكلمة المفتاحية الرئيسية (25 نقطة)
+    // الكلمة المفتاحية الرئيسية (20 نقطة)
     if (focusKeyword) {
-      if (title.toLowerCase().includes(focusKeyword.toLowerCase())) score += 10;
-      if (metaDescription.toLowerCase().includes(focusKeyword.toLowerCase())) score += 5;
-      if (h1Tag.toLowerCase().includes(focusKeyword.toLowerCase())) score += 5;
-      if (content.toLowerCase().includes(focusKeyword.toLowerCase())) score += 5;
+      if (title.toLowerCase().includes(focusKeyword.toLowerCase())) score += 8;
+      if (metaDescription.toLowerCase().includes(focusKeyword.toLowerCase())) score += 4;
+      if (h1Tag.toLowerCase().includes(focusKeyword.toLowerCase())) score += 4;
+      if (content.toLowerCase().includes(focusKeyword.toLowerCase())) score += 4;
     }
     
-    // المحتوى (15 نقطة)
-    if (wordCount >= 300) score += 5;
-    if (wordCount >= 1000) score += 5;
-    if (h2Tags.length >= 2) score += 5;
+    // المحتوى (12 نقطة)
+    if (wordCount >= 300) score += 4;
+    if (wordCount >= 1000) score += 4;
+    if (h2Tags.length >= 2) score += 4;
     
-    // الصور (10 نقطة)
-    if (featuredImage) score += 5;
-    if (altTexts.length > 0) score += 5;
+    // الصور (8 نقاط)
+    if (featuredImage) score += 4;
+    if (altTexts.length > 0) score += 4;
     
     // الكلمات المفتاحية (5 نقاط)
     if (tags.length >= 3 && tags.length <= 8) score += 5;
     
-    // العناصر التقنية (5 نقاط)
+    // العناصر التقنية الأساسية (5 نقاط)
     if (canonicalUrl) score += 2;
     if (ogTitle && ogDescription) score += 3;
     
+    // الميزات المتقدمة (15 نقطة)
+    if (authorName && authorUrl) score += 3;
+    if (publishDate && modifiedDate) score += 2;
+    if (faqs.length > 0) score += 3;
+    if (breadcrumbs.length > 2) score += 2;
+    if (relatedArticles.length > 0) score += 2;
+    if (urlSlugAvailable && urlSlug) score += 3;
+    
+    // تحليل الكلمات المفتاحية المتقدم (5 نقاط)
+    if (keywordDensity >= 1 && keywordDensity <= 3) score += 3;
+    if (internalLinks.length >= 2) score += 2;
+    
     setSeoScore(Math.min(score, maxScore));
-  }, [title, metaDescription, focusKeyword, content, h1Tag, h2Tags, wordCount, featuredImage, altTexts, tags, canonicalUrl, ogTitle, ogDescription]);
+  }, [title, metaDescription, focusKeyword, content, h1Tag, h2Tags, wordCount, featuredImage, altTexts, tags, canonicalUrl, ogTitle, ogDescription, authorName, authorUrl, publishDate, modifiedDate, faqs, breadcrumbs, relatedArticles, urlSlugAvailable, urlSlug, keywordDensity, internalLinks]);
 
   // وظائف إضافة العناصر
   const addH2Tag = () => {
@@ -313,6 +376,70 @@ const EnhancedArticleEditor = () => {
       setCurrentAltText({image: "", alt: ""});
     }
   };
+
+  // Advanced SEO functions
+  const addFaq = () => {
+    if (currentFaq.question.trim() && currentFaq.answer.trim()) {
+      setFaqs([...faqs, currentFaq]);
+      setCurrentFaq({question: "", answer: ""});
+    }
+  };
+
+  const addBreadcrumb = () => {
+    if (currentBreadcrumb.name.trim() && currentBreadcrumb.url.trim()) {
+      setBreadcrumbs([...breadcrumbs, currentBreadcrumb]);
+      setCurrentBreadcrumb({name: "", url: ""});
+    }
+  };
+
+  const addRelatedArticle = () => {
+    if (currentRelated.title.trim() && currentRelated.url.trim()) {
+      setRelatedArticles([...relatedArticles, {...currentRelated, id: Date.now()}]);
+      setCurrentRelated({id: 0, title: "", url: ""});
+    }
+  };
+
+  // Check URL slug availability
+  const checkUrlSlugAvailability = async (slug: string) => {
+    if (!slug || slug === urlSlug) return;
+    try {
+      const response = await fetch(`/api/articles/check-slug?slug=${encodeURIComponent(slug)}&excludeId=${articleId || ''}`);
+      const data = await response.json();
+      setUrlSlugAvailable(data.available);
+    } catch (error) {
+      console.error('Error checking slug availability:', error);
+    }
+  };
+
+  // Calculate keyword density
+  useEffect(() => {
+    if (focusKeyword && content) {
+      const contentText = content.replace(/<[^>]*>/g, '').toLowerCase();
+      const keywordLower = focusKeyword.toLowerCase();
+      const matches = (contentText.match(new RegExp(keywordLower, 'g')) || []).length;
+      const totalWords = contentText.split(/\s+/).length;
+      const density = totalWords > 0 ? (matches / totalWords) * 100 : 0;
+      setKeywordDensity(Math.round(density * 100) / 100);
+    }
+  }, [focusKeyword, content]);
+
+  // Generate suggested keywords
+  useEffect(() => {
+    if (content) {
+      const words = content.replace(/<[^>]*>/g, '').toLowerCase().split(/\s+/);
+      const wordCount = {};
+      words.forEach(word => {
+        if (word.length > 3) {
+          wordCount[word] = (wordCount[word] || 0) + 1;
+        }
+      });
+      const sorted = Object.entries(wordCount)
+        .sort(([,a], [,b]) => b - a)
+        .slice(0, 10)
+        .map(([word]) => word);
+      setSuggestedKeywords(sorted);
+    }
+  }, [content]);
 
   // حفظ المقال
   const saveMutation = useMutation({
@@ -434,6 +561,13 @@ const EnhancedArticleEditor = () => {
       wordCount,
       readingTime,
       seoScore,
+      authorName,
+      authorUrl,
+      publishDate,
+      modifiedDate,
+      faqs,
+      breadcrumbs,
+      relatedArticles,
       views: isEditing ? existingArticle?.views || 0 : 0,
     };
 
@@ -777,11 +911,12 @@ const EnhancedArticleEditor = () => {
               </CardHeader>
               <CardContent>
                 <Tabs defaultValue="basic" className="w-full">
-                  <TabsList className="grid w-full grid-cols-5">
+                  <TabsList className="grid w-full grid-cols-6">
                     <TabsTrigger value="basic">أساسي</TabsTrigger>
                     <TabsTrigger value="social">وسائل التواصل</TabsTrigger>
                     <TabsTrigger value="technical">تقني</TabsTrigger>
                     <TabsTrigger value="content">المحتوى</TabsTrigger>
+                    <TabsTrigger value="advanced">متقدم</TabsTrigger>
                     <TabsTrigger value="analysis">التحليل</TabsTrigger>
                   </TabsList>
                   
@@ -809,10 +944,17 @@ const EnhancedArticleEditor = () => {
                         <Input
                           value={urlSlug}
                           onChange={(e) => setUrlSlug(e.target.value)}
+                          onBlur={(e) => checkUrlSlugAvailability(e.target.value)}
                           placeholder="url-slug-here"
                           dir="ltr"
-                          className="text-left"
+                          className={`text-left ${!urlSlugAvailable && urlSlug ? 'border-red-300 bg-red-50' : urlSlugAvailable && urlSlug ? 'border-green-300 bg-green-50' : ''}`}
                         />
+                        {urlSlug && (
+                          <div className={`text-sm flex items-center gap-2 ${urlSlugAvailable ? 'text-green-600' : 'text-red-600'}`}>
+                            {urlSlugAvailable ? '✓' : '✗'} 
+                            {urlSlugAvailable ? 'البيرمالينك متاح' : 'البيرمالينك مستخدم بالفعل'}
+                          </div>
+                        )}
                         <div className="text-sm text-gray-500 bg-gray-50 p-2 rounded border">
                           <strong>معاينة الرابط:</strong><br />
                           <span className="text-inception-purple font-mono" dir="ltr">
@@ -945,6 +1087,100 @@ const EnhancedArticleEditor = () => {
                         placeholder="رابط صورة Twitter (1024x512)"
                       />
                     </div>
+
+                    <Separator />
+
+                    {/* معاينات وسائل التواصل */}
+                    <div className="space-y-6">
+                      <h4 className="font-semibold text-inception-purple">معاينات المظهر</h4>
+                      
+                      {/* معاينة Google */}
+                      <Card className="border-blue-200">
+                        <CardHeader>
+                          <CardTitle className="text-sm flex items-center gap-2">
+                            <Globe className="h-4 w-4" />
+                            معاينة Google Search
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-2">
+                          <div className="bg-white p-4 border rounded">
+                            <div className="text-blue-600 text-lg hover:underline cursor-pointer">
+                              {metaTitle || title || "عنوان المقال"}
+                            </div>
+                            <div className="text-green-700 text-sm">
+                              inception.sa › articles › {urlSlug || generateSlugFromTitle(title) || "article-url"}
+                            </div>
+                            <div className="text-gray-600 text-sm mt-1">
+                              {metaDescription || excerpt || "وصف المقال سيظهر هنا..."}
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      {/* معاينة Facebook */}
+                      <Card className="border-blue-600">
+                        <CardHeader>
+                          <CardTitle className="text-sm flex items-center gap-2">
+                            <Facebook className="h-4 w-4" />
+                            معاينة Facebook
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="bg-white border rounded overflow-hidden">
+                            {(ogImage || featuredImage) && (
+                              <img 
+                                src={ogImage || featuredImage} 
+                                alt="Facebook preview" 
+                                className="w-full h-48 object-cover"
+                              />
+                            )}
+                            <div className="p-3">
+                              <div className="text-gray-500 text-xs uppercase">
+                                INCEPTION.SA
+                              </div>
+                              <div className="font-semibold text-gray-900 mt-1">
+                                {ogTitle || metaTitle || title || "عنوان المقال"}
+                              </div>
+                              <div className="text-gray-600 text-sm mt-1">
+                                {ogDescription || metaDescription || excerpt || "وصف المقال..."}
+                              </div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      {/* معاينة Twitter */}
+                      <Card className="border-sky-400">
+                        <CardHeader>
+                          <CardTitle className="text-sm flex items-center gap-2">
+                            <Twitter className="h-4 w-4" />
+                            معاينة Twitter
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="bg-white border rounded overflow-hidden">
+                            {(twitterImage || featuredImage) && (
+                              <img 
+                                src={twitterImage || featuredImage} 
+                                alt="Twitter preview" 
+                                className="w-full h-48 object-cover"
+                              />
+                            )}
+                            <div className="p-3">
+                              <div className="text-gray-900 font-semibold">
+                                {twitterTitle || metaTitle || title || "عنوان المقال"}
+                              </div>
+                              <div className="text-gray-600 text-sm mt-1">
+                                {twitterDescription || metaDescription || excerpt || "وصف المقال..."}
+                              </div>
+                              <div className="text-gray-500 text-xs mt-2">
+                                inception.sa
+                              </div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
                   </TabsContent>
 
                   {/* SEO التقني */}
@@ -1053,6 +1289,294 @@ const EnhancedArticleEditor = () => {
                         )}
                       </div>
                     </div>
+                  </TabsContent>
+
+                  {/* الميزات المتقدمة */}
+                  <TabsContent value="advanced" className="space-y-6">
+                    {/* Author & Publication Info */}
+                    <Card className="border-green-200/50 bg-green-50/30">
+                      <CardHeader>
+                        <CardTitle className="text-lg text-purple-800 flex items-center gap-2">
+                          <User className="h-5 w-5" />
+                          معلومات الكاتب والنشر
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div className="grid md:grid-cols-2 gap-4">
+                          <div>
+                            <Label htmlFor="author-name">اسم الكاتب</Label>
+                            <Input
+                              id="author-name"
+                              value={authorName}
+                              onChange={(e) => setAuthorName(e.target.value)}
+                              placeholder="فريق إنسيبشن"
+                              className="text-right"
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="author-url">رابط الكاتب</Label>
+                            <Input
+                              id="author-url"
+                              value={authorUrl}
+                              onChange={(e) => setAuthorUrl(e.target.value)}
+                              placeholder="https://inception.sa/team"
+                              className="text-right"
+                            />
+                          </div>
+                        </div>
+                        
+                        <div className="grid md:grid-cols-2 gap-4">
+                          <div>
+                            <Label htmlFor="publish-date">تاريخ النشر</Label>
+                            <Input
+                              id="publish-date"
+                              type="date"
+                              value={publishDate}
+                              onChange={(e) => setPublishDate(e.target.value)}
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="modified-date">تاريخ التعديل</Label>
+                            <Input
+                              id="modified-date"
+                              type="date"
+                              value={modifiedDate}
+                              onChange={(e) => setModifiedDate(e.target.value)}
+                            />
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* FAQ Schema */}
+                    <Card className="border-yellow-200/50 bg-yellow-50/30">
+                      <CardHeader>
+                        <CardTitle className="text-lg text-purple-800 flex items-center gap-2">
+                          <HelpCircle className="h-5 w-5" />
+                          الأسئلة الشائعة (FAQ Schema)
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div className="grid gap-4">
+                          <div>
+                            <Label htmlFor="faq-question">السؤال</Label>
+                            <Input
+                              id="faq-question"
+                              value={currentFaq.question}
+                              onChange={(e) => setCurrentFaq({...currentFaq, question: e.target.value})}
+                              placeholder="ما هو التسويق الرقمي؟"
+                              className="text-right"
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="faq-answer">الإجابة</Label>
+                            <Textarea
+                              id="faq-answer"
+                              value={currentFaq.answer}
+                              onChange={(e) => setCurrentFaq({...currentFaq, answer: e.target.value})}
+                              placeholder="التسويق الرقمي هو..."
+                              rows={3}
+                              className="text-right"
+                            />
+                          </div>
+                          <Button onClick={addFaq} className="w-fit">
+                            <Plus className="h-4 w-4 ml-2" />
+                            إضافة السؤال
+                          </Button>
+                        </div>
+                        
+                        {faqs.length > 0 && (
+                          <div className="space-y-2">
+                            <Label>الأسئلة المضافة:</Label>
+                            {faqs.map((faq, index) => (
+                              <div key={index} className="flex items-center justify-between p-3 bg-white rounded border">
+                                <div className="flex-1 text-right">
+                                  <p className="font-medium text-sm">{faq.question}</p>
+                                  <p className="text-xs text-gray-600 mt-1">{faq.answer.substring(0, 100)}...</p>
+                                </div>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => setFaqs(faqs.filter((_, i) => i !== index))}
+                                >
+                                  <X className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+
+                    {/* Breadcrumbs */}
+                    <Card className="border-indigo-200/50 bg-indigo-50/30">
+                      <CardHeader>
+                        <CardTitle className="text-lg text-purple-800 flex items-center gap-2">
+                          <Navigation className="h-5 w-5" />
+                          مسار التنقل (Breadcrumbs)
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div className="grid md:grid-cols-2 gap-4">
+                          <div>
+                            <Label htmlFor="breadcrumb-name">اسم الصفحة</Label>
+                            <Input
+                              id="breadcrumb-name"
+                              value={currentBreadcrumb.name}
+                              onChange={(e) => setCurrentBreadcrumb({...currentBreadcrumb, name: e.target.value})}
+                              placeholder="المدونة"
+                              className="text-right"
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="breadcrumb-url">رابط الصفحة</Label>
+                            <Input
+                              id="breadcrumb-url"
+                              value={currentBreadcrumb.url}
+                              onChange={(e) => setCurrentBreadcrumb({...currentBreadcrumb, url: e.target.value})}
+                              placeholder="/blog"
+                              className="text-right"
+                            />
+                          </div>
+                        </div>
+                        <Button onClick={addBreadcrumb} className="w-fit">
+                          <Plus className="h-4 w-4 ml-2" />
+                          إضافة للمسار
+                        </Button>
+                        
+                        {breadcrumbs.length > 0 && (
+                          <div className="space-y-2">
+                            <Label>مسار التنقل:</Label>
+                            <div className="flex flex-wrap gap-2 p-3 bg-white rounded border">
+                              {breadcrumbs.map((crumb, index) => (
+                                <div key={index} className="flex items-center gap-2">
+                                  <span className="text-sm px-2 py-1 bg-purple-100 rounded">{crumb.name}</span>
+                                  {index < breadcrumbs.length - 1 && <span className="text-gray-400">←</span>}
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={() => setBreadcrumbs(breadcrumbs.filter((_, i) => i !== index))}
+                                  >
+                                    <X className="h-3 w-3" />
+                                  </Button>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+
+                    {/* Related Articles */}
+                    <Card className="border-pink-200/50 bg-pink-50/30">
+                      <CardHeader>
+                        <CardTitle className="text-lg text-purple-800 flex items-center gap-2">
+                          <Link className="h-5 w-5" />
+                          المقالات ذات الصلة
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div className="grid md:grid-cols-2 gap-4">
+                          <div>
+                            <Label htmlFor="related-title">عنوان المقال</Label>
+                            <Input
+                              id="related-title"
+                              value={currentRelated.title}
+                              onChange={(e) => setCurrentRelated({...currentRelated, title: e.target.value})}
+                              placeholder="كيفية تحسين SEO"
+                              className="text-right"
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="related-url">رابط المقال</Label>
+                            <Input
+                              id="related-url"
+                              value={currentRelated.url}
+                              onChange={(e) => setCurrentRelated({...currentRelated, url: e.target.value})}
+                              placeholder="/articles/seo-optimization"
+                              className="text-right"
+                            />
+                          </div>
+                        </div>
+                        <Button onClick={addRelatedArticle} className="w-fit">
+                          <Plus className="h-4 w-4 ml-2" />
+                          إضافة مقال
+                        </Button>
+                        
+                        {relatedArticles.length > 0 && (
+                          <div className="space-y-2">
+                            <Label>المقالات ذات الصلة:</Label>
+                            {relatedArticles.map((article, index) => (
+                              <div key={index} className="flex items-center justify-between p-3 bg-white rounded border">
+                                <div className="flex-1 text-right">
+                                  <p className="font-medium text-sm">{article.title}</p>
+                                  <p className="text-xs text-gray-600">{article.url}</p>
+                                </div>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => setRelatedArticles(relatedArticles.filter((_, i) => i !== index))}
+                                >
+                                  <X className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+
+                    {/* Keyword Analysis */}
+                    <Card className="border-purple-200/50 bg-purple-50/30">
+                      <CardHeader>
+                        <CardTitle className="text-lg text-purple-800 flex items-center gap-2">
+                          <BarChart3 className="h-5 w-5" />
+                          تحليل الكلمات المفتاحية المتقدم
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        {focusKeyword && (
+                          <div className="grid grid-cols-2 gap-4">
+                            <Card>
+                              <CardContent className="p-4 text-center">
+                                <div className="text-2xl font-bold text-inception-purple">{keywordDensity}%</div>
+                                <div className="text-sm text-gray-600">كثافة الكلمة المفتاحية</div>
+                                <div className={`text-xs mt-1 ${keywordDensity >= 1 && keywordDensity <= 3 ? 'text-green-600' : 'text-red-600'}`}>
+                                  {keywordDensity >= 1 && keywordDensity <= 3 ? 'مثالية' : 'يحتاج تحسين'}
+                                </div>
+                              </CardContent>
+                            </Card>
+                            
+                            <Card>
+                              <CardContent className="p-4 text-center">
+                                <div className={`text-2xl font-bold ${urlSlugAvailable ? 'text-green-600' : 'text-red-600'}`}>
+                                  {urlSlugAvailable ? '✓' : '✗'}
+                                </div>
+                                <div className="text-sm text-gray-600">توفر البيرمالينك</div>
+                              </CardContent>
+                            </Card>
+                          </div>
+                        )}
+                        
+                        {suggestedKeywords.length > 0 && (
+                          <div>
+                            <Label>كلمات مفتاحية مقترحة:</Label>
+                            <div className="flex flex-wrap gap-2 mt-2">
+                              {suggestedKeywords.slice(0, 8).map((keyword, index) => (
+                                <Badge 
+                                  key={index} 
+                                  variant="outline" 
+                                  className="cursor-pointer hover:bg-purple-100"
+                                  onClick={() => setFocusKeyword(keyword)}
+                                >
+                                  {keyword}
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
                   </TabsContent>
 
                   {/* إدارة المحتوى */}
