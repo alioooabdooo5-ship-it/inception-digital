@@ -112,6 +112,16 @@ const EnhancedServiceEditor = () => {
   const [packages, setPackages] = useState<ServicePackage[]>([]);
   const [faqs, setFaqs] = useState<ServiceFaq[]>([]);
   
+  // New Enhanced Fields
+  const [videoUrl, setVideoUrl] = useState("");
+  const [videoThumbnail, setVideoThumbnail] = useState("");
+  const [valueProposition, setValueProposition] = useState("");
+  const [competitiveAdvantages, setCompetitiveAdvantages] = useState<any[]>([]);
+  const [successStories, setSuccessStories] = useState<any[]>([]);
+  const [socialProof, setSocialProof] = useState<any[]>([]);
+  const [guarantees, setGuarantees] = useState<any[]>([]);
+  const [urgencyElements, setUrgencyElements] = useState<any[]>([]);
+  
   // UI states
   const [isPreview, setIsPreview] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -143,6 +153,18 @@ const EnhancedServiceEditor = () => {
       setFeatures((existingService as any).features || []);
       setProcessSteps((existingService as any).processSteps || []);
       setTestimonials((existingService as any).testimonials || []);
+      setPackages((existingService as any).packages || []);
+      setFaqs((existingService as any).faqs || []);
+      
+      // New Enhanced Fields
+      setVideoUrl((existingService as any).videoUrl || "");
+      setVideoThumbnail((existingService as any).videoThumbnail || "");
+      setValueProposition((existingService as any).valueProposition || "");
+      setCompetitiveAdvantages((existingService as any).competitiveAdvantages || []);
+      setSuccessStories((existingService as any).successStories || []);
+      setSocialProof((existingService as any).socialProof || []);
+      setGuarantees((existingService as any).guarantees || []);
+      setUrgencyElements((existingService as any).urgencyElements || []);
       setPackages((existingService as any).packages || []);
       setFaqs((existingService as any).faqs || []);
       
@@ -195,9 +217,11 @@ const EnhancedServiceEditor = () => {
   const saveMutation = useMutation({
     mutationFn: async (serviceData: any) => {
       if (isEditing) {
-        return await apiRequest("PUT", `/api/services/${serviceId}`, serviceData);
+        const res = await apiRequest("PUT", `/api/services/${serviceId}`, serviceData);
+        return res.json();
       } else {
-        return await apiRequest("POST", "/api/services", serviceData);
+        const res = await apiRequest("POST", "/api/services", serviceData);
+        return res.json();
       }
     },
     onSuccess: () => {
@@ -248,6 +272,16 @@ const EnhancedServiceEditor = () => {
       testimonials,
       packages,
       faqs,
+      
+      // New Enhanced Fields
+      videoUrl,
+      videoThumbnail,
+      valueProposition,
+      competitiveAdvantages,
+      successStories,
+      socialProof,
+      guarantees,
+      urgencyElements,
       
       // SEO
       metaTitle: metaTitle || title,
@@ -401,6 +435,14 @@ const EnhancedServiceEditor = () => {
         testimonials,
         packages,
         faqs,
+        videoUrl,
+        videoThumbnail,
+        valueProposition,
+        competitiveAdvantages,
+        successStories,
+        socialProof,
+        guarantees,
+        urgencyElements,
         metaTitle: metaTitle || title,
         metaDescription: metaDescription || description,
         focusKeyword,
@@ -412,7 +454,8 @@ const EnhancedServiceEditor = () => {
       };
 
       if (isEditing && serviceId) {
-        await apiRequest('PUT', `/api/services/${serviceId}`, serviceData);
+        const res = await apiRequest('PUT', `/api/services/${serviceId}`, serviceData);
+        await res.json();
       }
       
       setAutoSaveStatus('saved');
@@ -428,7 +471,7 @@ const EnhancedServiceEditor = () => {
   // Track changes for auto-save
   useEffect(() => {
     setHasUnsavedChanges(true);
-  }, [title, description, longDescription, image, icon, link, category, stats, gradient, portfolioItems, features, processSteps, testimonials, packages, faqs, metaTitle, metaDescription, focusKeyword, canonicalUrl, ogTitle, ogDescription, ogImage]);
+  }, [title, description, longDescription, image, icon, link, category, stats, gradient, portfolioItems, features, processSteps, testimonials, packages, faqs, videoUrl, videoThumbnail, valueProposition, competitiveAdvantages, successStories, socialProof, guarantees, urgencyElements, metaTitle, metaDescription, focusKeyword, canonicalUrl, ogTitle, ogDescription, ogImage]);
 
   // Auto-save every 30 seconds if there are unsaved changes
   useEffect(() => {
@@ -597,6 +640,200 @@ const EnhancedServiceEditor = () => {
                         onChange={(e) => setLink(e.target.value)}
                         placeholder="رابط صفحة الخدمة"
                       />
+                    </div>
+
+                    <div>
+                      <Label>رابط الفيديو التوضيحي</Label>
+                      <Input
+                        value={videoUrl}
+                        onChange={(e) => setVideoUrl(e.target.value)}
+                        placeholder="رابط يوتيوب أو فيميو"
+                      />
+                    </div>
+
+                    <div>
+                      <Label>صورة مصغرة للفيديو</Label>
+                      <Input
+                        value={videoThumbnail}
+                        onChange={(e) => setVideoThumbnail(e.target.value)}
+                        placeholder="رابط صورة الفيديو المصغرة"
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* القيمة المضافة والتميز */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>القيمة المضافة والتميز</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <Label>القيمة المضافة الرئيسية</Label>
+                      <RichTextEditor
+                        content={valueProposition}
+                        onChange={setValueProposition}
+                      />
+                    </div>
+
+                    <Separator />
+
+                    <div>
+                      <div className="flex items-center justify-between mb-3">
+                        <Label className="text-lg font-semibold">المزايا التنافسية</Label>
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          onClick={() => setCompetitiveAdvantages([...competitiveAdvantages, {
+                            id: Date.now(),
+                            title: "",
+                            description: ""
+                          }])}
+                        >
+                          <Plus className="w-4 h-4 ml-1" />
+                          إضافة ميزة
+                        </Button>
+                      </div>
+                      {competitiveAdvantages.length === 0 ? (
+                        <p className="text-gray-500 text-sm">لا توجد مزايا تنافسية. اضغط لإضافة ميزة جديدة.</p>
+                      ) : (
+                        <div className="space-y-3">
+                          {competitiveAdvantages.map((advantage: any, index: number) => (
+                            <div key={advantage.id} className="border p-3 rounded bg-gray-50">
+                              <Input
+                                placeholder="عنوان الميزة"
+                                value={advantage.title}
+                                className="mb-2"
+                                onChange={(e) => {
+                                  const updated = [...competitiveAdvantages];
+                                  updated[index] = { ...advantage, title: e.target.value };
+                                  setCompetitiveAdvantages(updated);
+                                }}
+                              />
+                              <Textarea
+                                placeholder="وصف الميزة"
+                                value={advantage.description}
+                                rows={2}
+                                onChange={(e) => {
+                                  const updated = [...competitiveAdvantages];
+                                  updated[index] = { ...advantage, description: e.target.value };
+                                  setCompetitiveAdvantages(updated);
+                                }}
+                              />
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                className="mt-2"
+                                onClick={() => setCompetitiveAdvantages(competitiveAdvantages.filter((_, i) => i !== index))}
+                              >
+                                حذف
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    <Separator />
+
+                    <div>
+                      <div className="flex items-center justify-between mb-3">
+                        <Label className="text-lg font-semibold">قصص النجاح</Label>
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          onClick={() => setSuccessStories([...successStories, {
+                            id: Date.now(),
+                            title: "",
+                            description: "",
+                            metric: "",
+                            metricLabel: "",
+                            clientName: "",
+                            timeframe: ""
+                          }])}
+                        >
+                          <Plus className="w-4 h-4 ml-1" />
+                          إضافة قصة
+                        </Button>
+                      </div>
+                      {successStories.length === 0 ? (
+                        <p className="text-gray-500 text-sm">لا توجد قصص نجاح. اضغط لإضافة قصة جديدة.</p>
+                      ) : (
+                        <div className="space-y-3">
+                          {successStories.map((story: any, index: number) => (
+                            <div key={story.id} className="border p-3 rounded bg-gray-50">
+                              <div className="grid grid-cols-2 gap-2 mb-2">
+                                <Input
+                                  placeholder="عنوان القصة"
+                                  value={story.title}
+                                  onChange={(e) => {
+                                    const updated = [...successStories];
+                                    updated[index] = { ...story, title: e.target.value };
+                                    setSuccessStories(updated);
+                                  }}
+                                />
+                                <Input
+                                  placeholder="اسم العميل"
+                                  value={story.clientName}
+                                  onChange={(e) => {
+                                    const updated = [...successStories];
+                                    updated[index] = { ...story, clientName: e.target.value };
+                                    setSuccessStories(updated);
+                                  }}
+                                />
+                              </div>
+                              <div className="grid grid-cols-2 gap-2 mb-2">
+                                <Input
+                                  placeholder="النتيجة (مثل: 300%)"
+                                  value={story.metric}
+                                  onChange={(e) => {
+                                    const updated = [...successStories];
+                                    updated[index] = { ...story, metric: e.target.value };
+                                    setSuccessStories(updated);
+                                  }}
+                                />
+                                <Input
+                                  placeholder="وصف النتيجة (مثل: زيادة المبيعات)"
+                                  value={story.metricLabel}
+                                  onChange={(e) => {
+                                    const updated = [...successStories];
+                                    updated[index] = { ...story, metricLabel: e.target.value };
+                                    setSuccessStories(updated);
+                                  }}
+                                />
+                              </div>
+                              <Input
+                                placeholder="المدة الزمنية (مثل: 4 أشهر)"
+                                value={story.timeframe}
+                                className="mb-2"
+                                onChange={(e) => {
+                                  const updated = [...successStories];
+                                  updated[index] = { ...story, timeframe: e.target.value };
+                                  setSuccessStories(updated);
+                                }}
+                              />
+                              <Textarea
+                                placeholder="وصف القصة"
+                                value={story.description}
+                                rows={2}
+                                onChange={(e) => {
+                                  const updated = [...successStories];
+                                  updated[index] = { ...story, description: e.target.value };
+                                  setSuccessStories(updated);
+                                }}
+                              />
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                className="mt-2"
+                                onClick={() => setSuccessStories(successStories.filter((_, i) => i !== index))}
+                              >
+                                حذف
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>

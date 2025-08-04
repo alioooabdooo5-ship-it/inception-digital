@@ -212,9 +212,36 @@ const ServiceDetail = () => {
           </div>
         </section>
 
+        {/* Video Section */}
+        {serviceData.videoUrl && (
+          <section className="py-20 bg-white">
+            <div className="container mx-auto px-4">
+              <AnimatedSection className="text-center mb-16">
+                <h2 className="text-3xl md:text-4xl font-bold text-inception-purple mb-6">
+                  شاهد كيف نعمل
+                </h2>
+                <p className="text-xl text-gray-800 max-w-3xl mx-auto mb-12">
+                  فيديو توضيحي يشرح منهجيتنا وطريقة عملنا في تحقيق النتائج المرجوة
+                </p>
+              </AnimatedSection>
+              
+              <div className="max-w-4xl mx-auto">
+                <div className="aspect-video rounded-3xl overflow-hidden shadow-2xl bg-black">
+                  <iframe
+                    src={serviceData.videoUrl}
+                    title="فيديو توضيحي للخدمة"
+                    className="w-full h-full"
+                    allowFullScreen
+                  />
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
         {/* Service Overview */}
         {serviceData.longDescription && (
-          <section className="py-20 bg-white">
+          <section className="py-20 bg-gradient-to-br from-gray-50 to-white">
             <div className="container mx-auto px-4">
               <AnimatedSection className="max-w-4xl mx-auto">
                 <h2 className="text-3xl md:text-4xl font-bold text-inception-purple text-center mb-12">
@@ -224,6 +251,56 @@ const ServiceDetail = () => {
                   <div dangerouslySetInnerHTML={{ __html: serviceData.longDescription }} />
                 </div>
               </AnimatedSection>
+            </div>
+          </section>
+        )}
+
+        {/* Value Proposition */}
+        {serviceData.valueProposition && (
+          <section className="py-20 bg-gradient-to-br from-inception-purple/5 to-inception-orange/5">
+            <div className="container mx-auto px-4">
+              <AnimatedSection className="text-center max-w-4xl mx-auto">
+                <h2 className="text-3xl md:text-4xl font-bold text-inception-purple mb-8">
+                  لماذا نحن الخيار الأفضل؟
+                </h2>
+                <div className="text-xl text-gray-800 leading-relaxed">
+                  <div dangerouslySetInnerHTML={{ __html: serviceData.valueProposition }} />
+                </div>
+              </AnimatedSection>
+            </div>
+          </section>
+        )}
+
+        {/* Competitive Advantages */}
+        {serviceData.competitiveAdvantages?.length > 0 && (
+          <section className="py-20 bg-white">
+            <div className="container mx-auto px-4">
+              <AnimatedSection className="text-center mb-16">
+                <h2 className="text-3xl md:text-4xl font-bold text-inception-purple mb-6">
+                  مزايانا التنافسية
+                </h2>
+                <p className="text-xl text-gray-800 max-w-3xl mx-auto">
+                  ما يجعلنا مختلفين عن المنافسين ولماذا يثق بنا العملاء
+                </p>
+              </AnimatedSection>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {serviceData.competitiveAdvantages.map((advantage: any, index: number) => (
+                  <AnimatedSection key={advantage.id} delay={index * 150}>
+                    <div className="bg-gradient-to-br from-inception-purple/10 to-inception-orange/10 rounded-2xl p-8 text-center h-full">
+                      <div className="w-16 h-16 bg-inception-orange rounded-2xl flex items-center justify-center mx-auto mb-6">
+                        <TrendingUp className="w-8 h-8 text-white" />
+                      </div>
+                      <h3 className="text-xl font-bold text-inception-purple mb-4">
+                        {advantage.title}
+                      </h3>
+                      <p className="text-gray-800 leading-relaxed">
+                        {advantage.description}
+                      </p>
+                    </div>
+                  </AnimatedSection>
+                ))}
+              </div>
             </div>
           </section>
         )}
@@ -391,6 +468,145 @@ const ServiceDetail = () => {
                   </AnimatedSection>
                 ))}
               </div>
+            </div>
+          </section>
+        )}
+
+        {/* Success Stories */}
+        {serviceData.successStories?.length > 0 && (
+          <section className="py-20 bg-gradient-to-br from-gray-50 to-white">
+            <div className="container mx-auto px-4">
+              <AnimatedSection className="text-center mb-16">
+                <h2 className="text-3xl md:text-4xl font-bold text-inception-purple mb-6">
+                  قصص نجاح حقيقية
+                </h2>
+                <p className="text-xl text-gray-800 max-w-3xl mx-auto">
+                  نتائج ملموسة حققناها لعملائنا في نفس مجال عملك
+                </p>
+              </AnimatedSection>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {serviceData.successStories.map((story: any, index: number) => (
+                  <AnimatedSection key={story.id} delay={index * 150}>
+                    <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 h-full">
+                      <div className="text-center mb-6">
+                        <div className="text-4xl font-bold text-inception-orange mb-2">
+                          {story.metric}
+                        </div>
+                        <div className="text-gray-600">{story.metricLabel}</div>
+                      </div>
+                      <h3 className="text-xl font-bold text-inception-purple mb-4">
+                        {story.title}
+                      </h3>
+                      <p className="text-gray-800 leading-relaxed mb-4">
+                        {story.description}
+                      </p>
+                      <div className="text-sm text-gray-600">
+                        <strong>العميل:</strong> {story.clientName}
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        <strong>المدة:</strong> {story.timeframe}
+                      </div>
+                    </div>
+                  </AnimatedSection>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Social Proof */}
+        {serviceData.socialProof?.length > 0 && (
+          <section className="py-20 bg-inception-purple text-white">
+            <div className="container mx-auto px-4">
+              <AnimatedSection className="text-center mb-16">
+                <h2 className="text-3xl md:text-4xl font-bold mb-6">
+                  الأرقام تتحدث عن نفسها
+                </h2>
+                <p className="text-xl opacity-90 max-w-3xl mx-auto">
+                  إحصائيات حقيقية تؤكد جودة خدماتنا وثقة عملائنا بنا
+                </p>
+              </AnimatedSection>
+
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+                {serviceData.socialProof.map((proof: any, index: number) => (
+                  <AnimatedSection key={proof.id} delay={index * 100} className="text-center">
+                    <div className="text-4xl md:text-5xl font-bold text-inception-orange mb-2">
+                      {proof.number}
+                    </div>
+                    <div className="text-lg opacity-90">
+                      {proof.label}
+                    </div>
+                  </AnimatedSection>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Guarantees */}
+        {serviceData.guarantees?.length > 0 && (
+          <section className="py-20 bg-white">
+            <div className="container mx-auto px-4">
+              <AnimatedSection className="text-center mb-16">
+                <h2 className="text-3xl md:text-4xl font-bold text-inception-purple mb-6">
+                  ضماناتنا لك
+                </h2>
+                <p className="text-xl text-gray-800 max-w-3xl mx-auto">
+                  نثق في خدماتنا ونقدم لك ضمانات قوية لراحة بالك
+                </p>
+              </AnimatedSection>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {serviceData.guarantees.map((guarantee: any, index: number) => (
+                  <AnimatedSection key={guarantee.id} delay={index * 150}>
+                    <div className="bg-green-50 border-2 border-green-200 rounded-2xl p-8 text-center h-full">
+                      <Shield className="w-16 h-16 text-green-600 mx-auto mb-6" />
+                      <h3 className="text-xl font-bold text-green-800 mb-4">
+                        {guarantee.title}
+                      </h3>
+                      <p className="text-green-700 leading-relaxed">
+                        {guarantee.description}
+                      </p>
+                    </div>
+                  </AnimatedSection>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Urgency Elements */}
+        {serviceData.urgencyElements?.length > 0 && (
+          <section className="py-20 bg-gradient-to-r from-red-500 to-orange-500 text-white">
+            <div className="container mx-auto px-4">
+              <AnimatedSection className="text-center">
+                <h2 className="text-3xl md:text-4xl font-bold mb-8">
+                  ⚡ عروض محدودة الوقت
+                </h2>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                  {serviceData.urgencyElements.map((element: any, index: number) => (
+                    <AnimatedSection key={element.id} delay={index * 200}>
+                      <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 text-center">
+                        <Clock className="w-12 h-12 mx-auto mb-4" />
+                        <h3 className="text-2xl font-bold mb-4">
+                          {element.title}
+                        </h3>
+                        <p className="text-lg opacity-90 mb-6">
+                          {element.description}
+                        </p>
+                        {element.deadline && (
+                          <div className="bg-white/20 rounded-xl p-4">
+                            <div className="text-sm opacity-75">ينتهي العرض في:</div>
+                            <div className="text-2xl font-bold">{element.deadline}</div>
+                          </div>
+                        )}
+                      </div>
+                    </AnimatedSection>
+                  ))}
+                </div>
+              </AnimatedSection>
             </div>
           </section>
         )}

@@ -14,7 +14,84 @@ export async function seedDatabase() {
         icon: "search",
         category: "تسويق رقمي",
         stats: "تحسن ترتيب الموقع خلال 3 أشهر",
-        gradient: "from-blue-500 to-purple-600"
+        gradient: "from-blue-500 to-purple-600",
+        videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+        videoThumbnail: "https://images.unsplash.com/photo-1611224923853-80b023f02d71?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=450&q=80",
+        valueProposition: "<p>نحن لا نقوم بـ SEO فقط، بل نبني <strong>استراتيجية رقمية متكاملة</strong> تجعل عملك يهيمن على نتائج البحث.</p><p>بينما المنافسون يركزون على الكلمات المفتاحية فقط، نحن نبني <strong>سلطة رقمية حقيقية</strong> لعلامتك التجارية.</p>",
+        competitiveAdvantages: JSON.stringify([
+          {
+            id: 1,
+            title: "منهجية علمية مثبتة",
+            description: "نستخدم أحدث أدوات التحليل والذكاء الاصطناعي لضمان النتائج"
+          },
+          {
+            id: 2,
+            title: "فريق خبراء متخصص",
+            description: "15+ سنة خبرة في السوق السعودي والخليجي"
+          },
+          {
+            id: 3,
+            title: "تقارير شفافة أسبوعية",
+            description: "تتبع مباشر للنتائج مع تقارير مفصلة كل أسبوع"
+          }
+        ]),
+        successStories: JSON.stringify([
+          {
+            id: 1,
+            title: "شركة الرياض للعقارات",
+            description: "نقلناها من الصفحة 5 إلى المراكز الثلاثة الأولى في جوجل خلال 4 أشهر",
+            metric: "300%",
+            metricLabel: "زيادة الزيارات",
+            clientName: "شركة الرياض للعقارات",
+            timeframe: "4 أشهر"
+          },
+          {
+            id: 2,
+            title: "متجر الأناقة الإلكتروني",
+            description: "حققنا زيادة 400% في الطلبات الطبيعية من محركات البحث",
+            metric: "400%",
+            metricLabel: "زيادة المبيعات",
+            clientName: "متجر الأناقة",
+            timeframe: "6 أشهر"
+          }
+        ]),
+        socialProof: JSON.stringify([
+          { id: 1, number: "+200", label: "موقع تم تحسينه" },
+          { id: 2, number: "95%", label: "معدل نجاح العملاء" },
+          { id: 3, number: "+150%", label: "متوسط الزيادة في الترافيك" },
+          { id: 4, number: "24/7", label: "دعم فني مستمر" }
+        ]),
+        guarantees: JSON.stringify([
+          {
+            id: 1,
+            title: "ضمان التحسن خلال 90 يوم",
+            description: "إذا لم تشهد تحسناً في الترتيب خلال 3 أشهر، نواصل العمل مجاناً"
+          },
+          {
+            id: 2,
+            title: "ضمان الشفافية الكاملة",
+            description: "تقارير أسبوعية مفصلة + وصول مباشر لجميع الأدوات والتحليلات"
+          },
+          {
+            id: 3,
+            title: "ضمان عدم استخدام تقنيات ضارة",
+            description: "نلتزم بإرشادات جوجل 100% ولا نستخدم أي تقنيات تضر بموقعك"
+          }
+        ]),
+        urgencyElements: JSON.stringify([
+          {
+            id: 1,
+            title: "خصم 30% للـ 10 عملاء الأوائل",
+            description: "وفر 3000 ريال على باقة SEO المتكاملة",
+            deadline: "31 يناير 2025"
+          },
+          {
+            id: 2,
+            title: "تحليل منافسين مجاني",
+            description: "قيمته 1500 ريال - مجاناً للمتقدمين هذا الشهر",
+            deadline: "متبقي 15 يوم"
+          }
+        ])
       },
       {
         title: "الإعلانات المدفوعة",
