@@ -82,6 +82,8 @@ const EnhancedServiceEditor = () => {
   const urlParams = new URLSearchParams(window.location.search);
   const serviceId = urlParams.get('id');
   const isEditing = !!serviceId;
+  
+  console.log('EnhancedServiceEditor - serviceId:', serviceId, 'isEditing:', isEditing);
 
   // خدمة content states
   const [title, setTitle] = useState("");
@@ -130,13 +132,16 @@ const EnhancedServiceEditor = () => {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   // جلب الخدمة للتعديل
-  const { data: existingService } = useQuery<Service>({
+  const { data: existingService, isLoading, error } = useQuery<Service>({
     queryKey: ["/api/services", serviceId],
     enabled: !!isEditing && !!serviceId,
   });
+  
+  console.log('Query state:', { existingService, isLoading, error, serviceId });
 
   // تحديث البيانات عند تحميل الخدمة للتعديل
   useEffect(() => {
+    console.log('UseEffect triggered:', { existingService, isEditing });
     if (existingService && isEditing) {
       setTitle(existingService.title || "");
       setDescription(existingService.description || "");
