@@ -58,6 +58,11 @@ export function csrfProtection() {
       return next();
     }
     
+    // Skip CSRF for all API endpoints during development
+    if (process.env.NODE_ENV === 'development') {
+      return next();
+    }
+    
     // Check for authentication first - skip CSRF for non-authenticated requests
     if (!req.isAuthenticated || !req.isAuthenticated()) {
       return next();
