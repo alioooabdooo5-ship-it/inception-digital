@@ -58,9 +58,9 @@ export function csrfProtection() {
       return next();
     }
     
-    // Check for authentication first
-    if (!req.isAuthenticated || !req.isAuthenticated() || !req.session) {
-      return res.status(401).json({ message: 'Authentication required' });
+    // Check for authentication first - skip CSRF for non-authenticated requests
+    if (!req.isAuthenticated || !req.isAuthenticated()) {
+      return next();
     }
     
     const sessionId = req.session.id;

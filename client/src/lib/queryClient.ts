@@ -2,7 +2,9 @@ import { QueryClient } from "@tanstack/react-query";
 
 // Default fetcher for React Query
 const defaultFetcher = async (url: string) => {
-  const response = await fetch(url);
+  const response = await fetch(url, {
+    credentials: 'include'
+  });
   
   if (!response.ok) {
     throw new Error(`${response.status}: ${response.statusText}`);
@@ -14,6 +16,7 @@ const defaultFetcher = async (url: string) => {
 // API request helper for mutations
 export const apiRequest = async (url: string, options: RequestInit = {}) => {
   const response = await fetch(url, {
+    credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
       ...options.headers,

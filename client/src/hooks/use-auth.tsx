@@ -30,7 +30,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     queryKey: ["/api/user"],
     queryFn: async () => {
       try {
-        const res = await fetch("/api/user");
+        const res = await fetch("/api/user", {
+          credentials: 'include'
+        });
         if (res.status === 401) {
           return null;
         }
@@ -55,6 +57,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: 'include',
         body: JSON.stringify(credentials),
       });
       if (!res.ok) {
@@ -64,8 +67,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
     onSuccess: (user: SelectUser) => {
       queryClient.setQueryData(["/api/user"], user);
-      // Redirect to admin after successful login
-      window.location.href = "/admin";
+      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+      // Small delay to ensure query updates, then redirect
+      setTimeout(() => {
+        window.location.href = "/admin";
+      }, 100);
     },
     onError: (error: Error) => {
       toast({
@@ -106,6 +112,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     mutationFn: async () => {
       const res = await fetch("/api/logout", {
         method: "POST",
+        credentials: 'include'
       });
       if (!res.ok) {
         throw new Error("خطأ في تسجيل الخروج");
