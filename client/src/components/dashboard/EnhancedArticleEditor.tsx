@@ -143,7 +143,7 @@ const EnhancedArticleEditor = () => {
 
   // جلب المقال للتعديل
   const { data: existingArticle } = useQuery<Article>({
-    queryKey: ["/api/articles", articleId],
+    queryKey: [`/api/articles/${articleId}`],
     enabled: !!isEditing && !!articleId,
   });
 
@@ -457,7 +457,11 @@ const EnhancedArticleEditor = () => {
       }
     },
     onSuccess: () => {
+      // Invalidate both articles list and specific article query
       queryClient.invalidateQueries({ queryKey: ["/api/articles"] });
+      if (isEditing && articleId) {
+        queryClient.invalidateQueries({ queryKey: [`/api/articles/${articleId}`] });
+      }
       toast({
         title: "تم الحفظ بنجاح",
         description: isEditing ? "تم تحديث المقال" : "تم إنشاء المقال الجديد",
