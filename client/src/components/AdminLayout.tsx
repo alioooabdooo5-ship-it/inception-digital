@@ -39,128 +39,128 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
       name: "لوحة التحكم", 
       href: "/admin", 
       icon: LayoutDashboard,
-      color: "text-slate-700 bg-slate-50 hover:bg-slate-100"
+      color: "text-inception-purple/80 bg-inception-purple/5 hover:bg-inception-purple/10"
     },
     { 
       name: "إدارة المحتوى",
       icon: FileText,
-      color: "text-slate-600",
+      color: "text-inception-purple/70",
       children: [
         { 
           name: "المقالات", 
           href: "/admin/articles", 
           icon: FileText,
-          color: "text-slate-600 bg-slate-50 hover:bg-slate-100"
+          color: "text-inception-purple/80 bg-inception-purple/5 hover:bg-inception-purple/10"
         },
         { 
           name: "محرر المقالات", 
           href: "/admin/article-editor", 
           icon: FileText,
-          color: "text-slate-700 bg-slate-100 hover:bg-slate-150"
+          color: "text-inception-purple/90 bg-inception-purple/10 hover:bg-inception-purple/15"
         },
         { 
           name: "الخدمات", 
           href: "/admin/services", 
           icon: Briefcase,
-          color: "text-slate-600 bg-slate-50 hover:bg-slate-100"
+          color: "text-inception-orange/80 bg-inception-orange/5 hover:bg-inception-orange/10"
         },
         { 
           name: "محرر الخدمات", 
           href: "/admin/service-editor", 
           icon: Briefcase,
-          color: "text-slate-700 bg-slate-100 hover:bg-slate-150"
+          color: "text-inception-orange/90 bg-inception-orange/10 hover:bg-inception-orange/15"
         },
         { 
           name: "الصناعات", 
           href: "/admin/industries", 
           icon: Building,
-          color: "text-slate-600 bg-slate-50 hover:bg-slate-100"
+          color: "text-inception-purple/80 bg-inception-purple/5 hover:bg-inception-purple/10"
         },
         { 
           name: "محرر الصناعات", 
           href: "/admin/industry-editor", 
           icon: Building,
-          color: "text-slate-700 bg-slate-100 hover:bg-slate-150"
+          color: "text-inception-purple/90 bg-inception-purple/10 hover:bg-inception-purple/15"
         },
         { 
           name: "الكتب", 
           href: "/admin/books", 
           icon: BookOpen,
-          color: "text-slate-600 bg-slate-50 hover:bg-slate-100"
+          color: "text-inception-orange/80 bg-inception-orange/5 hover:bg-inception-orange/10"
         },
         { 
           name: "آراء العملاء", 
           href: "/admin/testimonials", 
           icon: Star,
-          color: "text-slate-600 bg-slate-50 hover:bg-slate-100"
+          color: "text-inception-orange/80 bg-inception-orange/5 hover:bg-inception-orange/10"
         },
       ]
     },
     {
       name: "الصفحات",
       icon: FileText,
-      color: "text-slate-600",
+      color: "text-inception-purple/70",
       children: [
         { 
           name: "محتوى الهوم بيج", 
           href: "/admin/content/home", 
           icon: Home,
-          color: "text-slate-600 bg-slate-50 hover:bg-slate-100"
+          color: "text-inception-purple/80 bg-inception-purple/5 hover:bg-inception-purple/10"
         },
         { 
           name: "محتوى صفحة التواصل", 
           href: "/admin/content/contact", 
           icon: Phone,
-          color: "text-slate-600 bg-slate-50 hover:bg-slate-100"
+          color: "text-inception-orange/80 bg-inception-orange/5 hover:bg-inception-orange/10"
         },
         { 
           name: "محتوى صفحة من نحن", 
           href: "/admin/content/about", 
           icon: Info,
-          color: "text-slate-600 bg-slate-50 hover:bg-slate-100"
+          color: "text-inception-purple/80 bg-inception-purple/5 hover:bg-inception-purple/10"
         },
       ]
     },
     {
       name: "إدارة النظام",
       icon: Settings,
-      color: "text-slate-600",
+      color: "text-inception-purple/70",
       children: [
         { 
           name: "المستخدمين", 
           href: "/admin/users", 
           icon: Users,
-          color: "text-slate-600 bg-slate-50 hover:bg-slate-100"
+          color: "text-inception-purple/80 bg-inception-purple/5 hover:bg-inception-purple/10"
         },
         { 
           name: "نماذج التواصل", 
           href: "/admin/contact-forms", 
           icon: MessageSquare,
-          color: "text-slate-600 bg-slate-50 hover:bg-slate-100"
+          color: "text-inception-orange/80 bg-inception-orange/5 hover:bg-inception-orange/10"
         },
         { 
           name: "إدارة الوسائط", 
           href: "/admin/media", 
           icon: Image,
-          color: "text-slate-600 bg-slate-50 hover:bg-slate-100"
+          color: "text-inception-purple/80 bg-inception-purple/5 hover:bg-inception-purple/10"
         },
         { 
           name: "SEO المتطور", 
           href: "/admin/seo", 
           icon: Search,
-          color: "text-slate-600 bg-slate-50 hover:bg-slate-100"
+          color: "text-inception-orange/80 bg-inception-orange/5 hover:bg-inception-orange/10"
         },
         { 
           name: "التحليلات", 
           href: "/admin/analytics", 
           icon: BarChart3,
-          color: "text-slate-600 bg-slate-50 hover:bg-slate-100"
+          color: "text-inception-purple/80 bg-inception-purple/5 hover:bg-inception-purple/10"
         },
         { 
           name: "الإعدادات العامة", 
           href: "/admin/settings", 
           icon: Settings,
-          color: "text-slate-600 bg-slate-50 hover:bg-slate-100"
+          color: "text-inception-orange/80 bg-inception-orange/5 hover:bg-inception-orange/10"
         },
       ]
     }
@@ -193,7 +193,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
         ${sidebarOpen ? 'translate-x-0' : 'translate-x-full'}
         lg:relative lg:translate-x-0 lg:flex-shrink-0
       `}>
-        <div className="flex items-center justify-between h-16 px-6 border-b bg-gradient-to-r from-slate-800 to-slate-700 flex-shrink-0">
+        <div className="flex items-center justify-between h-16 px-6 border-b bg-gradient-to-r from-inception-purple to-inception-purple/90 flex-shrink-0">
           <h1 className="text-xl font-bold text-white">إنسيبشن</h1>
           <Button
             variant="ghost"
@@ -210,7 +210,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
             <div key={item.name} className="mb-2">
               {item.children ? (
                 <div>
-                  <div className="flex items-center px-3 py-2 text-sm font-medium text-slate-600">
+                  <div className="flex items-center px-3 py-2 text-sm font-medium text-inception-purple/70">
                     <item.icon className="ml-3 w-5 h-5" />
                     {item.name}
                   </div>
@@ -222,7 +222,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
                         className={`
                           flex items-center px-3 py-2 mx-2 text-sm rounded-lg transition-all duration-200
                           ${isActive(child.href) 
-                            ? 'bg-slate-700 text-white shadow-sm' 
+                            ? 'bg-inception-purple text-white shadow-sm' 
                             : `${child.color} transition-all duration-200 hover:shadow-sm`
                           }
                         `}
@@ -239,7 +239,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
                   className={`
                     flex items-center px-4 py-3 mx-2 text-sm font-medium rounded-lg transition-all duration-200
                     ${isActive(item.href) 
-                      ? 'bg-slate-700 text-white shadow-sm' 
+                      ? 'bg-inception-purple text-white shadow-sm' 
                       : `${item.color} transition-all duration-200 hover:shadow-sm`
                     }
                   `}
@@ -253,20 +253,20 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
         </nav>
 
         {/* User info and logout */}
-        <div className="p-4 border-t bg-slate-50 flex-shrink-0">
-          <div className="flex items-center mb-4 p-3 bg-white rounded-lg shadow-sm border border-slate-200">
-            <div className="w-10 h-10 bg-slate-600 rounded-full flex items-center justify-center text-white text-sm font-bold">
+        <div className="p-4 border-t bg-inception-purple/5 flex-shrink-0">
+          <div className="flex items-center mb-4 p-3 bg-white rounded-lg shadow-sm border border-inception-purple/20">
+            <div className="w-10 h-10 bg-inception-purple rounded-full flex items-center justify-center text-white text-sm font-bold">
               {user?.username.charAt(0).toUpperCase()}
             </div>
             <div className="mr-3">
-              <p className="text-sm font-semibold text-slate-700">{user?.username}</p>
-              <p className="text-xs text-slate-500 font-medium">مدير النظام</p>
+              <p className="text-sm font-semibold text-inception-purple">{user?.username}</p>
+              <p className="text-xs text-inception-purple/60 font-medium">مدير النظام</p>
             </div>
           </div>
           <Button
             variant="outline"
             size="sm"
-            className="w-full border-slate-200 text-slate-600 hover:bg-slate-50 hover:border-slate-300 transition-all duration-200"
+            className="w-full border-inception-orange/30 text-inception-orange hover:bg-inception-orange/10 hover:border-inception-orange/50 transition-all duration-200"
             onClick={handleLogout}
             disabled={logoutMutation.isPending}
           >
@@ -283,18 +283,18 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
           <Button
             variant="ghost"
             size="sm"
-            className="lg:hidden text-slate-600 hover:bg-slate-50"
+            className="lg:hidden text-inception-purple hover:bg-inception-purple/10"
             onClick={() => setSidebarOpen(true)}
           >
             <Menu className="w-5 h-5" />
           </Button>
           
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-3 bg-slate-50 px-4 py-2 rounded-lg border border-slate-200">
-              <div className="w-8 h-8 bg-slate-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
+            <div className="flex items-center gap-3 bg-inception-purple/5 px-4 py-2 rounded-lg border border-inception-purple/20">
+              <div className="w-8 h-8 bg-inception-purple rounded-full flex items-center justify-center text-white text-xs font-bold">
                 {user?.username.charAt(0).toUpperCase()}
               </div>
-              <span className="text-sm font-medium text-slate-700">مرحباً، {user?.username}</span>
+              <span className="text-sm font-medium text-inception-purple">مرحباً، {user?.username}</span>
             </div>
           </div>
         </div>
