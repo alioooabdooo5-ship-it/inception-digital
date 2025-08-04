@@ -57,8 +57,10 @@ const ArticlesManager = () => {
   // إضافة مقال جديد
   const createMutation = useMutation({
     mutationFn: async (data: any) => {
-      const res = await apiRequest("POST", "/api/articles", data);
-      return res.json();
+      return await apiRequest("/api/articles", {
+        method: "POST",
+        body: JSON.stringify(data)
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/articles"] });
@@ -81,8 +83,10 @@ const ArticlesManager = () => {
   // تحديث مقال
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number; data: any }) => {
-      const res = await apiRequest("PUT", `/api/articles/${id}`, data);
-      return res.json();
+      return await apiRequest(`/api/articles/${id}`, {
+        method: "PUT",
+        body: JSON.stringify(data)
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/articles"] });
@@ -105,7 +109,9 @@ const ArticlesManager = () => {
   // حذف مقال
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
-      await apiRequest("DELETE", `/api/articles/${id}`);
+      return await apiRequest(`/api/articles/${id}`, {
+        method: "DELETE"
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/articles"] });
@@ -153,7 +159,8 @@ const ArticlesManager = () => {
   ];
 
   const filteredArticles = articles.filter(article => {
-    const matchesSearch = article.title.includes(searchQuery) || article.excerpt.includes(searchQuery);
+    const matchesSearch = article.title?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                         article.excerpt?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = filterStatus === "all" || article.status === filterStatus;
     return matchesSearch && matchesStatus;
   });
@@ -346,7 +353,12 @@ const ArticlesManager = () => {
                       </TableCell>
                       <TableCell>
                         <div className="flex space-x-2 space-x-reverse">
-                          <Button variant="ghost" size="icon" title="عرض">
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            onClick={() => window.open(`/articles/${article.id}`, '_blank')}
+                            title="عرض"
+                          >
                             <Eye size={16} className="text-blue-500" />
                           </Button>
                           <Button 

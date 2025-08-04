@@ -203,7 +203,10 @@ const EnhancedArticleEditor = () => {
         seoScore,
       };
 
-      await apiRequest('PUT', `/api/articles/${articleId}`, articleData);
+      await apiRequest(`/api/articles/${articleId}`, {
+        method: 'PUT',
+        body: JSON.stringify(articleData)
+      });
       setAutoSaveStatus('saved');
       setHasUnsavedChanges(false);
       
@@ -312,9 +315,15 @@ const EnhancedArticleEditor = () => {
   const saveMutation = useMutation({
     mutationFn: async (articleData: any) => {
       if (isEditing) {
-        return await apiRequest("PUT", `/api/articles/${articleId}`, articleData);
+        return await apiRequest(`/api/articles/${articleId}`, {
+          method: "PUT",
+          body: JSON.stringify(articleData)
+        });
       } else {
-        return await apiRequest("POST", "/api/articles", articleData);
+        return await apiRequest("/api/articles", {
+          method: "POST", 
+          body: JSON.stringify(articleData)
+        });
       }
     },
     onSuccess: () => {
@@ -1140,12 +1149,7 @@ const EnhancedArticleEditor = () => {
                 ✕
               </Button>
             </div>
-            <MediaManager 
-              onSelect={(url) => {
-                setFeaturedImage(url);
-                setShowMediaManager(false);
-              }} 
-            />
+            <MediaManager />
           </div>
         </div>
       )}
