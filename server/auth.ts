@@ -37,10 +37,10 @@ export function setupAuth(app: Express) {
     saveUninitialized: false,
     store: storage.sessionStore,
     cookie: {
-      secure: process.env.NODE_ENV === 'production',
+      secure: false, // Set to true only in production with HTTPS
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
-      sameSite: 'strict',
+      sameSite: 'lax', // Allow cookies to be sent with navigation
     },
     rolling: true, // Reset expiration on activity
     name: 'sessionId', // Change default session name
@@ -86,10 +86,21 @@ export function setupAuth(app: Express) {
     }),
   );
 
-  passport.serializeUser((user, done) => done(null, user.id));
+  passport.serializeUser((user, done) => {
+    console.log('Serializing user:', user.id);
+    done(null, user.id);
+  });
+  
   passport.deserializeUser(async (id: number, done) => {
-    const user = await storage.getUser(id);
-    done(null, user);
+    try {
+      console.log('Deserializing user ID:', id);
+      const user = await storage.getUser(id);
+      console.log('Found user:', user ? 'Yes' : 'No');
+      done(null, user);
+    } catch (error) {
+      console.error('Error deserializing user:', error);
+      done(error);
+    }
   });
 
   app.post("/api/register", async (req, res, next) => {
@@ -144,23 +155,30 @@ export function setupAuth(app: Express) {
           return next(err);
         }
         
-        // Regenerate session ID for security
+        // Regenerate session after successful login for security
         req.session.regenerate((err: any) => {
           if (err) {
             return next(err);
           }
           
-          logAuditEvent({
-            userId: user.id,
-            action: 'LOGIN_SUCCESS',
-            resource: 'auth',
-            details: { username: user.username },
-            ipAddress: req.ip || req.connection.remoteAddress || 'unknown',
-            userAgent: req.get('User-Agent') || 'unknown',
-            success: true
+          // Save the session
+          req.session.save((err: any) => {
+            if (err) {
+              return next(err);
+            }
+            
+            logAuditEvent({
+              userId: user.id,
+              action: 'LOGIN_SUCCESS',
+              resource: 'auth',
+              details: { username: user.username },
+              ipAddress: req.ip || req.connection.remoteAddress || 'unknown',
+              userAgent: req.get('User-Agent') || 'unknown',
+              success: true
+            });
+            
+            res.status(200).json(user);
           });
-          
-          res.status(200).json(user);
         });
       });
     })(req, res, next);
@@ -196,7 +214,13 @@ export function setupAuth(app: Express) {
   });
 
   app.get("/api/user", (req, res) => {
-    if (!req.isAuthenticated()) return res.sendStatus(401);
+    console.log('User route - isAuthenticated:', req.isAuthenticated());
+    console.log('User route - req.user:', req.user ? 'exists' : 'null');
+    console.log('User route - session:', req.session.passport);
+    
+    if (!req.isAuthenticated()) {
+      return res.sendStatus(401);
+    }
     res.json(req.user);
   });
 }
