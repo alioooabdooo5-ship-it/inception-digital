@@ -32,7 +32,7 @@ import {
   type InsertPageContent,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, not } from "drizzle-orm";
 import session from "express-session";
 import connectPg from "connect-pg-simple";
 
@@ -294,6 +294,23 @@ export class DatabaseStorage implements IStorage {
 
   async deleteArticle(id: number): Promise<void> {
     await db.delete(articles).where(eq(articles.id, id));
+  }
+
+  async checkSlugAvailability(slug: string, excludeId?: string): Promise<boolean> {
+    if (!slug) return false;
+    
+    const conditions = [eq(articles.urlSlug, slug)];
+    
+    if (excludeId) {
+      conditions.push(not(eq(articles.id, parseInt(excludeId))));
+    }
+    
+    const existing = await db.select().from(articles).where(
+      conditions.length === 1 ? conditions[0] : 
+      conditions.reduce((acc, condition) => acc.and(condition))
+    );
+    
+    return existing.length === 0;
   }
 
   // Contact forms operations

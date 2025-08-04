@@ -171,6 +171,14 @@ export const articles = pgTable("articles", {
   h2Tags: text("h2_tags").array(),
   h3Tags: text("h3_tags").array(),
   seoScore: integer("seo_score").default(0),
+  
+  // Advanced Schema and SEO fields
+  authorName: text("author_name"),
+  authorUrl: text("author_url"),
+  publishDate: text("publish_date"),
+  modifiedDate: text("modified_date"),
+  faqs: jsonb("faqs"), // FAQ Schema
+  relatedArticles: jsonb("related_articles"), // Related articles
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
