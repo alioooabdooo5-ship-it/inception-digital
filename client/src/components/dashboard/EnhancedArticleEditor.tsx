@@ -200,9 +200,14 @@ const EnhancedArticleEditor = () => {
 
   // حساب عدد الكلمات ووقت القراءة
   useEffect(() => {
-    const words = content.replace(/<[^>]*>/g, '').split(/\s+/).length;
-    setWordCount(words);
-    setReadingTime(Math.ceil(words / 200)); // متوسط 200 كلمة في الدقيقة
+    if (content.trim()) {
+      const words = content.replace(/<[^>]*>/g, '').trim().split(/\s+/).length;
+      setWordCount(words);
+      setReadingTime(Math.ceil(words / 200)); // متوسط 200 كلمة في الدقيقة
+    } else {
+      setWordCount(0);
+      setReadingTime(0);
+    }
   }, [content]);
 
   // Auto-save functionality
@@ -427,14 +432,14 @@ const EnhancedArticleEditor = () => {
   useEffect(() => {
     if (content) {
       const words = content.replace(/<[^>]*>/g, '').toLowerCase().split(/\s+/);
-      const wordCount = {};
+      const wordCount: Record<string, number> = {};
       words.forEach(word => {
         if (word.length > 3) {
           wordCount[word] = (wordCount[word] || 0) + 1;
         }
       });
       const sorted = Object.entries(wordCount)
-        .sort(([,a], [,b]) => b - a)
+        .sort(([,a], [,b]) => (b as number) - (a as number))
         .slice(0, 10)
         .map(([word]) => word);
       setSuggestedKeywords(sorted);

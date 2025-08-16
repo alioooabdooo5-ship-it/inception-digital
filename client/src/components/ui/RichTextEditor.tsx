@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
@@ -75,6 +75,13 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
       },
     },
   });
+
+  // تحديث محتوى المحرر عند تغيير content prop
+  useEffect(() => {
+    if (editor && content !== editor.getHTML()) {
+      editor.commands.setContent(content, false);
+    }
+  }, [editor, content]);
 
   if (!editor) {
     return null;
