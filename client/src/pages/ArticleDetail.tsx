@@ -37,7 +37,8 @@ const ArticleDetail = () => {
   const { toast } = useToast();
 
   const { data: article, isLoading, error } = useQuery<Article>({
-    queryKey: ["/api/articles", id]
+    queryKey: [`/api/articles/${id}`],
+    enabled: !!id
   });
 
   const { data: relatedArticles = [] } = useQuery<Article[]>({
