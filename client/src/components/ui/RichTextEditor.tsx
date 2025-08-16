@@ -79,7 +79,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
   // تحديث محتوى المحرر عند تغيير content prop
   useEffect(() => {
     if (editor && content !== editor.getHTML()) {
-      editor.commands.setContent(content, false);
+      editor.commands.setContent(content);
     }
   }, [editor, content]);
 
