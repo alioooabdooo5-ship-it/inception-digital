@@ -41,7 +41,7 @@ const Features: React.FC = () => {
       <div className="container mx-auto px-4 md:px-6">
         <AnimatedSection className="text-center max-w-3xl mx-auto mb-12">
           <h2 className="headline-medium text-inception-purple mb-4">
-            {getSetting('features_title') || 'طيب، إيه اللي بيميزنا؟ ليه إنسيبشن مختلفة؟'}
+            {getSetting('features_title') || 'ما يميز شركة إنسيبشن للتسويق الرقمي عن منافسيها في السوق المصري'}
           </h2>
           <p className="body-medium text-gray-700">
             {getSetting('features_description') || 'لأن إحنا مش بنمشي على القوالب الجاهزة، ومش بنعتمد على "نجرب ونشوف". إحنا بنشتغل بتكتيكات تسويقية مجربة ومبنية على أرقام حقيقية.'}
