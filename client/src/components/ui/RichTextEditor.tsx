@@ -10,7 +10,7 @@ import { TableHeader } from '@tiptap/extension-table-header';
 import { 
   Bold, 
   Italic, 
-  Underline, 
+  Underline as UnderlineIcon, 
   Strikethrough,
   Heading1,
   Heading2,
@@ -45,7 +45,10 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
 }) => {
   const editor = useEditor({
     extensions: [
-      StarterKit,
+      StarterKit.configure({
+        // إزالة Link من StarterKit لأننا هنضيفه منفصل مع تكوين مخصص
+        link: false,
+      }),
       Image.configure({
         HTMLAttributes: {
           class: 'max-w-full h-auto rounded-lg',
@@ -135,7 +138,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
             pressed={editor.isActive('underline')}
             onPressedChange={() => editor.chain().focus().toggleUnderline().run()}
           >
-            <Underline className="w-4 h-4" />
+            <UnderlineIcon className="w-4 h-4" />
           </Toggle>
           <Toggle
             size="sm"
