@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
-import { ChevronDown, Sparkles } from "lucide-react";
+import { ChevronDown, Award } from "lucide-react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faTimes, faRocket } from '@fortawesome/free-solid-svg-icons';
 import { cn } from "@/lib/utils";
@@ -76,7 +76,7 @@ const Header: React.FC = () => {
           <Link to="/" className="flex items-center group">
             <div className="flex items-center">
               <div className="w-8 h-8 rounded-full bg-gradient-to-br from-inception-purple to-inception-orange flex items-center justify-center mr-2 shadow-lg group-hover:scale-110 transition-transform duration-300">
-                <Sparkles size={16} className="text-white" />
+                <Award size={16} className="text-white" />
               </div>
               <span className="text-2xl font-bold text-inception-purple">إنسيبشن</span>
             </div>
